@@ -1,0 +1,107 @@
+{
+  "DrawStepDelay": 750,
+  "CircleDiameter": 50,
+  "BorderWidth": 5,
+  "TransitionBlackPenWidth": 3.0,
+  "TransitionLightPenWidth": 3.0,
+  "ActiveBorderColor": "LimeGreen",
+  "InactiveBorderColor": "Black",
+  "HighlightedBorderColor": "DarkGray",
+  "InnerStateColor": "LightGray",
+  "ActiveTransitionColor": "LimeGreen",
+  "InactiveTransitionColor": "Black",
+  "ContainerBackColor": "96, 96, 96",
+  "TypeIndex": 0,
+  "InputAlphabet": [
+    "0",
+    "1"
+  ],
+  "InputsDescription": [
+    "входной символ '0'",
+    "входной символ '1'"
+  ],
+  "OutputAlphabet": [
+    "A",
+    "B",
+    "C",
+    "T",
+    "F"
+  ],
+  "OutputsDescription": [
+    "найдено слово '1'",
+    "найдено слово '11'",
+    "найдено слово '111'",
+    "строка допущена",
+    "слово '111' не найдено"
+  ],
+  "StatesAlphabet": [
+    {
+      "Index": 0,
+      "Name": "S0",
+      "UserDefinedText": "поиск слова '1'",
+      "StateCenter": "118, 79",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "F",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 1
+      }
+    },
+    {
+      "Index": 1,
+      "Name": "S1",
+      "UserDefinedText": "поиск слова '11'",
+      "StateCenter": "373, 88",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "F",
+        "1": "B"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 2
+      }
+    },
+    {
+      "Index": 2,
+      "Name": "S2",
+      "UserDefinedText": "поиск слова '111'",
+      "StateCenter": "366, 221",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "F",
+        "1": "C"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 3
+      }
+    },
+    {
+      "Index": 3,
+      "Name": "S3",
+      "UserDefinedText": "слово '111' найдено, строка допущена",
+      "StateCenter": "534, 220",
+      "IsMoving": false,
+      "IsCyclic": true,
+      "IsInput": false,
+      "Outputs": {
+        "0": "T",
+        "1": "T"
+      },
+      "Transitions": {
+        "0": 3,
+        "1": 3
+      }
+    }
+  ]
+}

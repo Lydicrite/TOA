@@ -1,0 +1,88 @@
+{
+  "DrawStepDelay": 750,
+  "CircleDiameter": 50,
+  "BorderWidth": 5,
+  "TransitionBlackPenWidth": 3.0,
+  "TransitionLightPenWidth": 3.0,
+  "ActiveBorderColor": "LimeGreen",
+  "InactiveBorderColor": "Black",
+  "HighlightedBorderColor": "DarkGray",
+  "InnerStateColor": "LightGray",
+  "ActiveTransitionColor": "LimeGreen",
+  "InactiveTransitionColor": "Black",
+  "ContainerBackColor": "96, 96, 96",
+  "TypeIndex": 0,
+  "InputAlphabet": [
+    "0",
+    "1"
+  ],
+  "InputsDescription": [
+    "входной символ '0'",
+    "входной символ '1'"
+  ],
+  "OutputAlphabet": [
+    "A",
+    "B",
+    "T",
+    "F"
+  ],
+  "OutputsDescription": [
+    "найден символ '0'",
+    "найден символ '1'",
+    "найдена подцепочка '01'",
+    "подцепочка '01' не найдена"
+  ],
+  "StatesAlphabet": [
+    {
+      "Index": 0,
+      "Name": "S0",
+      "UserDefinedText": "поиск символа '0'",
+      "StateCenter": "75, 242",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "A",
+        "1": "F"
+      },
+      "Transitions": {
+        "1": 0,
+        "0": 1
+      }
+    },
+    {
+      "Index": 1,
+      "Name": "S1",
+      "UserDefinedText": "поиск символа 1",
+      "StateCenter": "222, 242",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "A",
+        "1": "B"
+      },
+      "Transitions": {
+        "0": 1,
+        "1": 2
+      }
+    },
+    {
+      "Index": 2,
+      "Name": "S2",
+      "UserDefinedText": "найдена подцепочка '01'",
+      "StateCenter": "365, 242",
+      "IsMoving": false,
+      "IsCyclic": true,
+      "IsInput": false,
+      "Outputs": {
+        "0": "T",
+        "1": "T"
+      },
+      "Transitions": {
+        "0": 2,
+        "1": 2
+      }
+    }
+  ]
+}

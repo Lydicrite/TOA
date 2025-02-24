@@ -1,0 +1,145 @@
+{
+  "DrawStepDelay": 750,
+  "CircleDiameter": 50,
+  "BorderWidth": 5,
+  "TransitionBlackPenWidth": 3.0,
+  "TransitionLightPenWidth": 3.0,
+  "ActiveBorderColor": "LimeGreen",
+  "InactiveBorderColor": "Black",
+  "HighlightedBorderColor": "DarkGray",
+  "InnerStateColor": "LightGray",
+  "ActiveTransitionColor": "LimeGreen",
+  "InactiveTransitionColor": "Black",
+  "ContainerBackColor": "96, 96, 96",
+  "TypeIndex": 0,
+  "InputAlphabet": [
+    "0",
+    "1"
+  ],
+  "InputsDescription": [
+    "входной символ '0'",
+    "входной символ '1'"
+  ],
+  "OutputAlphabet": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "T"
+  ],
+  "OutputsDescription": [
+    "найдено слово '1'",
+    "найдено слово '10'",
+    "найдено слово '100'",
+    "найдено слово '1000'",
+    "найдено слово '10001'",
+    "слово '10001' не найдено",
+    "цепочка допущена"
+  ],
+  "StatesAlphabet": [
+    {
+      "Index": 0,
+      "Name": "S0",
+      "UserDefinedText": "Поиск слова '1'",
+      "StateCenter": "78, 105",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "F",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 1
+      }
+    },
+    {
+      "Index": 1,
+      "Name": "S1",
+      "UserDefinedText": "Поиск слова '10'",
+      "StateCenter": "260, 105",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "B",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 2,
+        "1": 1
+      }
+    },
+    {
+      "Index": 2,
+      "Name": "S2",
+      "UserDefinedText": "Поиск слова '100'",
+      "StateCenter": "442, 105",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "C",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 3,
+        "1": 1
+      }
+    },
+    {
+      "Index": 3,
+      "Name": "S3",
+      "UserDefinedText": "Поиск слова '1000'",
+      "StateCenter": "624, 105",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "D",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 4,
+        "1": 1
+      }
+    },
+    {
+      "Index": 4,
+      "Name": "S4",
+      "UserDefinedText": "Поиск слова '10001'",
+      "StateCenter": "806, 105",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "F",
+        "1": "E"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 5
+      }
+    },
+    {
+      "Index": 5,
+      "Name": "S5",
+      "UserDefinedText": "Слово '10001' найдено, строка допущена",
+      "StateCenter": "988, 105",
+      "IsMoving": false,
+      "IsCyclic": true,
+      "IsInput": false,
+      "Outputs": {
+        "0": "T",
+        "1": "T"
+      },
+      "Transitions": {
+        "0": 5,
+        "1": 5
+      }
+    }
+  ]
+}

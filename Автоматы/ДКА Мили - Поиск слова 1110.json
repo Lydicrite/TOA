@@ -1,0 +1,126 @@
+{
+  "DrawStepDelay": 750,
+  "CircleDiameter": 50,
+  "BorderWidth": 5,
+  "TransitionBlackPenWidth": 3.0,
+  "TransitionLightPenWidth": 3.0,
+  "ActiveBorderColor": "LimeGreen",
+  "InactiveBorderColor": "Black",
+  "HighlightedBorderColor": "DarkGray",
+  "InnerStateColor": "LightGray",
+  "ContainerBackColor": "96, 96, 96",
+  "InactiveTransitionColor": "Black",
+  "ActiveTransitionColor": "LimeGreen",
+  "TypeIndex": 0,
+  "InputAlphabet": [
+    "0",
+    "1"
+  ],
+  "InputsDescription": [
+    "входной символ '0'",
+    "входной символ '1'"
+  ],
+  "OutputAlphabet": [
+    "A",
+    "a",
+    "B",
+    "C",
+    "d",
+    "T"
+  ],
+  "OutputsDescription": [
+    "успешно найден первый символ слова 1110",
+    "откат в S0, ищем всё слово заново",
+    "успешно найдена часть слова |11|10",
+    "успешно найдена часть слова |111|0",
+    "откат в S3, ищем последний '0' заново",
+    "слово успешно найдено"
+  ],
+  "StatesAlphabet": [
+    {
+      "Index": 0,
+      "Name": "S0",
+      "UserDefinedText": "Поиск первого символа слова",
+      "StateCenter": "80, 230",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "a",
+        "1": "A"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 1
+      }
+    },
+    {
+      "Index": 1,
+      "Name": "S1",
+      "UserDefinedText": "Поиск второго символа слова",
+      "StateCenter": "280, 230",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "a",
+        "1": "B"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 2
+      }
+    },
+    {
+      "Index": 2,
+      "Name": "S2",
+      "UserDefinedText": "Поиск третьего символа слова",
+      "StateCenter": "480, 230",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "a",
+        "1": "C"
+      },
+      "Transitions": {
+        "0": 0,
+        "1": 3
+      }
+    },
+    {
+      "Index": 3,
+      "Name": "S3",
+      "UserDefinedText": "Поиск четвёртого символа слова",
+      "StateCenter": "680, 230",
+      "IsMoving": false,
+      "IsCyclic": false,
+      "IsInput": false,
+      "Outputs": {
+        "0": "T",
+        "1": "d"
+      },
+      "Transitions": {
+        "0": 4,
+        "1": 3
+      }
+    },
+    {
+      "Index": 4,
+      "Name": "S4",
+      "UserDefinedText": "Конец, цикл",
+      "StateCenter": "880, 230",
+      "IsMoving": false,
+      "IsCyclic": true,
+      "IsInput": false,
+      "Outputs": {
+        "0": "T",
+        "1": "T"
+      },
+      "Transitions": {
+        "0": 4,
+        "1": 4
+      }
+    }
+  ]
+}
