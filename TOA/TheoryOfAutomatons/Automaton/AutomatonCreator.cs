@@ -128,6 +128,7 @@ namespace TheoryOfAutomatons.Automaton
            
             CircleDiameterNUD.ValueChanged += CircleDiameterNUD_ValueChanged;
             BorderNUD.ValueChanged += BorderNUD_ValueChanged;
+            DrawStepDelayNUD.ValueChanged += DrawStepDelayNUD_ValueChanged;
 
             PreventPathsInersectionsChB.CheckedChanged += PreventPathsInersections_CheckedChanged;
             DeveloperModeChB.CheckedChanged += DeveloperModeChB_CheckedChanged;
@@ -136,6 +137,17 @@ namespace TheoryOfAutomatons.Automaton
 
             ExistingInitialPoints = new List<Point>();
             Check();
+        }
+
+        private void DrawStepDelayNUD_ValueChanged(object sender, EventArgs e)
+        {
+            int timeMS = Convert.ToInt32(Convert.ToSingle(DrawStepDelayNUD.Value) * 1000);
+
+            if (DFMealyAutomaton != null)
+                DFMealyAutomaton.SetDrawStepDelay(timeMS);
+            else if (DFMooreAutomaton != null)
+                DFMooreAutomaton.SetDrawStepDelay(timeMS);
+
         }
 
 
@@ -178,6 +190,18 @@ namespace TheoryOfAutomatons.Automaton
 
             CircleDiameterNUD.Value = 50;
             BorderNUD.Value = 5;
+            TransitionsLPNUD.Value = 3.0M;
+            TransitionsBPNUD.Value = 3.0M;
+            DrawStepDelayNUD.Value = 0.75M;
+
+            Container.BackColor = Color.FromArgb(96, 96, 96);
+            ContainerCP.BackColor = Color.FromArgb(96, 96, 96);
+            ActiveBorderCP.BackColor = Color.LimeGreen;
+            InactiveBorderCP.BackColor = Color.Black;
+            HighlightedBorderCP.BackColor = Color.DarkGray;
+            InnerStateCP.BackColor = Color.LightGray;
+            TransitionsLPCP.BackColor = Color.LimeGreen;
+            TransitionsBPCP.BackColor = Color.Black;
 
             PreventPathsInersectionsChB.Checked = true;
             DeveloperModeChB.Checked = false;

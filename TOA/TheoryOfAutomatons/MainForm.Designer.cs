@@ -54,6 +54,8 @@ namespace TheoryOfAutomatons
             this.sequenceTextBox = new System.Windows.Forms.TextBox();
             this.analyze = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.outputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
+            this.inputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
             this.addState = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -61,6 +63,12 @@ namespace TheoryOfAutomatons
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.settingsFLP = new System.Windows.Forms.FlowLayoutPanel();
+            this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.drawStepDelayNUD = new System.Windows.Forms.NumericUpDown();
+            this.containerCP = new System.Windows.Forms.PictureBox();
+            this.developerMode = new System.Windows.Forms.CheckBox();
+            this.label14 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.innerStateCP = new System.Windows.Forms.PictureBox();
             this.highlightedBorderCP = new System.Windows.Forms.PictureBox();
@@ -86,18 +94,10 @@ namespace TheoryOfAutomatons
             this.label11 = new System.Windows.Forms.Label();
             this.transitionLightPenCP = new System.Windows.Forms.PictureBox();
             this.transitionLightPenNUD = new System.Windows.Forms.NumericUpDown();
-            this.developerMode = new System.Windows.Forms.CheckBox();
             this.container = new System.Windows.Forms.PictureBox();
+            this.terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             this.mainGB = new System.Windows.Forms.GroupBox();
             this.colorPicker = new System.Windows.Forms.ColorDialog();
-            this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.containerCP = new System.Windows.Forms.PictureBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.label15 = new System.Windows.Forms.Label();
-            this.drawStepDelayNUD = new System.Windows.Forms.NumericUpDown();
-            this.outputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
-            this.inputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
-            this.terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             this.mainToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainHorizontalSplitContainer)).BeginInit();
             this.mainHorizontalSplitContainer.Panel1.SuspendLayout();
@@ -109,6 +109,9 @@ namespace TheoryOfAutomatons
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.settingsFLP.SuspendLayout();
+            this.groupBox8.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).BeginInit();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.innerStateCP)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.highlightedBorderCP)).BeginInit();
@@ -125,9 +128,6 @@ namespace TheoryOfAutomatons
             ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenNUD)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.container)).BeginInit();
             this.mainGB.SuspendLayout();
-            this.groupBox8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).BeginInit();
             this.SuspendLayout();
             // 
             // BottomToolStripPanel
@@ -351,6 +351,22 @@ namespace TheoryOfAutomatons
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Параметры автомата";
             // 
+            // outputAlphabet
+            // 
+            this.outputAlphabet.Location = new System.Drawing.Point(7, 153);
+            this.outputAlphabet.Name = "outputAlphabet";
+            this.outputAlphabet.Size = new System.Drawing.Size(252, 74);
+            this.outputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
+            this.outputAlphabet.TabIndex = 11;
+            // 
+            // inputAlphabet
+            // 
+            this.inputAlphabet.Location = new System.Drawing.Point(6, 60);
+            this.inputAlphabet.Name = "inputAlphabet";
+            this.inputAlphabet.Size = new System.Drawing.Size(252, 74);
+            this.inputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
+            this.inputAlphabet.TabIndex = 10;
+            // 
             // addState
             // 
             this.addState.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
@@ -444,6 +460,113 @@ namespace TheoryOfAutomatons
             this.settingsFLP.Size = new System.Drawing.Size(258, 312);
             this.settingsFLP.TabIndex = 0;
             this.settingsFLP.WrapContents = false;
+            // 
+            // groupBox8
+            // 
+            this.groupBox8.Controls.Add(this.label15);
+            this.groupBox8.Controls.Add(this.drawStepDelayNUD);
+            this.groupBox8.Controls.Add(this.containerCP);
+            this.groupBox8.Controls.Add(this.developerMode);
+            this.groupBox8.Controls.Add(this.label14);
+            this.groupBox8.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.groupBox8.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.groupBox8.ForeColor = System.Drawing.Color.LightGray;
+            this.groupBox8.Location = new System.Drawing.Point(3, 3);
+            this.groupBox8.Name = "groupBox8";
+            this.groupBox8.Size = new System.Drawing.Size(230, 92);
+            this.groupBox8.TabIndex = 24;
+            this.groupBox8.TabStop = false;
+            this.groupBox8.Text = "Параметры рабочей области";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label15.ForeColor = System.Drawing.Color.Gainsboro;
+            this.label15.Location = new System.Drawing.Point(3, 48);
+            this.label15.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(141, 13);
+            this.label15.TabIndex = 32;
+            this.label15.Text = "Шаг отрисовки работы (c):";
+            // 
+            // drawStepDelayNUD
+            // 
+            this.drawStepDelayNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.drawStepDelayNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
+            this.drawStepDelayNUD.DecimalPlaces = 2;
+            this.drawStepDelayNUD.Enabled = false;
+            this.drawStepDelayNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.drawStepDelayNUD.ForeColor = System.Drawing.Color.Gainsboro;
+            this.drawStepDelayNUD.Increment = new decimal(new int[] {
+            5,
+            0,
+            0,
+            131072});
+            this.drawStepDelayNUD.Location = new System.Drawing.Point(147, 46);
+            this.drawStepDelayNUD.Maximum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            65536});
+            this.drawStepDelayNUD.MaximumSize = new System.Drawing.Size(77, 0);
+            this.drawStepDelayNUD.Minimum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            131072});
+            this.drawStepDelayNUD.MinimumSize = new System.Drawing.Size(77, 0);
+            this.drawStepDelayNUD.Name = "drawStepDelayNUD";
+            this.drawStepDelayNUD.Size = new System.Drawing.Size(77, 20);
+            this.drawStepDelayNUD.TabIndex = 31;
+            this.drawStepDelayNUD.Value = new decimal(new int[] {
+            75,
+            0,
+            0,
+            131072});
+            // 
+            // containerCP
+            // 
+            this.containerCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.containerCP.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
+            this.containerCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.containerCP.Enabled = false;
+            this.containerCP.Location = new System.Drawing.Point(147, 20);
+            this.containerCP.MaximumSize = new System.Drawing.Size(77, 20);
+            this.containerCP.MinimumSize = new System.Drawing.Size(77, 20);
+            this.containerCP.Name = "containerCP";
+            this.containerCP.Size = new System.Drawing.Size(77, 20);
+            this.containerCP.TabIndex = 30;
+            this.containerCP.TabStop = false;
+            // 
+            // developerMode
+            // 
+            this.developerMode.AutoSize = true;
+            this.developerMode.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.developerMode.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.developerMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.developerMode.ForeColor = System.Drawing.Color.Gainsboro;
+            this.developerMode.Location = new System.Drawing.Point(3, 72);
+            this.developerMode.Name = "developerMode";
+            this.developerMode.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
+            this.developerMode.Size = new System.Drawing.Size(224, 17);
+            this.developerMode.TabIndex = 22;
+            this.developerMode.Text = "Режим разработчика:";
+            this.developerMode.UseVisualStyleBackColor = true;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label14.ForeColor = System.Drawing.Color.Gainsboro;
+            this.label14.Location = new System.Drawing.Point(3, 22);
+            this.label14.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(123, 13);
+            this.label14.TabIndex = 28;
+            this.label14.Text = "Цвет рабочей области:";
             // 
             // groupBox4
             // 
@@ -873,21 +996,6 @@ namespace TheoryOfAutomatons
             0,
             65536});
             // 
-            // developerMode
-            // 
-            this.developerMode.AutoSize = true;
-            this.developerMode.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.developerMode.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.developerMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.developerMode.ForeColor = System.Drawing.Color.Gainsboro;
-            this.developerMode.Location = new System.Drawing.Point(3, 72);
-            this.developerMode.Name = "developerMode";
-            this.developerMode.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
-            this.developerMode.Size = new System.Drawing.Size(224, 17);
-            this.developerMode.TabIndex = 22;
-            this.developerMode.Text = "Режим разработчика:";
-            this.developerMode.UseVisualStyleBackColor = true;
-            // 
             // container
             // 
             this.container.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
@@ -898,6 +1006,15 @@ namespace TheoryOfAutomatons
             this.container.Size = new System.Drawing.Size(555, 666);
             this.container.TabIndex = 2;
             this.container.TabStop = false;
+            // 
+            // terminal1
+            // 
+            this.terminal1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.terminal1.Location = new System.Drawing.Point(0, 0);
+            this.terminal1.Margin = new System.Windows.Forms.Padding(13);
+            this.terminal1.Name = "terminal1";
+            this.terminal1.Size = new System.Drawing.Size(834, 304);
+            this.terminal1.TabIndex = 0;
             // 
             // mainGB
             // 
@@ -918,123 +1035,6 @@ namespace TheoryOfAutomatons
             this.colorPicker.FullOpen = true;
             this.colorPicker.ShowHelp = true;
             // 
-            // groupBox8
-            // 
-            this.groupBox8.Controls.Add(this.label15);
-            this.groupBox8.Controls.Add(this.drawStepDelayNUD);
-            this.groupBox8.Controls.Add(this.containerCP);
-            this.groupBox8.Controls.Add(this.developerMode);
-            this.groupBox8.Controls.Add(this.label14);
-            this.groupBox8.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox8.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox8.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox8.Location = new System.Drawing.Point(3, 3);
-            this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(230, 92);
-            this.groupBox8.TabIndex = 24;
-            this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "Параметры рабочей области";
-            // 
-            // containerCP
-            // 
-            this.containerCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.containerCP.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
-            this.containerCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.containerCP.Enabled = false;
-            this.containerCP.Location = new System.Drawing.Point(147, 20);
-            this.containerCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.containerCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.containerCP.Name = "containerCP";
-            this.containerCP.Size = new System.Drawing.Size(77, 20);
-            this.containerCP.TabIndex = 30;
-            this.containerCP.TabStop = false;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label14.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label14.Location = new System.Drawing.Point(3, 22);
-            this.label14.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(123, 13);
-            this.label14.TabIndex = 28;
-            this.label14.Text = "Цвет рабочей области:";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label15.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label15.Location = new System.Drawing.Point(3, 48);
-            this.label15.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(141, 13);
-            this.label15.TabIndex = 32;
-            this.label15.Text = "Шаг отрисовки работы (c):";
-            // 
-            // drawStepDelayNUD
-            // 
-            this.drawStepDelayNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.drawStepDelayNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.drawStepDelayNUD.DecimalPlaces = 2;
-            this.drawStepDelayNUD.Enabled = false;
-            this.drawStepDelayNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.drawStepDelayNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.drawStepDelayNUD.Increment = new decimal(new int[] {
-            5,
-            0,
-            0,
-            131072});
-            this.drawStepDelayNUD.Location = new System.Drawing.Point(147, 46);
-            this.drawStepDelayNUD.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            65536});
-            this.drawStepDelayNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.drawStepDelayNUD.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            131072});
-            this.drawStepDelayNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.drawStepDelayNUD.Name = "drawStepDelayNUD";
-            this.drawStepDelayNUD.Size = new System.Drawing.Size(77, 20);
-            this.drawStepDelayNUD.TabIndex = 31;
-            this.drawStepDelayNUD.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            65536});
-            // 
-            // outputAlphabet
-            // 
-            this.outputAlphabet.Location = new System.Drawing.Point(7, 153);
-            this.outputAlphabet.Name = "outputAlphabet";
-            this.outputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.outputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.outputAlphabet.TabIndex = 11;
-            // 
-            // inputAlphabet
-            // 
-            this.inputAlphabet.Location = new System.Drawing.Point(6, 60);
-            this.inputAlphabet.Name = "inputAlphabet";
-            this.inputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.inputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.inputAlphabet.TabIndex = 10;
-            // 
-            // terminal1
-            // 
-            this.terminal1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.terminal1.Location = new System.Drawing.Point(0, 0);
-            this.terminal1.Margin = new System.Windows.Forms.Padding(13);
-            this.terminal1.Name = "terminal1";
-            this.terminal1.Size = new System.Drawing.Size(834, 304);
-            this.terminal1.TabIndex = 0;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1048,7 +1048,6 @@ namespace TheoryOfAutomatons
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Теория Автоматов";
-            this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             this.Load += new System.EventHandler(this.Form_Load);
             this.mainToolStrip.ResumeLayout(false);
             this.mainToolStrip.PerformLayout();
@@ -1065,6 +1064,10 @@ namespace TheoryOfAutomatons
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.settingsFLP.ResumeLayout(false);
+            this.groupBox8.ResumeLayout(false);
+            this.groupBox8.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.innerStateCP)).EndInit();
@@ -1085,10 +1088,6 @@ namespace TheoryOfAutomatons
             ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenNUD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.container)).EndInit();
             this.mainGB.ResumeLayout(false);
-            this.groupBox8.ResumeLayout(false);
-            this.groupBox8.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

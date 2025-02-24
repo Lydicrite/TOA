@@ -206,7 +206,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Цвет заливки рабочей области.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
-        public Color ContainerBackColor { get; private set; } = Color.FromArgb(64, 64, 64);
+        public Color ContainerBackColor { get; private set; } = Color.FromArgb(96, 96, 96);
 
         /// <summary>
         /// Цвет границы активного состояния.
