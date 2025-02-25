@@ -21,9 +21,10 @@ namespace TheoryOfAutomatons
                 inputAlphabet, outputAlphabet, 
                 addState,
                 sequenceTextBox, generateRandomSequence, analyze, 
-                cirlceDiameterNUD, borderNUD, 
+                cirlceDiameterNUD, borderNUD, drawStepDelayNUD, transitionLightPenNUD, transitionBlackPenNUD,
+                containerCP, activeBorderCP, inactiveBorderCP, highlightedBorderCP, innerStateCP, transitionLightPenCP, transitionBlackPenCP,
                 prohibitIntersectingPaths, developerMode, 
-                container, this
+                container, this, colorPicker
             );
         }
     }

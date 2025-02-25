@@ -506,6 +506,7 @@ namespace TheoryOfAutomatons.Automaton.Common
             TransitionBlackPen?.Dispose();
             TransitionBlackPenWidth = width;
             TransitionBlackPen = CreatePen(new SolidBrush(color), width);
+            SetInactiveTransitionColor(color);
             OnTransitionsChanged();
         }
 
@@ -517,6 +518,7 @@ namespace TheoryOfAutomatons.Automaton.Common
             TransitionLightPen?.Dispose();
             TransitionLightPenWidth = width;
             TransitionLightPen = CreatePen(new SolidBrush(color), width);
+            SetActiveTransitionColor(color);
             OnTransitionsChanged();
         }
 

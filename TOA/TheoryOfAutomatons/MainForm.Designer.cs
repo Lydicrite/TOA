@@ -54,8 +54,6 @@ namespace TheoryOfAutomatons
             this.sequenceTextBox = new System.Windows.Forms.TextBox();
             this.analyze = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.outputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
-            this.inputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
             this.addState = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -95,9 +93,11 @@ namespace TheoryOfAutomatons
             this.transitionLightPenCP = new System.Windows.Forms.PictureBox();
             this.transitionLightPenNUD = new System.Windows.Forms.NumericUpDown();
             this.container = new System.Windows.Forms.PictureBox();
-            this.terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             this.mainGB = new System.Windows.Forms.GroupBox();
             this.colorPicker = new System.Windows.Forms.ColorDialog();
+            this.outputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
+            this.inputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
+            this.terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             this.mainToolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.mainHorizontalSplitContainer)).BeginInit();
             this.mainHorizontalSplitContainer.Panel1.SuspendLayout();
@@ -351,22 +351,6 @@ namespace TheoryOfAutomatons
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Параметры автомата";
             // 
-            // outputAlphabet
-            // 
-            this.outputAlphabet.Location = new System.Drawing.Point(7, 153);
-            this.outputAlphabet.Name = "outputAlphabet";
-            this.outputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.outputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.outputAlphabet.TabIndex = 11;
-            // 
-            // inputAlphabet
-            // 
-            this.inputAlphabet.Location = new System.Drawing.Point(6, 60);
-            this.inputAlphabet.Name = "inputAlphabet";
-            this.inputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.inputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.inputAlphabet.TabIndex = 10;
-            // 
             // addState
             // 
             this.addState.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
@@ -500,7 +484,7 @@ namespace TheoryOfAutomatons
             this.drawStepDelayNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.drawStepDelayNUD.ForeColor = System.Drawing.Color.Gainsboro;
             this.drawStepDelayNUD.Increment = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             131072});
@@ -1007,15 +991,6 @@ namespace TheoryOfAutomatons
             this.container.TabIndex = 2;
             this.container.TabStop = false;
             // 
-            // terminal1
-            // 
-            this.terminal1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.terminal1.Location = new System.Drawing.Point(0, 0);
-            this.terminal1.Margin = new System.Windows.Forms.Padding(13);
-            this.terminal1.Name = "terminal1";
-            this.terminal1.Size = new System.Drawing.Size(834, 304);
-            this.terminal1.TabIndex = 0;
-            // 
             // mainGB
             // 
             this.mainGB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -1034,6 +1009,35 @@ namespace TheoryOfAutomatons
             this.colorPicker.Color = System.Drawing.Color.Lime;
             this.colorPicker.FullOpen = true;
             this.colorPicker.ShowHelp = true;
+            // 
+            // outputAlphabet
+            // 
+            this.outputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.outputAlphabet.ForeColor = System.Drawing.Color.Gainsboro;
+            this.outputAlphabet.Location = new System.Drawing.Point(7, 153);
+            this.outputAlphabet.Name = "outputAlphabet";
+            this.outputAlphabet.Size = new System.Drawing.Size(252, 74);
+            this.outputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
+            this.outputAlphabet.TabIndex = 11;
+            // 
+            // inputAlphabet
+            // 
+            this.inputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.inputAlphabet.ForeColor = System.Drawing.Color.Gainsboro;
+            this.inputAlphabet.Location = new System.Drawing.Point(6, 60);
+            this.inputAlphabet.Name = "inputAlphabet";
+            this.inputAlphabet.Size = new System.Drawing.Size(252, 74);
+            this.inputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
+            this.inputAlphabet.TabIndex = 10;
+            // 
+            // terminal1
+            // 
+            this.terminal1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.terminal1.Location = new System.Drawing.Point(0, 0);
+            this.terminal1.Margin = new System.Windows.Forms.Padding(13);
+            this.terminal1.Name = "terminal1";
+            this.terminal1.Size = new System.Drawing.Size(834, 304);
+            this.terminal1.TabIndex = 0;
             // 
             // MainForm
             // 

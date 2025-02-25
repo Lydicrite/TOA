@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace TheoryOfAutomatons.Utils.Helpers
 {
@@ -26,6 +27,32 @@ namespace TheoryOfAutomatons.Utils.Helpers
                 return max;
             }
             return value;
+        }
+
+        /// <summary>
+        /// Открывает диалог выбора цвета и возвращает выбранный цвет
+        /// </summary>
+        /// <param name="owner">Родительское окно (опционально)</param>
+        /// <param name="initialColor">Начальный цвет диалога</param>
+        /// <param name="allowCustomColors">Разрешить настройку пользовательских цветов</param>
+        /// <returns>Выбранный цвет или null, если диалог отменен</returns>
+        public static Color ShowColorDialog(IWin32Window owner, Color initialColor, bool allowCustomColors = true)
+        {
+            using (var colorDialog = new ColorDialog())
+            {
+                // Настройка диалога
+                colorDialog.AllowFullOpen = allowCustomColors;
+                colorDialog.AnyColor = allowCustomColors;
+                colorDialog.FullOpen = allowCustomColors; // Сразу показать палитру
+
+                // Установка начального цвета
+                colorDialog.Color = initialColor;
+
+                // Показ диалога и проверка результата
+                return colorDialog.ShowDialog(owner) == DialogResult.OK
+                    ? colorDialog.Color
+                    : initialColor;
+            }
         }
 
         /// <summary>

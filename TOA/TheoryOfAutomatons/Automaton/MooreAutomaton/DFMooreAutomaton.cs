@@ -273,14 +273,14 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 
             type = (int)automatonData.TypeIndex;
 
-            //MainForm.AutomatonCreator.LoadParameters
-            //(
-            //    type, cD, bW,
-            //    dTSms,
-            //    aB, iB, hB, iS, cC,
-            //    bPW, bPC,
-            //    lPW, lPC
-            //);
+            MainForm.AutomatonCreator.LoadParameters
+            (
+                type, cD, bW,
+                dTSms,
+                aB, iB, hB, iS, cC,
+                bPW, bPC,
+                lPW, lPC
+            );
 
             // Инициализация текущего экземпляра автомата
             this.InputAlphabet = ((IEnumerable<dynamic>)automatonData.InputAlphabet)

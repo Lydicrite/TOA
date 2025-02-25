@@ -1,8 +1,8 @@
 {
-  "DrawStepDelay": 750,
+  "DrawStepDelay": 500,
   "CircleDiameter": 50,
   "BorderWidth": 5,
-  "TransitionBlackPenWidth": 3.0,
+  "TransitionBlackPenWidth": 3.2,
   "TransitionLightPenWidth": 3.0,
   "ActiveBorderColor": "LimeGreen",
   "InactiveBorderColor": "Black",
