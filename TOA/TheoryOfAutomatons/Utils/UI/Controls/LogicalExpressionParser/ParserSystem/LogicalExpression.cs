@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -140,14 +141,96 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
                     throw new NotSupportedException();
             };
         }
-        
+
         #endregion
 
 
 
-        #region Вспомогательный класс для установки индексов переменных
+        #region Генерация таблицы истинности
 
-        private class VariableIndexSetter
+        public DataTable GenerateTruthTable()
+        {
+            if (_variables == null || _variables.Count == 0)
+                throw new InvalidOperationException("Переменные выражения должны быть установлены до генерации таблицы.");
+
+            var table = new DataTable();
+            table.TableName = $"Таблица истинности f(...) = {this.ToString()}";
+
+            // Добавляем колонки для переменных
+            foreach (var varName in _variables)
+            {
+                table.Columns.Add(varName, typeof(bool));
+            }
+
+            // Добавляем колонку для результата
+            table.Columns.Add($"f(...)");
+
+            // Генерируем все комбинации значений
+            int varCount = _variables.Count;
+            int combinations = (int)Math.Pow(2, varCount);
+
+            for (int i = 0; i < combinations; i++)
+            {
+                var row = table.NewRow();
+                bool[] inputs = new bool[varCount];
+
+                // Заполняем значения переменных
+                for (int j = 0; j < varCount; j++)
+                {
+                    bool value = (i & (1 << (varCount - 1 - j))) != 0;
+                    row[j] = value;
+                    inputs[j] = value;
+                }
+
+                // Вычисляем результат
+                row[varCount] = Evaluate(inputs);
+                table.Rows.Add(row);
+            }
+
+            return table;
+        }
+
+        public string PrintTruthTable()
+        {
+            int padding = 2;
+            var table = GenerateTruthTable();
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"Таблица истинности\nf(...) = {this.ToString()}\n");
+
+            // Заголовок
+            foreach (DataColumn col in table.Columns)
+            {
+                sb.Append($"| {col.ColumnName.PadRight(padding)}");
+            }
+            sb.AppendLine();
+
+            // Разделитель
+            sb.AppendLine(new string('-', padding * table.Columns.Count * 2 + 4));
+
+            // Данные
+            foreach (DataRow row in table.Rows)
+            {
+                foreach (var item in row.ItemArray)
+                {
+                    string value = (item is bool b) ? ((b ? 1 : 0).ToString()) : ((item is string bs) ? ((bs == "True" ? 1 : 0).ToString()) : "NULL");
+                    sb.Append($"| {value.PadRight(padding)}");
+                }
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
+        public DataView GetTruthTableView() => new DataView(GenerateTruthTable());
+
+    #endregion
+
+
+
+    #region Вспомогательный класс для установки индексов переменных
+
+    private class VariableIndexSetter
         {
             private readonly Dictionary<string, int> _indices;
 
