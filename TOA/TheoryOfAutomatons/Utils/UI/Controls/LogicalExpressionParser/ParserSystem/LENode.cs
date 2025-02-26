@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.ParserSystem
 {
-    internal abstract class Node
+    internal abstract class LENode
     {
         public abstract bool Evaluate(bool[] inputs);
         public abstract void CollectVariables(HashSet<string> variables);
@@ -34,7 +34,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         #endregion
     }
 
-    internal class ConstantNode : Node
+    internal class ConstantNode : LENode
     {
         private readonly bool _value;
 
@@ -53,7 +53,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         public override string ToStringTree() => _value.ToString().ToLower();
     }
 
-    internal class VariableNode : Node
+    internal class VariableNode : LENode
     {
         public int Index { get; private set; }
         public string Name { get; private set; }
@@ -75,12 +75,12 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         public override string ToStringTree() => Name;
     }
 
-    internal class UnaryNode : Node
+    internal class UnaryNode : LENode
     {
-        public Node Operand { get; private set; }
+        public LENode Operand { get; private set; }
         public string Operator { get; private set; }
 
-        public UnaryNode(string op, Node operand)
+        public UnaryNode(string op, LENode operand)
         {
             Operator = op;
             Operand = operand;
@@ -115,13 +115,13 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         public override string ToStringTree() => $"{Operator}({Operand.ToStringTree()})";
     }
 
-    internal class BinaryNode : Node
+    internal class BinaryNode : LENode
     {
-        public Node Left { get; private set; }
-        public Node Right { get; private set; }
+        public LENode Left { get; private set; }
+        public LENode Right { get; private set; }
         public string Operator { get; private set; }
 
-        public BinaryNode(string op, Node left, Node right)
+        public BinaryNode(string op, LENode left, LENode right)
         {
             Operator = op;
             Left = left;

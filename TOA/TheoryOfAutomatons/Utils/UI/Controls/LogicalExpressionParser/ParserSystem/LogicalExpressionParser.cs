@@ -10,10 +10,10 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
     internal class LogicalExpressionParser
     {
         private readonly Dictionary<string, int> _operatorPrecedence;
-        private readonly Dictionary<string, Func<Node, Node>> _unaryOperators;
-        private readonly Dictionary<string, Func<Node, Node, Node>> _binaryOperators;
-        private static readonly ConcurrentDictionary<string, Node> _logicalExpressionsCache 
-                                                = new ConcurrentDictionary<string, Node>();
+        private readonly Dictionary<string, Func<LENode, LENode>> _unaryOperators;
+        private readonly Dictionary<string, Func<LENode, LENode, LENode>> _binaryOperators;
+        private static readonly ConcurrentDictionary<string, LENode> _logicalExpressionsCache 
+                                                = new ConcurrentDictionary<string, LENode>();
 
         public LogicalExpressionParser()
         {
@@ -22,12 +22,12 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
                 { "!", 5 }, { "&", 4 }, { "^", 3 }, { "|", 2 }, { "=>", 1 }, { "<=>", 0 }
             };
 
-            _unaryOperators = new Dictionary<string, Func<Node, Node>>
+            _unaryOperators = new Dictionary<string, Func<LENode, LENode>>
             {
                 { "!", operand => new UnaryNode("!", operand) }
             };
 
-            _binaryOperators = new Dictionary<string, Func<Node, Node, Node>>
+            _binaryOperators = new Dictionary<string, Func<LENode, LENode, LENode>>
             {
                 { "&", (l, r) =>   new BinaryNode("&", l, r) },
                 { "|", (l, r) =>   new BinaryNode("|", l, r) },
@@ -39,7 +39,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             };
         }
 
-        public Node Parse(string expression)
+        public LENode Parse(string expression)
         {
             return _logicalExpressionsCache.GetOrAdd(expression, expr =>
             {
@@ -51,9 +51,12 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         }
 
         // Добавление пользовательских операторов
-        public void AddCustomOperator(string symbol, int precedence, bool isUnary,
-            Func<Node, Node, Node> binaryFactory = null,
-            Func<Node, Node> unaryFactory = null)
+        public void AddCustomOperator
+        (
+            string symbol, int precedence, bool isUnary,
+            Func<LENode, LENode, LENode> binaryFactory = null,
+            Func<LENode, LENode> unaryFactory = null
+        )
         {
             _operatorPrecedence[symbol] = precedence;
 
@@ -174,9 +177,9 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             return output;
         }
 
-        private Node BuildAst(List<string> postfix)
+        private LENode BuildAst(List<string> postfix)
         {
-            var stack = new Stack<Node>();
+            var stack = new Stack<LENode>();
 
             foreach (var token in postfix)
             {

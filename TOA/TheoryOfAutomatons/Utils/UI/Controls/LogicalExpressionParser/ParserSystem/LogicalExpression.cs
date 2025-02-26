@@ -10,12 +10,12 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 {
     internal class LogicalExpression
     {
-        private Node _root;
+        private LENode _root;
         private List<string> _variables;
         private Dictionary<string, int> _variableIndices;
         private Func<bool[], bool> _compiledDelegate;
 
-        public LogicalExpression(Node root)
+        public LogicalExpression(LENode root)
         {
             _root = root;
             UpdateVariableInfo();
@@ -95,7 +95,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
                 : _root.Evaluate(inputs);
         }
 
-        private Expression BuildExpression(Node node, ParameterExpression param)
+        private Expression BuildExpression(LENode node, ParameterExpression param)
         {
             switch (node)
             {
@@ -236,7 +236,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
             public VariableIndexSetter(Dictionary<string, int> indices) => _indices = indices;
 
-            public void Visit(Node node)
+            public void Visit(LENode node)
             {
                 switch (node)
                 {

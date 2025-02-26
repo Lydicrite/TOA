@@ -161,7 +161,7 @@
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\DynamicCodeRunner\DynamicCodeSystem\Sandbox.cs" />
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\LogicalExpressionParser\ParserSystem\LogicalExpression.cs" />
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\LogicalExpressionParser\ParserSystem\LogicalExpressionParser.cs" />
-    <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\LogicalExpressionParser\ParserSystem\Node.cs" />
+    <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\LogicalExpressionParser\ParserSystem\LENode.cs" />
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\Terminal\ExecutionIssues\ExecutionIssue.cs" />
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\Terminal\Shell\Command.cs" />
     <Compile Include="TheoryOfAutomatons\Utils\UI\Controls\Terminal\Shell\CommandArgs.cs" />
