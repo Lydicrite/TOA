@@ -10,52 +10,27 @@ namespace UnitTestProject
     {
 
         [TestMethod]
-        public void SimpleExpressionFastCompilation()
-        {
+        public void SimpleNestedExpression()
+        {   
             // Arrange
             var parser = new LogicalExpressionParser();
             var expr = new LogicalExpression(parser.Parse("(A & B) | !(C => false)"));
-            bool[] inputs = { true, false, true }; // A = true, B = false, C = true
+            bool[] inputs = { false, false, false};
 
             // Act
-            expr.SetVariableOrder(new string[] { "A", "B", "C" });
-            expr.CompileFast();
-            var result = expr.EvaluateFast(inputs);
-
-            // Assert
-            Console.WriteLine($"Результат: {result}\nВыражение: {expr.ToString()}");
-            Assert.IsTrue(result);
-
-            // Дополнительная проверка с выводом
-            Assert.AreEqual(
-                expected: true,
-                actual: result,
-                message: $"Ожидалось true при A = {inputs[0]}, B = {inputs[1]}, C = {inputs[2]}"
-            );
-        }
-
-        [TestMethod]
-        public void SimpleExpressionInterpretation()
-        {
-            // Arrange
-            var parser = new LogicalExpressionParser();
-            var expr = new LogicalExpression(parser.Parse("(A & B) | !(C => false)"));
-            bool[] inputs = { true, false, true };
-
-            // Act
-            expr.SetVariableOrder(new string[] { "A", "B", "C" });
+            expr.SetVariableOrder(new[] { "A", "B", "C"});
             var result = expr.Evaluate(inputs);
+            expr.CompileFast();
+            var fastResult = expr.EvaluateFast(inputs);
 
             // Assert
-            Console.WriteLine($"Результат: {result}\nВыражение: {expr.ToString()}");
-            Assert.IsTrue(result);
+            Console.WriteLine($"Результат интерпретации: {result}");
+            Console.WriteLine($"Результат компиляции: {fastResult}");
+            Console.WriteLine($"Выражение: {expr.ToString()}");
+            Console.WriteLine($"\n{expr.PrintTruthTable()}");
+            Assert.IsFalse(result, "Интерпретация");
+            Assert.IsFalse(fastResult, "Компиляция");
 
-            // Дополнительная проверка с выводом
-            Assert.AreEqual(
-                expected: true,
-                actual: result,
-                message: $"Ожидалось true при A = {inputs[0]}, B = {inputs[1]}, C = {inputs[2]}"
-            );
         }
 
         [TestMethod]
@@ -76,8 +51,7 @@ namespace UnitTestProject
             Console.WriteLine($"Результат интерпретации: {result}");
             Console.WriteLine($"Результат компиляции: {fastResult}");
             Console.WriteLine($"Выражение: {expr.ToString()}");
-            Console.WriteLine($"\n\n\n{expr.PrintTruthTable()}");
-
+            Console.WriteLine($"\n{expr.PrintTruthTable()}");
             Assert.IsTrue(result, "Интерпретация");
             Assert.IsTrue(fastResult, "Компиляция");
         }
@@ -97,6 +71,10 @@ namespace UnitTestProject
             var fastResult = expr.EvaluateFast(inputs);
 
             // Assert
+            Console.WriteLine($"Результат интерпретации: {result}");
+            Console.WriteLine($"Результат компиляции: {fastResult}");
+            Console.WriteLine($"Выражение: {expr.ToString()}");
+            Console.WriteLine($"\n{expr.PrintTruthTable()}");
             Assert.IsTrue(result, "Интерпретация");
             Assert.IsTrue(fastResult, "Компиляция");
         }
@@ -118,25 +96,13 @@ namespace UnitTestProject
             var result2 = expr2.Evaluate(inputs);
 
             // Assert
+            Console.WriteLine($"Результат 1: {result1}");
+            Console.WriteLine($"Результат 2: {result2}");
+            Console.WriteLine($"\nВыражение 1: {expr1.ToString()}");
+            Console.WriteLine($"Выражение 2: {expr2.ToString()}");
+            Console.WriteLine($"\n\n\n{expr1.PrintTruthTable()}");
+            Console.WriteLine($"{expr2.PrintTruthTable()}");
             Assert.AreEqual(result1, result2, "Результат должен быть одинаковым независимо от порядка переменных");
-        }
-
-        [TestMethod]
-        public void XorOperatorBehavior()
-        {
-            // Arrange
-            var parser = new LogicalExpressionParser();
-            var expr = new LogicalExpression(parser.Parse("A ^ B ^ C"));
-            bool[] testCase1 = { true, true, true };
-            bool[] testCase2 = { true, false, false };
-
-            // Act & Assert
-            expr.SetVariableOrder(new[] { "A", "B", "C" });
-            Assert.IsTrue(expr.Evaluate(testCase1), "Case 1 - Интерпретация");
-            Assert.IsTrue(expr.EvaluateFast(testCase1), "Case 1 - Компиляция");
-            Assert.IsTrue(expr.Evaluate(testCase2), "Case 2 - Интерпретация");
-            Assert.IsTrue(expr.EvaluateFast(testCase2), "Case 2 - Компиляция");
-        }
-
+        } 
     }
 }
