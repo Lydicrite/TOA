@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
 {
     internal partial class AddStateForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object StateDescription { get; private set; }
 
         public AddStateForm()

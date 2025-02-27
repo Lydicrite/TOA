@@ -33,6 +33,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
         /// </summary>
         [Category("Layout")]
         [Description("Текущий коэффициент масштабирования.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float ScaleFactor
         {
             get => scaleFactor;
@@ -56,6 +57,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
         /// </summary>
         [Category("Layout")]
         [Description("Минимальный коэффициент масштабирования.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float MinScaleFactor
         {
             get => minScaleFactor;
@@ -82,6 +84,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
         /// </summary>
         [Category("Layout")]
         [Description("Шаг изменения масштаба в процентах при прокрутке колесом мыши.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int ZoomStepPercentage
         {
             get => zoomStepPercentage;
@@ -96,6 +99,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
         /// Объект Graphics для использования.
         /// </summary>
         [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Graphics GraphicsObject
         {
             get => workspaceGraphics;
@@ -129,6 +133,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
             workspaceGraphics = Graphics.FromImage(workspaceBitmap);
             workspaceGraphics.Clear(this.BackColor);
         }
+
+
 
         private void Workspace_Resize(object sender, EventArgs e)
         {
@@ -187,6 +193,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
 
             g.DrawImage(workspaceBitmap, destRect, srcRect, GraphicsUnit.Pixel);
         }
+
+
 
         private void UpdateScrollBars()
         {

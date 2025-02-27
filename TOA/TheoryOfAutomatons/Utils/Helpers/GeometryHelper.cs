@@ -258,7 +258,7 @@ namespace TheoryOfAutomatons.Utils.Helpers
             int width = freeSpace.GetLength(0);
             int height = freeSpace.GetLength(1);
 
-            var openSet = new PriorityQueue<Point, double>();
+            var openSet = new Containers.PriorityQueue<Point, double>();
             var openSetHash = new HashSet<Point>();
             openSet.Enqueue(start, 0);
             openSetHash.Add(start);

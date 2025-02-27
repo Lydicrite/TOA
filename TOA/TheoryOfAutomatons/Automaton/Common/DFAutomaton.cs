@@ -50,7 +50,6 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Ставит в соответствие паре (текущий вход, текущее состояние) соответствующее выходное значение из <see cref="OutputAlphabet"/>.
         /// </summary>
         public abstract IDictionary<object, char> OutputFunction { get; protected set; }
-
         /// <summary>
         /// Текущий входной символ.
         /// </summary>

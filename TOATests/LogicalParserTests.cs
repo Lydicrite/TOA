@@ -1,24 +1,64 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TheoryOfAutomatons.Utils.UI.Controls;
-using TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.ParserSystem;
+﻿using TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.ParserSystem;
 
-namespace UnitTestProject
+namespace TOATests
 {
     [TestClass]
-    public class LEPTests
+    public sealed class LogicalParserTests
     {
+        #region Свойства
+
+        [AssemblyInitialize]
+        public static void AssemblyInit(TestContext context)
+        {
+            // This method is called once for the test assembly, before any tests are run.
+        }
+
+        [AssemblyCleanup]
+        public static void AssemblyCleanup()
+        {
+            // This method is called once for the test assembly, after all tests are run.
+        }
+
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            // This method is called once for the test class, before any tests of the class are run.
+        }
+
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            // This method is called once for the test class, after all tests of the class are run.
+        }
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            // This method is called before each test method.
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            // This method is called after each test method.
+        }
+
+        #endregion
+
+
+
+        #region Тестовые методы
 
         [TestMethod]
         public void SimpleNestedExpression()
-        {   
+        {
             // Arrange
             var parser = new LogicalExpressionParser();
             var expr = new LogicalExpression(parser.Parse("(A & B) | !(C => false)"));
-            bool[] inputs = { false, false, false};
+            bool[] inputs = { false, false, false };
 
             // Act
-            expr.SetVariableOrder(new[] { "A", "B", "C"});
+            expr.SetVariableOrder(new[] { "A", "B", "C" });
             var result = expr.Evaluate(inputs);
             expr.CompileFast();
             var fastResult = expr.EvaluateFast(inputs);
@@ -103,6 +143,8 @@ namespace UnitTestProject
             Console.WriteLine($"\n\n\n{expr1.PrintTruthTable()}");
             Console.WriteLine($"{expr2.PrintTruthTable()}");
             Assert.AreEqual(result1, result2, "Результат должен быть одинаковым независимо от порядка переменных");
-        } 
+        }
+
+        #endregion
     }
 }

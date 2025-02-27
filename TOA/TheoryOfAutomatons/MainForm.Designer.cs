@@ -35,1065 +35,972 @@ namespace TheoryOfAutomatons
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.BottomToolStripPanel = new System.Windows.Forms.ToolStripPanel();
-            this.TopToolStripPanel = new System.Windows.Forms.ToolStripPanel();
-            this.RightToolStripPanel = new System.Windows.Forms.ToolStripPanel();
-            this.LeftToolStripPanel = new System.Windows.Forms.ToolStripPanel();
-            this.ContentPanel = new System.Windows.Forms.ToolStripContentPanel();
-            this.mainToolStrip = new System.Windows.Forms.ToolStrip();
-            this.loadFromFileTSB = new System.Windows.Forms.ToolStripButton();
-            this.saveToFileTSB = new System.Windows.Forms.ToolStripButton();
-            this.clearTSB = new System.Windows.Forms.ToolStripButton();
-            this.mainHorizontalSplitContainer = new System.Windows.Forms.SplitContainer();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBoxesPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.generateRandomSequence = new System.Windows.Forms.Button();
-            this.sequenceTextBox = new System.Windows.Forms.TextBox();
-            this.analyze = new System.Windows.Forms.Button();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.addState = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.typeBox = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.settingsFLP = new System.Windows.Forms.FlowLayoutPanel();
-            this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.label15 = new System.Windows.Forms.Label();
-            this.drawStepDelayNUD = new System.Windows.Forms.NumericUpDown();
-            this.containerCP = new System.Windows.Forms.PictureBox();
-            this.developerMode = new System.Windows.Forms.CheckBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
-            this.innerStateCP = new System.Windows.Forms.PictureBox();
-            this.highlightedBorderCP = new System.Windows.Forms.PictureBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.inactiveBorderCP = new System.Windows.Forms.PictureBox();
-            this.activeBorderCP = new System.Windows.Forms.PictureBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.borderNUD = new System.Windows.Forms.NumericUpDown();
-            this.cirlceDiameterNUD = new System.Windows.Forms.NumericUpDown();
-            this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.prohibitIntersectingPaths = new System.Windows.Forms.CheckBox();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label13 = new System.Windows.Forms.Label();
-            this.transitionBlackPenCP = new System.Windows.Forms.PictureBox();
-            this.transitionBlackPenNUD = new System.Windows.Forms.NumericUpDown();
-            this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.transitionLightPenCP = new System.Windows.Forms.PictureBox();
-            this.transitionLightPenNUD = new System.Windows.Forms.NumericUpDown();
-            this.container = new System.Windows.Forms.PictureBox();
-            this.mainGB = new System.Windows.Forms.GroupBox();
-            this.colorPicker = new System.Windows.Forms.ColorDialog();
-            this.outputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
-            this.inputAlphabet = new TheoryOfAutomatons.Utils.UI.Controls.TypedListBox();
-            this.terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
-            this.mainToolStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.mainHorizontalSplitContainer)).BeginInit();
-            this.mainHorizontalSplitContainer.Panel1.SuspendLayout();
-            this.mainHorizontalSplitContainer.Panel2.SuspendLayout();
-            this.mainHorizontalSplitContainer.SuspendLayout();
-            this.tableLayoutPanel.SuspendLayout();
-            this.groupBoxesPanel.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.settingsFLP.SuspendLayout();
-            this.groupBox8.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).BeginInit();
-            this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.innerStateCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.highlightedBorderCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.inactiveBorderCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.activeBorderCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.borderNUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cirlceDiameterNUD)).BeginInit();
-            this.groupBox5.SuspendLayout();
-            this.groupBox7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionBlackPenCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionBlackPenNUD)).BeginInit();
-            this.groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenCP)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenNUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.container)).BeginInit();
-            this.mainGB.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            toolTip = new ToolTip(components);
+            BottomToolStripPanel = new ToolStripPanel();
+            TopToolStripPanel = new ToolStripPanel();
+            RightToolStripPanel = new ToolStripPanel();
+            LeftToolStripPanel = new ToolStripPanel();
+            ContentPanel = new ToolStripContentPanel();
+            mainToolStrip = new ToolStrip();
+            loadFromFileTSB = new ToolStripButton();
+            saveToFileTSB = new ToolStripButton();
+            clearTSB = new ToolStripButton();
+            mainHorizontalSplitContainer = new SplitContainer();
+            tableLayoutPanel = new TableLayoutPanel();
+            groupBoxesPanel = new TableLayoutPanel();
+            groupBox3 = new GroupBox();
+            generateRandomSequence = new Button();
+            sequenceTextBox = new TextBox();
+            analyze = new Button();
+            groupBox1 = new GroupBox();
+            outputAlphabet = new TypedListBox();
+            inputAlphabet = new TypedListBox();
+            addState = new Button();
+            label3 = new Label();
+            label2 = new Label();
+            typeBox = new ComboBox();
+            label1 = new Label();
+            groupBox2 = new GroupBox();
+            settingsFLP = new FlowLayoutPanel();
+            groupBox8 = new GroupBox();
+            label15 = new Label();
+            drawStepDelayNUD = new NumericUpDown();
+            containerCP = new PictureBox();
+            developerMode = new CheckBox();
+            label14 = new Label();
+            groupBox4 = new GroupBox();
+            innerStateCP = new PictureBox();
+            highlightedBorderCP = new PictureBox();
+            label8 = new Label();
+            label9 = new Label();
+            inactiveBorderCP = new PictureBox();
+            activeBorderCP = new PictureBox();
+            label6 = new Label();
+            label7 = new Label();
+            label5 = new Label();
+            label4 = new Label();
+            borderNUD = new NumericUpDown();
+            cirlceDiameterNUD = new NumericUpDown();
+            groupBox5 = new GroupBox();
+            prohibitIntersectingPaths = new CheckBox();
+            groupBox7 = new GroupBox();
+            label12 = new Label();
+            label13 = new Label();
+            transitionBlackPenCP = new PictureBox();
+            transitionBlackPenNUD = new NumericUpDown();
+            groupBox6 = new GroupBox();
+            label10 = new Label();
+            label11 = new Label();
+            transitionLightPenCP = new PictureBox();
+            transitionLightPenNUD = new NumericUpDown();
+            container = new PictureBox();
+            terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
+            mainGB = new GroupBox();
+            colorPicker = new ColorDialog();
+            mainToolStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)mainHorizontalSplitContainer).BeginInit();
+            mainHorizontalSplitContainer.Panel1.SuspendLayout();
+            mainHorizontalSplitContainer.Panel2.SuspendLayout();
+            mainHorizontalSplitContainer.SuspendLayout();
+            tableLayoutPanel.SuspendLayout();
+            groupBoxesPanel.SuspendLayout();
+            groupBox3.SuspendLayout();
+            groupBox1.SuspendLayout();
+            groupBox2.SuspendLayout();
+            settingsFLP.SuspendLayout();
+            groupBox8.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)drawStepDelayNUD).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)containerCP).BeginInit();
+            groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)innerStateCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)highlightedBorderCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)inactiveBorderCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)activeBorderCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)borderNUD).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)cirlceDiameterNUD).BeginInit();
+            groupBox5.SuspendLayout();
+            groupBox7.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)transitionBlackPenCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)transitionBlackPenNUD).BeginInit();
+            groupBox6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)transitionLightPenCP).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)transitionLightPenNUD).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)container).BeginInit();
+            mainGB.SuspendLayout();
+            SuspendLayout();
             // 
             // BottomToolStripPanel
             // 
-            this.BottomToolStripPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.BottomToolStripPanel.Location = new System.Drawing.Point(0, 175);
-            this.BottomToolStripPanel.Name = "BottomToolStripPanel";
-            this.BottomToolStripPanel.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            this.BottomToolStripPanel.RowMargin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.BottomToolStripPanel.Size = new System.Drawing.Size(150, 0);
+            BottomToolStripPanel.Dock = DockStyle.Bottom;
+            BottomToolStripPanel.Location = new Point(0, 175);
+            BottomToolStripPanel.Name = "BottomToolStripPanel";
+            BottomToolStripPanel.Orientation = Orientation.Horizontal;
+            BottomToolStripPanel.RowMargin = new Padding(3, 0, 0, 0);
+            BottomToolStripPanel.Size = new Size(150, 0);
             // 
             // TopToolStripPanel
             // 
-            this.TopToolStripPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.TopToolStripPanel.Location = new System.Drawing.Point(0, 0);
-            this.TopToolStripPanel.Name = "TopToolStripPanel";
-            this.TopToolStripPanel.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            this.TopToolStripPanel.RowMargin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.TopToolStripPanel.Size = new System.Drawing.Size(150, 25);
+            TopToolStripPanel.Dock = DockStyle.Top;
+            TopToolStripPanel.Location = new Point(0, 0);
+            TopToolStripPanel.Name = "TopToolStripPanel";
+            TopToolStripPanel.Orientation = Orientation.Horizontal;
+            TopToolStripPanel.RowMargin = new Padding(3, 0, 0, 0);
+            TopToolStripPanel.Size = new Size(150, 25);
             // 
             // RightToolStripPanel
             // 
-            this.RightToolStripPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.RightToolStripPanel.Location = new System.Drawing.Point(150, 25);
-            this.RightToolStripPanel.Name = "RightToolStripPanel";
-            this.RightToolStripPanel.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.RightToolStripPanel.RowMargin = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.RightToolStripPanel.Size = new System.Drawing.Size(0, 150);
+            RightToolStripPanel.Dock = DockStyle.Right;
+            RightToolStripPanel.Location = new Point(150, 25);
+            RightToolStripPanel.Name = "RightToolStripPanel";
+            RightToolStripPanel.Orientation = Orientation.Vertical;
+            RightToolStripPanel.RowMargin = new Padding(0, 3, 0, 0);
+            RightToolStripPanel.Size = new Size(0, 150);
             // 
             // LeftToolStripPanel
             // 
-            this.LeftToolStripPanel.Dock = System.Windows.Forms.DockStyle.Left;
-            this.LeftToolStripPanel.Location = new System.Drawing.Point(0, 25);
-            this.LeftToolStripPanel.Name = "LeftToolStripPanel";
-            this.LeftToolStripPanel.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.LeftToolStripPanel.RowMargin = new System.Windows.Forms.Padding(0, 3, 0, 0);
-            this.LeftToolStripPanel.Size = new System.Drawing.Size(0, 150);
+            LeftToolStripPanel.Dock = DockStyle.Left;
+            LeftToolStripPanel.Location = new Point(0, 25);
+            LeftToolStripPanel.Name = "LeftToolStripPanel";
+            LeftToolStripPanel.Orientation = Orientation.Vertical;
+            LeftToolStripPanel.RowMargin = new Padding(0, 3, 0, 0);
+            LeftToolStripPanel.Size = new Size(0, 150);
             // 
             // ContentPanel
             // 
-            this.ContentPanel.Size = new System.Drawing.Size(150, 150);
+            ContentPanel.Size = new Size(150, 150);
             // 
             // mainToolStrip
             // 
-            this.mainToolStrip.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(31)))), ((int)(((byte)(31)))));
-            this.mainToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.mainToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadFromFileTSB,
-            this.saveToFileTSB,
-            this.clearTSB});
-            this.mainToolStrip.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.mainToolStrip.Location = new System.Drawing.Point(0, 0);
-            this.mainToolStrip.Name = "mainToolStrip";
-            this.mainToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.mainToolStrip.Size = new System.Drawing.Size(864, 25);
-            this.mainToolStrip.TabIndex = 1;
-            this.mainToolStrip.Text = "Меню";
+            mainToolStrip.BackColor = Color.FromArgb(31, 31, 31);
+            mainToolStrip.ImageScalingSize = new Size(20, 20);
+            mainToolStrip.Items.AddRange(new ToolStripItem[] { loadFromFileTSB, saveToFileTSB, clearTSB });
+            mainToolStrip.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            mainToolStrip.Location = new Point(0, 0);
+            mainToolStrip.Name = "mainToolStrip";
+            mainToolStrip.RenderMode = ToolStripRenderMode.Professional;
+            mainToolStrip.Size = new Size(864, 25);
+            mainToolStrip.TabIndex = 1;
+            mainToolStrip.Text = "Меню";
             // 
             // loadFromFileTSB
             // 
-            this.loadFromFileTSB.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.loadFromFileTSB.Image = global::TOA.Properties.Resources.LoadButton;
-            this.loadFromFileTSB.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.loadFromFileTSB.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.loadFromFileTSB.Name = "loadFromFileTSB";
-            this.loadFromFileTSB.Size = new System.Drawing.Size(23, 22);
-            this.loadFromFileTSB.Text = "Загрузить автомат из файла...";
+            loadFromFileTSB.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            loadFromFileTSB.Image = TOA.Properties.Resources.LoadButton;
+            loadFromFileTSB.ImageScaling = ToolStripItemImageScaling.None;
+            loadFromFileTSB.ImageTransparentColor = Color.Magenta;
+            loadFromFileTSB.Name = "loadFromFileTSB";
+            loadFromFileTSB.Size = new Size(23, 22);
+            loadFromFileTSB.Text = "Загрузить автомат из файла...";
             // 
             // saveToFileTSB
             // 
-            this.saveToFileTSB.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.saveToFileTSB.Image = global::TOA.Properties.Resources.SaveButton;
-            this.saveToFileTSB.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.saveToFileTSB.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveToFileTSB.Name = "saveToFileTSB";
-            this.saveToFileTSB.Size = new System.Drawing.Size(23, 22);
-            this.saveToFileTSB.Text = "Сохранить автомат в файл...";
+            saveToFileTSB.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            saveToFileTSB.Image = TOA.Properties.Resources.SaveButton;
+            saveToFileTSB.ImageScaling = ToolStripItemImageScaling.None;
+            saveToFileTSB.ImageTransparentColor = Color.Magenta;
+            saveToFileTSB.Name = "saveToFileTSB";
+            saveToFileTSB.Size = new Size(23, 22);
+            saveToFileTSB.Text = "Сохранить автомат в файл...";
             // 
             // clearTSB
             // 
-            this.clearTSB.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.clearTSB.Image = global::TOA.Properties.Resources.ResetButton;
-            this.clearTSB.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.clearTSB.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.clearTSB.Name = "clearTSB";
-            this.clearTSB.Size = new System.Drawing.Size(23, 22);
-            this.clearTSB.Text = "toolStripButton1";
+            clearTSB.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            clearTSB.Image = TOA.Properties.Resources.ResetButton;
+            clearTSB.ImageScaling = ToolStripItemImageScaling.None;
+            clearTSB.ImageTransparentColor = Color.Magenta;
+            clearTSB.Name = "clearTSB";
+            clearTSB.Size = new Size(23, 22);
+            clearTSB.Text = "toolStripButton1";
             // 
             // mainHorizontalSplitContainer
             // 
-            this.mainHorizontalSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainHorizontalSplitContainer.IsSplitterFixed = true;
-            this.mainHorizontalSplitContainer.Location = new System.Drawing.Point(3, 16);
-            this.mainHorizontalSplitContainer.Name = "mainHorizontalSplitContainer";
-            this.mainHorizontalSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            mainHorizontalSplitContainer.Dock = DockStyle.Fill;
+            mainHorizontalSplitContainer.IsSplitterFixed = true;
+            mainHorizontalSplitContainer.Location = new Point(3, 19);
+            mainHorizontalSplitContainer.Name = "mainHorizontalSplitContainer";
+            mainHorizontalSplitContainer.Orientation = Orientation.Horizontal;
             // 
             // mainHorizontalSplitContainer.Panel1
             // 
-            this.mainHorizontalSplitContainer.Panel1.Controls.Add(this.tableLayoutPanel);
+            mainHorizontalSplitContainer.Panel1.Controls.Add(tableLayoutPanel);
             // 
             // mainHorizontalSplitContainer.Panel2
             // 
-            this.mainHorizontalSplitContainer.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
-            this.mainHorizontalSplitContainer.Panel2.Controls.Add(this.terminal1);
-            this.mainHorizontalSplitContainer.Size = new System.Drawing.Size(834, 980);
-            this.mainHorizontalSplitContainer.SplitterDistance = 672;
-            this.mainHorizontalSplitContainer.TabIndex = 0;
+            mainHorizontalSplitContainer.Panel2.BackColor = Color.FromArgb(26, 26, 26);
+            mainHorizontalSplitContainer.Panel2.Controls.Add(terminal1);
+            mainHorizontalSplitContainer.Size = new Size(834, 977);
+            mainHorizontalSplitContainer.SplitterDistance = 669;
+            mainHorizontalSplitContainer.TabIndex = 0;
             // 
             // tableLayoutPanel
             // 
-            this.tableLayoutPanel.AutoSize = true;
-            this.tableLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.tableLayoutPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(41)))), ((int)(((byte)(41)))), ((int)(((byte)(41)))));
-            this.tableLayoutPanel.ColumnCount = 2;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 273F));
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Controls.Add(this.groupBoxesPanel, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.container, 1, 0);
-            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 1;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 672F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(834, 672);
-            this.tableLayoutPanel.TabIndex = 3;
+            tableLayoutPanel.AutoSize = true;
+            tableLayoutPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            tableLayoutPanel.BackColor = Color.FromArgb(41, 41, 41);
+            tableLayoutPanel.ColumnCount = 2;
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 273F));
+            tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel.Controls.Add(groupBoxesPanel, 0, 0);
+            tableLayoutPanel.Controls.Add(container, 1, 0);
+            tableLayoutPanel.Dock = DockStyle.Fill;
+            tableLayoutPanel.Location = new Point(0, 0);
+            tableLayoutPanel.Name = "tableLayoutPanel";
+            tableLayoutPanel.RowCount = 1;
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 672F));
+            tableLayoutPanel.Size = new Size(834, 669);
+            tableLayoutPanel.TabIndex = 3;
             // 
             // groupBoxesPanel
             // 
-            this.groupBoxesPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.groupBoxesPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.groupBoxesPanel.ColumnCount = 1;
-            this.groupBoxesPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.groupBoxesPanel.Controls.Add(this.groupBox3, 0, 3);
-            this.groupBoxesPanel.Controls.Add(this.groupBox1, 0, 1);
-            this.groupBoxesPanel.Controls.Add(this.groupBox2, 0, 2);
-            this.groupBoxesPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBoxesPanel.Location = new System.Drawing.Point(3, 3);
-            this.groupBoxesPanel.Name = "groupBoxesPanel";
-            this.groupBoxesPanel.RowCount = 4;
-            this.groupBoxesPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.groupBoxesPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.groupBoxesPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 340F));
-            this.groupBoxesPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 8F));
-            this.groupBoxesPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.groupBoxesPanel.Size = new System.Drawing.Size(267, 666);
-            this.groupBoxesPanel.TabIndex = 1;
+            groupBoxesPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            groupBoxesPanel.BackColor = Color.FromArgb(32, 32, 32);
+            groupBoxesPanel.ColumnCount = 1;
+            groupBoxesPanel.ColumnStyles.Add(new ColumnStyle());
+            groupBoxesPanel.Controls.Add(groupBox3, 0, 3);
+            groupBoxesPanel.Controls.Add(groupBox1, 0, 1);
+            groupBoxesPanel.Controls.Add(groupBox2, 0, 2);
+            groupBoxesPanel.Dock = DockStyle.Fill;
+            groupBoxesPanel.Location = new Point(3, 3);
+            groupBoxesPanel.Name = "groupBoxesPanel";
+            groupBoxesPanel.RowCount = 4;
+            groupBoxesPanel.RowStyles.Add(new RowStyle());
+            groupBoxesPanel.RowStyles.Add(new RowStyle());
+            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 340F));
+            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 8F));
+            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            groupBoxesPanel.Size = new Size(267, 663);
+            groupBoxesPanel.TabIndex = 1;
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.generateRandomSequence);
-            this.groupBox3.Controls.Add(this.sequenceTextBox);
-            this.groupBox3.Controls.Add(this.analyze);
-            this.groupBox3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox3.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox3.ForeColor = System.Drawing.Color.Aquamarine;
-            this.groupBox3.Location = new System.Drawing.Point(3, 611);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(264, 52);
-            this.groupBox3.TabIndex = 4;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Анализ входной строки";
+            groupBox3.Controls.Add(generateRandomSequence);
+            groupBox3.Controls.Add(sequenceTextBox);
+            groupBox3.Controls.Add(analyze);
+            groupBox3.Dock = DockStyle.Fill;
+            groupBox3.FlatStyle = FlatStyle.Popup;
+            groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            groupBox3.ForeColor = Color.Aquamarine;
+            groupBox3.Location = new Point(3, 611);
+            groupBox3.Name = "groupBox3";
+            groupBox3.Size = new Size(264, 49);
+            groupBox3.TabIndex = 4;
+            groupBox3.TabStop = false;
+            groupBox3.Text = "Анализ входной строки";
             // 
             // generateRandomSequence
             // 
-            this.generateRandomSequence.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.generateRandomSequence.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.generateRandomSequence.Enabled = false;
-            this.generateRandomSequence.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.generateRandomSequence.ForeColor = System.Drawing.Color.Gainsboro;
-            this.generateRandomSequence.Image = global::TOA.Properties.Resources.RandomSequence;
-            this.generateRandomSequence.Location = new System.Drawing.Point(212, 20);
-            this.generateRandomSequence.Name = "generateRandomSequence";
-            this.generateRandomSequence.Size = new System.Drawing.Size(20, 20);
-            this.generateRandomSequence.TabIndex = 4;
-            this.generateRandomSequence.UseVisualStyleBackColor = false;
+            generateRandomSequence.BackColor = Color.FromArgb(48, 48, 48);
+            generateRandomSequence.BackgroundImageLayout = ImageLayout.Center;
+            generateRandomSequence.Enabled = false;
+            generateRandomSequence.FlatStyle = FlatStyle.Flat;
+            generateRandomSequence.ForeColor = Color.Gainsboro;
+            generateRandomSequence.Image = TOA.Properties.Resources.RandomSequence;
+            generateRandomSequence.Location = new Point(212, 20);
+            generateRandomSequence.Name = "generateRandomSequence";
+            generateRandomSequence.Size = new Size(20, 20);
+            generateRandomSequence.TabIndex = 4;
+            generateRandomSequence.UseVisualStyleBackColor = false;
             // 
             // sequenceTextBox
             // 
-            this.sequenceTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.sequenceTextBox.Enabled = false;
-            this.sequenceTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.sequenceTextBox.ForeColor = System.Drawing.Color.Gainsboro;
-            this.sequenceTextBox.Location = new System.Drawing.Point(7, 20);
-            this.sequenceTextBox.Name = "sequenceTextBox";
-            this.sequenceTextBox.Size = new System.Drawing.Size(199, 20);
-            this.sequenceTextBox.TabIndex = 3;
+            sequenceTextBox.BackColor = Color.FromArgb(48, 48, 48);
+            sequenceTextBox.Enabled = false;
+            sequenceTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            sequenceTextBox.ForeColor = Color.Gainsboro;
+            sequenceTextBox.Location = new Point(7, 20);
+            sequenceTextBox.Name = "sequenceTextBox";
+            sequenceTextBox.Size = new Size(199, 20);
+            sequenceTextBox.TabIndex = 3;
             // 
             // analyze
             // 
-            this.analyze.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.analyze.Enabled = false;
-            this.analyze.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.analyze.Font = new System.Drawing.Font("Microsoft Tai Le", 6.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.analyze.ForeColor = System.Drawing.Color.Gainsboro;
-            this.analyze.Image = global::TOA.Properties.Resources.AnalyzeButton;
-            this.analyze.Location = new System.Drawing.Point(238, 20);
-            this.analyze.Name = "analyze";
-            this.analyze.Size = new System.Drawing.Size(20, 20);
-            this.analyze.TabIndex = 2;
-            this.analyze.UseVisualStyleBackColor = false;
+            analyze.BackColor = Color.FromArgb(48, 48, 48);
+            analyze.Enabled = false;
+            analyze.FlatStyle = FlatStyle.Flat;
+            analyze.Font = new System.Drawing.Font("Microsoft Tai Le", 6.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            analyze.ForeColor = Color.Gainsboro;
+            analyze.Image = TOA.Properties.Resources.AnalyzeButton;
+            analyze.Location = new Point(238, 20);
+            analyze.Name = "analyze";
+            analyze.Size = new Size(20, 20);
+            analyze.TabIndex = 2;
+            analyze.UseVisualStyleBackColor = false;
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.outputAlphabet);
-            this.groupBox1.Controls.Add(this.inputAlphabet);
-            this.groupBox1.Controls.Add(this.addState);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.typeBox);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox1.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox1.ForeColor = System.Drawing.Color.Aquamarine;
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(264, 262);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Параметры автомата";
-            // 
-            // addState
-            // 
-            this.addState.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.addState.Enabled = false;
-            this.addState.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.addState.Font = new System.Drawing.Font("Microsoft Tai Le", 6.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.addState.ForeColor = System.Drawing.Color.Gainsboro;
-            this.addState.Location = new System.Drawing.Point(6, 233);
-            this.addState.Name = "addState";
-            this.addState.Size = new System.Drawing.Size(252, 23);
-            this.addState.TabIndex = 8;
-            this.addState.Text = "Добавить состояние";
-            this.addState.UseVisualStyleBackColor = false;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label3.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label3.Location = new System.Drawing.Point(3, 137);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(106, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Выходной алфавит:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label2.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label2.Location = new System.Drawing.Point(3, 44);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(98, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Входной алфавит:";
-            // 
-            // typeBox
-            // 
-            this.typeBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.typeBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.typeBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.typeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.typeBox.ForeColor = System.Drawing.Color.Gainsboro;
-            this.typeBox.FormattingEnabled = true;
-            this.typeBox.Items.AddRange(new object[] {
-            "Мили",
-            "Мура"});
-            this.typeBox.Location = new System.Drawing.Point(44, 20);
-            this.typeBox.Name = "typeBox";
-            this.typeBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.typeBox.Size = new System.Drawing.Size(214, 21);
-            this.typeBox.TabIndex = 2;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label1.Location = new System.Drawing.Point(3, 23);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(32, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Тип: ";
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.settingsFLP);
-            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox2.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox2.ForeColor = System.Drawing.Color.Aquamarine;
-            this.groupBox2.Location = new System.Drawing.Point(3, 271);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(264, 334);
-            this.groupBox2.TabIndex = 5;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Параметры отрисовки";
-            // 
-            // settingsFLP
-            // 
-            this.settingsFLP.AutoScroll = true;
-            this.settingsFLP.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.settingsFLP.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.settingsFLP.Controls.Add(this.groupBox8);
-            this.settingsFLP.Controls.Add(this.groupBox4);
-            this.settingsFLP.Controls.Add(this.groupBox5);
-            this.settingsFLP.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.settingsFLP.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.settingsFLP.Location = new System.Drawing.Point(3, 19);
-            this.settingsFLP.Name = "settingsFLP";
-            this.settingsFLP.Size = new System.Drawing.Size(258, 312);
-            this.settingsFLP.TabIndex = 0;
-            this.settingsFLP.WrapContents = false;
-            // 
-            // groupBox8
-            // 
-            this.groupBox8.Controls.Add(this.label15);
-            this.groupBox8.Controls.Add(this.drawStepDelayNUD);
-            this.groupBox8.Controls.Add(this.containerCP);
-            this.groupBox8.Controls.Add(this.developerMode);
-            this.groupBox8.Controls.Add(this.label14);
-            this.groupBox8.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox8.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox8.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox8.Location = new System.Drawing.Point(3, 3);
-            this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(230, 92);
-            this.groupBox8.TabIndex = 24;
-            this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "Параметры рабочей области";
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label15.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label15.Location = new System.Drawing.Point(3, 48);
-            this.label15.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(141, 13);
-            this.label15.TabIndex = 32;
-            this.label15.Text = "Шаг отрисовки работы (c):";
-            // 
-            // drawStepDelayNUD
-            // 
-            this.drawStepDelayNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.drawStepDelayNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.drawStepDelayNUD.DecimalPlaces = 2;
-            this.drawStepDelayNUD.Enabled = false;
-            this.drawStepDelayNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.drawStepDelayNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.drawStepDelayNUD.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            131072});
-            this.drawStepDelayNUD.Location = new System.Drawing.Point(147, 46);
-            this.drawStepDelayNUD.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            65536});
-            this.drawStepDelayNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.drawStepDelayNUD.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            131072});
-            this.drawStepDelayNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.drawStepDelayNUD.Name = "drawStepDelayNUD";
-            this.drawStepDelayNUD.Size = new System.Drawing.Size(77, 20);
-            this.drawStepDelayNUD.TabIndex = 31;
-            this.drawStepDelayNUD.Value = new decimal(new int[] {
-            75,
-            0,
-            0,
-            131072});
-            // 
-            // containerCP
-            // 
-            this.containerCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.containerCP.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
-            this.containerCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.containerCP.Enabled = false;
-            this.containerCP.Location = new System.Drawing.Point(147, 20);
-            this.containerCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.containerCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.containerCP.Name = "containerCP";
-            this.containerCP.Size = new System.Drawing.Size(77, 20);
-            this.containerCP.TabIndex = 30;
-            this.containerCP.TabStop = false;
-            // 
-            // developerMode
-            // 
-            this.developerMode.AutoSize = true;
-            this.developerMode.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.developerMode.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.developerMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.developerMode.ForeColor = System.Drawing.Color.Gainsboro;
-            this.developerMode.Location = new System.Drawing.Point(3, 72);
-            this.developerMode.Name = "developerMode";
-            this.developerMode.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
-            this.developerMode.Size = new System.Drawing.Size(224, 17);
-            this.developerMode.TabIndex = 22;
-            this.developerMode.Text = "Режим разработчика:";
-            this.developerMode.UseVisualStyleBackColor = true;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label14.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label14.Location = new System.Drawing.Point(3, 22);
-            this.label14.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(123, 13);
-            this.label14.TabIndex = 28;
-            this.label14.Text = "Цвет рабочей области:";
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.innerStateCP);
-            this.groupBox4.Controls.Add(this.highlightedBorderCP);
-            this.groupBox4.Controls.Add(this.label8);
-            this.groupBox4.Controls.Add(this.label9);
-            this.groupBox4.Controls.Add(this.inactiveBorderCP);
-            this.groupBox4.Controls.Add(this.activeBorderCP);
-            this.groupBox4.Controls.Add(this.label6);
-            this.groupBox4.Controls.Add(this.label7);
-            this.groupBox4.Controls.Add(this.label5);
-            this.groupBox4.Controls.Add(this.label4);
-            this.groupBox4.Controls.Add(this.borderNUD);
-            this.groupBox4.Controls.Add(this.cirlceDiameterNUD);
-            this.groupBox4.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.groupBox4.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox4.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox4.Location = new System.Drawing.Point(3, 101);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(230, 173);
-            this.groupBox4.TabIndex = 21;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Параметры отрисовки состояний";
-            // 
-            // innerStateCP
-            // 
-            this.innerStateCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.innerStateCP.BackColor = System.Drawing.Color.LightGray;
-            this.innerStateCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.innerStateCP.Enabled = false;
-            this.innerStateCP.Location = new System.Drawing.Point(149, 147);
-            this.innerStateCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.innerStateCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.innerStateCP.Name = "innerStateCP";
-            this.innerStateCP.Size = new System.Drawing.Size(77, 20);
-            this.innerStateCP.TabIndex = 30;
-            this.innerStateCP.TabStop = false;
-            // 
-            // highlightedBorderCP
-            // 
-            this.highlightedBorderCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.highlightedBorderCP.BackColor = System.Drawing.Color.DarkGray;
-            this.highlightedBorderCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.highlightedBorderCP.Enabled = false;
-            this.highlightedBorderCP.Location = new System.Drawing.Point(149, 121);
-            this.highlightedBorderCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.highlightedBorderCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.highlightedBorderCP.Name = "highlightedBorderCP";
-            this.highlightedBorderCP.Size = new System.Drawing.Size(77, 20);
-            this.highlightedBorderCP.TabIndex = 29;
-            this.highlightedBorderCP.TabStop = false;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label8.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label8.Location = new System.Drawing.Point(3, 149);
-            this.label8.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(136, 13);
-            this.label8.TabIndex = 28;
-            this.label8.Text = "Цвет заливки состояния:";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label9.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label9.Location = new System.Drawing.Point(3, 123);
-            this.label9.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(137, 13);
-            this.label9.TabIndex = 27;
-            this.label9.Text = "Цвет подсветки границы:";
-            // 
-            // inactiveBorderCP
-            // 
-            this.inactiveBorderCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.inactiveBorderCP.BackColor = System.Drawing.Color.Black;
-            this.inactiveBorderCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.inactiveBorderCP.Enabled = false;
-            this.inactiveBorderCP.Location = new System.Drawing.Point(149, 95);
-            this.inactiveBorderCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.inactiveBorderCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.inactiveBorderCP.Name = "inactiveBorderCP";
-            this.inactiveBorderCP.Size = new System.Drawing.Size(77, 20);
-            this.inactiveBorderCP.TabIndex = 26;
-            this.inactiveBorderCP.TabStop = false;
-            // 
-            // activeBorderCP
-            // 
-            this.activeBorderCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.activeBorderCP.BackColor = System.Drawing.Color.LimeGreen;
-            this.activeBorderCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.activeBorderCP.Enabled = false;
-            this.activeBorderCP.Location = new System.Drawing.Point(149, 69);
-            this.activeBorderCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.activeBorderCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.activeBorderCP.Name = "activeBorderCP";
-            this.activeBorderCP.Size = new System.Drawing.Size(77, 20);
-            this.activeBorderCP.TabIndex = 25;
-            this.activeBorderCP.TabStop = false;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label6.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label6.Location = new System.Drawing.Point(3, 97);
-            this.label6.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(146, 13);
-            this.label6.TabIndex = 24;
-            this.label6.Text = "Цвет неактивной границы: ";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label7.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label7.Location = new System.Drawing.Point(3, 71);
-            this.label7.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(131, 13);
-            this.label7.TabIndex = 23;
-            this.label7.Text = "Цвет активной границы:";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label5.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label5.Location = new System.Drawing.Point(3, 45);
-            this.label5.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(95, 13);
-            this.label5.TabIndex = 17;
-            this.label5.Text = "Ширина границы:";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label4.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label4.Location = new System.Drawing.Point(3, 19);
-            this.label4.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(112, 13);
-            this.label4.TabIndex = 16;
-            this.label4.Text = "Диаметр состояния:";
-            // 
-            // borderNUD
-            // 
-            this.borderNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.borderNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.borderNUD.Enabled = false;
-            this.borderNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.borderNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.borderNUD.Location = new System.Drawing.Point(149, 43);
-            this.borderNUD.Maximum = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            this.borderNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.borderNUD.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.borderNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.borderNUD.Name = "borderNUD";
-            this.borderNUD.Size = new System.Drawing.Size(77, 20);
-            this.borderNUD.TabIndex = 15;
-            this.borderNUD.Value = new decimal(new int[] {
-            5,
-            0,
-            0,
-            0});
-            // 
-            // cirlceDiameterNUD
-            // 
-            this.cirlceDiameterNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cirlceDiameterNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.cirlceDiameterNUD.Enabled = false;
-            this.cirlceDiameterNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.cirlceDiameterNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.cirlceDiameterNUD.Location = new System.Drawing.Point(149, 17);
-            this.cirlceDiameterNUD.Maximum = new decimal(new int[] {
-            60,
-            0,
-            0,
-            0});
-            this.cirlceDiameterNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.cirlceDiameterNUD.Minimum = new decimal(new int[] {
-            30,
-            0,
-            0,
-            0});
-            this.cirlceDiameterNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.cirlceDiameterNUD.Name = "cirlceDiameterNUD";
-            this.cirlceDiameterNUD.Size = new System.Drawing.Size(77, 20);
-            this.cirlceDiameterNUD.TabIndex = 14;
-            this.cirlceDiameterNUD.Value = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            // 
-            // groupBox5
-            // 
-            this.groupBox5.Controls.Add(this.prohibitIntersectingPaths);
-            this.groupBox5.Controls.Add(this.groupBox7);
-            this.groupBox5.Controls.Add(this.groupBox6);
-            this.groupBox5.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox5.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox5.Location = new System.Drawing.Point(3, 280);
-            this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(230, 192);
-            this.groupBox5.TabIndex = 23;
-            this.groupBox5.TabStop = false;
-            this.groupBox5.Text = "Отрисовка переходов";
-            // 
-            // prohibitIntersectingPaths
-            // 
-            this.prohibitIntersectingPaths.AutoSize = true;
-            this.prohibitIntersectingPaths.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.prohibitIntersectingPaths.Checked = true;
-            this.prohibitIntersectingPaths.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.prohibitIntersectingPaths.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.prohibitIntersectingPaths.Enabled = false;
-            this.prohibitIntersectingPaths.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.prohibitIntersectingPaths.ForeColor = System.Drawing.Color.Gainsboro;
-            this.prohibitIntersectingPaths.Location = new System.Drawing.Point(3, 172);
-            this.prohibitIntersectingPaths.Name = "prohibitIntersectingPaths";
-            this.prohibitIntersectingPaths.Padding = new System.Windows.Forms.Padding(0, 0, 1, 0);
-            this.prohibitIntersectingPaths.Size = new System.Drawing.Size(224, 17);
-            this.prohibitIntersectingPaths.TabIndex = 26;
-            this.prohibitIntersectingPaths.Text = "Запрет самопересечений переходов: ";
-            this.prohibitIntersectingPaths.UseVisualStyleBackColor = true;
-            // 
-            // groupBox7
-            // 
-            this.groupBox7.Controls.Add(this.label12);
-            this.groupBox7.Controls.Add(this.label13);
-            this.groupBox7.Controls.Add(this.transitionBlackPenCP);
-            this.groupBox7.Controls.Add(this.transitionBlackPenNUD);
-            this.groupBox7.Font = new System.Drawing.Font("Times New Roman", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox7.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox7.Location = new System.Drawing.Point(6, 93);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(218, 70);
-            this.groupBox7.TabIndex = 25;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Неактивные переходы";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label12.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label12.Location = new System.Drawing.Point(3, 45);
-            this.label12.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(68, 13);
-            this.label12.TabIndex = 34;
-            this.label12.Text = "Цвет линии:";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label13.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label13.Location = new System.Drawing.Point(3, 19);
-            this.label13.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(89, 13);
-            this.label13.TabIndex = 33;
-            this.label13.Text = "Толщина линии:";
-            // 
-            // transitionBlackPenCP
-            // 
-            this.transitionBlackPenCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.transitionBlackPenCP.BackColor = System.Drawing.Color.Black;
-            this.transitionBlackPenCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.transitionBlackPenCP.Enabled = false;
-            this.transitionBlackPenCP.Location = new System.Drawing.Point(135, 43);
-            this.transitionBlackPenCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.transitionBlackPenCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.transitionBlackPenCP.Name = "transitionBlackPenCP";
-            this.transitionBlackPenCP.Size = new System.Drawing.Size(77, 20);
-            this.transitionBlackPenCP.TabIndex = 32;
-            this.transitionBlackPenCP.TabStop = false;
-            // 
-            // transitionBlackPenNUD
-            // 
-            this.transitionBlackPenNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.transitionBlackPenNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.transitionBlackPenNUD.DecimalPlaces = 1;
-            this.transitionBlackPenNUD.Enabled = false;
-            this.transitionBlackPenNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.transitionBlackPenNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.transitionBlackPenNUD.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
-            this.transitionBlackPenNUD.Location = new System.Drawing.Point(135, 17);
-            this.transitionBlackPenNUD.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            65536});
-            this.transitionBlackPenNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.transitionBlackPenNUD.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            65536});
-            this.transitionBlackPenNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.transitionBlackPenNUD.Name = "transitionBlackPenNUD";
-            this.transitionBlackPenNUD.Size = new System.Drawing.Size(77, 20);
-            this.transitionBlackPenNUD.TabIndex = 31;
-            this.transitionBlackPenNUD.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            65536});
-            // 
-            // groupBox6
-            // 
-            this.groupBox6.Controls.Add(this.label10);
-            this.groupBox6.Controls.Add(this.label11);
-            this.groupBox6.Controls.Add(this.transitionLightPenCP);
-            this.groupBox6.Controls.Add(this.transitionLightPenNUD);
-            this.groupBox6.Font = new System.Drawing.Font("Times New Roman", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.groupBox6.ForeColor = System.Drawing.Color.LightGray;
-            this.groupBox6.Location = new System.Drawing.Point(6, 17);
-            this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(218, 70);
-            this.groupBox6.TabIndex = 24;
-            this.groupBox6.TabStop = false;
-            this.groupBox6.Text = "Активные переходы";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label10.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label10.Location = new System.Drawing.Point(3, 45);
-            this.label10.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(68, 13);
-            this.label10.TabIndex = 30;
-            this.label10.Text = "Цвет линии:";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label11.ForeColor = System.Drawing.Color.Gainsboro;
-            this.label11.Location = new System.Drawing.Point(3, 19);
-            this.label11.Margin = new System.Windows.Forms.Padding(1, 0, 1, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(89, 13);
-            this.label11.TabIndex = 29;
-            this.label11.Text = "Толщина линии:";
-            // 
-            // transitionLightPenCP
-            // 
-            this.transitionLightPenCP.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.transitionLightPenCP.BackColor = System.Drawing.Color.LimeGreen;
-            this.transitionLightPenCP.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.transitionLightPenCP.Enabled = false;
-            this.transitionLightPenCP.Location = new System.Drawing.Point(135, 43);
-            this.transitionLightPenCP.MaximumSize = new System.Drawing.Size(77, 20);
-            this.transitionLightPenCP.MinimumSize = new System.Drawing.Size(77, 20);
-            this.transitionLightPenCP.Name = "transitionLightPenCP";
-            this.transitionLightPenCP.Size = new System.Drawing.Size(77, 20);
-            this.transitionLightPenCP.TabIndex = 27;
-            this.transitionLightPenCP.TabStop = false;
-            // 
-            // transitionLightPenNUD
-            // 
-            this.transitionLightPenNUD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.transitionLightPenNUD.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(48)))), ((int)(((byte)(48)))), ((int)(((byte)(48)))));
-            this.transitionLightPenNUD.DecimalPlaces = 1;
-            this.transitionLightPenNUD.Enabled = false;
-            this.transitionLightPenNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.transitionLightPenNUD.ForeColor = System.Drawing.Color.Gainsboro;
-            this.transitionLightPenNUD.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
-            this.transitionLightPenNUD.Location = new System.Drawing.Point(135, 17);
-            this.transitionLightPenNUD.Maximum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            65536});
-            this.transitionLightPenNUD.MaximumSize = new System.Drawing.Size(77, 0);
-            this.transitionLightPenNUD.Minimum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            65536});
-            this.transitionLightPenNUD.MinimumSize = new System.Drawing.Size(77, 0);
-            this.transitionLightPenNUD.Name = "transitionLightPenNUD";
-            this.transitionLightPenNUD.Size = new System.Drawing.Size(77, 20);
-            this.transitionLightPenNUD.TabIndex = 26;
-            this.transitionLightPenNUD.Value = new decimal(new int[] {
-            30,
-            0,
-            0,
-            65536});
-            // 
-            // container
-            // 
-            this.container.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
-            this.container.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.container.Location = new System.Drawing.Point(276, 3);
-            this.container.MinimumSize = new System.Drawing.Size(555, 666);
-            this.container.Name = "container";
-            this.container.Size = new System.Drawing.Size(555, 666);
-            this.container.TabIndex = 2;
-            this.container.TabStop = false;
-            // 
-            // mainGB
-            // 
-            this.mainGB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.mainGB.Controls.Add(this.mainHorizontalSplitContainer);
-            this.mainGB.Location = new System.Drawing.Point(12, 30);
-            this.mainGB.Name = "mainGB";
-            this.mainGB.Size = new System.Drawing.Size(840, 999);
-            this.mainGB.TabIndex = 2;
-            this.mainGB.TabStop = false;
-            // 
-            // colorPicker
-            // 
-            this.colorPicker.AnyColor = true;
-            this.colorPicker.Color = System.Drawing.Color.Lime;
-            this.colorPicker.FullOpen = true;
-            this.colorPicker.ShowHelp = true;
+            groupBox1.Controls.Add(outputAlphabet);
+            groupBox1.Controls.Add(inputAlphabet);
+            groupBox1.Controls.Add(addState);
+            groupBox1.Controls.Add(label3);
+            groupBox1.Controls.Add(label2);
+            groupBox1.Controls.Add(typeBox);
+            groupBox1.Controls.Add(label1);
+            groupBox1.Dock = DockStyle.Fill;
+            groupBox1.FlatStyle = FlatStyle.Popup;
+            groupBox1.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            groupBox1.ForeColor = Color.Aquamarine;
+            groupBox1.Location = new Point(3, 3);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(264, 262);
+            groupBox1.TabIndex = 2;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Параметры автомата";
             // 
             // outputAlphabet
             // 
-            this.outputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.outputAlphabet.ForeColor = System.Drawing.Color.Gainsboro;
-            this.outputAlphabet.Location = new System.Drawing.Point(7, 153);
-            this.outputAlphabet.Name = "outputAlphabet";
-            this.outputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.outputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.outputAlphabet.TabIndex = 11;
+            outputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            outputAlphabet.ForeColor = Color.Gainsboro;
+            outputAlphabet.Location = new Point(7, 153);
+            outputAlphabet.Name = "outputAlphabet";
+            outputAlphabet.Size = new Size(252, 74);
+            outputAlphabet.TabIndex = 11;
             // 
             // inputAlphabet
             // 
-            this.inputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.inputAlphabet.ForeColor = System.Drawing.Color.Gainsboro;
-            this.inputAlphabet.Location = new System.Drawing.Point(6, 60);
-            this.inputAlphabet.Name = "inputAlphabet";
-            this.inputAlphabet.Size = new System.Drawing.Size(252, 74);
-            this.inputAlphabet.SupportedType = TheoryOfAutomatons.Utils.UI.Controls.SupportedTypes.Char;
-            this.inputAlphabet.TabIndex = 10;
+            inputAlphabet.Font = new System.Drawing.Font("Microsoft YaHei UI", 6.75F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            inputAlphabet.ForeColor = Color.Gainsboro;
+            inputAlphabet.Location = new Point(6, 60);
+            inputAlphabet.Name = "inputAlphabet";
+            inputAlphabet.Size = new Size(252, 74);
+            inputAlphabet.TabIndex = 10;
+            // 
+            // addState
+            // 
+            addState.BackColor = Color.FromArgb(48, 48, 48);
+            addState.Enabled = false;
+            addState.FlatStyle = FlatStyle.Flat;
+            addState.Font = new System.Drawing.Font("Microsoft Tai Le", 6.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            addState.ForeColor = Color.Gainsboro;
+            addState.Location = new Point(6, 233);
+            addState.Name = "addState";
+            addState.Size = new Size(252, 23);
+            addState.TabIndex = 8;
+            addState.Text = "Добавить состояние";
+            addState.UseVisualStyleBackColor = false;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label3.ForeColor = Color.Gainsboro;
+            label3.Location = new Point(3, 137);
+            label3.Name = "label3";
+            label3.Size = new Size(106, 13);
+            label3.TabIndex = 5;
+            label3.Text = "Выходной алфавит:";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label2.ForeColor = Color.Gainsboro;
+            label2.Location = new Point(3, 44);
+            label2.Name = "label2";
+            label2.Size = new Size(98, 13);
+            label2.TabIndex = 3;
+            label2.Text = "Входной алфавит:";
+            // 
+            // typeBox
+            // 
+            typeBox.BackColor = Color.FromArgb(48, 48, 48);
+            typeBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            typeBox.FlatStyle = FlatStyle.Popup;
+            typeBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            typeBox.ForeColor = Color.Gainsboro;
+            typeBox.FormattingEnabled = true;
+            typeBox.Items.AddRange(new object[] { "Мили", "Мура" });
+            typeBox.Location = new Point(44, 20);
+            typeBox.Name = "typeBox";
+            typeBox.RightToLeft = RightToLeft.No;
+            typeBox.Size = new Size(214, 21);
+            typeBox.TabIndex = 2;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label1.ForeColor = Color.Gainsboro;
+            label1.Location = new Point(3, 23);
+            label1.Name = "label1";
+            label1.Size = new Size(32, 13);
+            label1.TabIndex = 1;
+            label1.Text = "Тип: ";
+            // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(settingsFLP);
+            groupBox2.Dock = DockStyle.Fill;
+            groupBox2.FlatStyle = FlatStyle.Popup;
+            groupBox2.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            groupBox2.ForeColor = Color.Aquamarine;
+            groupBox2.Location = new Point(3, 271);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Size = new Size(264, 334);
+            groupBox2.TabIndex = 5;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Параметры отрисовки";
+            // 
+            // settingsFLP
+            // 
+            settingsFLP.AutoScroll = true;
+            settingsFLP.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            settingsFLP.BorderStyle = BorderStyle.FixedSingle;
+            settingsFLP.Controls.Add(groupBox8);
+            settingsFLP.Controls.Add(groupBox4);
+            settingsFLP.Controls.Add(groupBox5);
+            settingsFLP.Dock = DockStyle.Fill;
+            settingsFLP.FlowDirection = FlowDirection.TopDown;
+            settingsFLP.Location = new Point(3, 19);
+            settingsFLP.Name = "settingsFLP";
+            settingsFLP.Size = new Size(258, 312);
+            settingsFLP.TabIndex = 0;
+            settingsFLP.WrapContents = false;
+            // 
+            // groupBox8
+            // 
+            groupBox8.Controls.Add(label15);
+            groupBox8.Controls.Add(drawStepDelayNUD);
+            groupBox8.Controls.Add(containerCP);
+            groupBox8.Controls.Add(developerMode);
+            groupBox8.Controls.Add(label14);
+            groupBox8.FlatStyle = FlatStyle.Popup;
+            groupBox8.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            groupBox8.ForeColor = Color.LightGray;
+            groupBox8.Location = new Point(3, 3);
+            groupBox8.Name = "groupBox8";
+            groupBox8.Size = new Size(230, 92);
+            groupBox8.TabIndex = 24;
+            groupBox8.TabStop = false;
+            groupBox8.Text = "Параметры рабочей области";
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label15.ForeColor = Color.Gainsboro;
+            label15.Location = new Point(3, 48);
+            label15.Margin = new Padding(1, 0, 1, 0);
+            label15.Name = "label15";
+            label15.Size = new Size(141, 13);
+            label15.TabIndex = 32;
+            label15.Text = "Шаг отрисовки работы (c):";
+            // 
+            // drawStepDelayNUD
+            // 
+            drawStepDelayNUD.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            drawStepDelayNUD.BackColor = Color.FromArgb(48, 48, 48);
+            drawStepDelayNUD.DecimalPlaces = 2;
+            drawStepDelayNUD.Enabled = false;
+            drawStepDelayNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            drawStepDelayNUD.ForeColor = Color.Gainsboro;
+            drawStepDelayNUD.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            drawStepDelayNUD.Location = new Point(147, 46);
+            drawStepDelayNUD.Maximum = new decimal(new int[] { 100, 0, 0, 65536 });
+            drawStepDelayNUD.MaximumSize = new Size(77, 0);
+            drawStepDelayNUD.Minimum = new decimal(new int[] { 10, 0, 0, 131072 });
+            drawStepDelayNUD.MinimumSize = new Size(77, 0);
+            drawStepDelayNUD.Name = "drawStepDelayNUD";
+            drawStepDelayNUD.Size = new Size(77, 20);
+            drawStepDelayNUD.TabIndex = 31;
+            drawStepDelayNUD.Value = new decimal(new int[] { 75, 0, 0, 131072 });
+            // 
+            // containerCP
+            // 
+            containerCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            containerCP.BackColor = Color.FromArgb(96, 96, 96);
+            containerCP.BorderStyle = BorderStyle.Fixed3D;
+            containerCP.Enabled = false;
+            containerCP.Location = new Point(147, 20);
+            containerCP.MaximumSize = new Size(77, 20);
+            containerCP.MinimumSize = new Size(77, 20);
+            containerCP.Name = "containerCP";
+            containerCP.Size = new Size(77, 20);
+            containerCP.TabIndex = 30;
+            containerCP.TabStop = false;
+            // 
+            // developerMode
+            // 
+            developerMode.AutoSize = true;
+            developerMode.CheckAlign = ContentAlignment.MiddleRight;
+            developerMode.Dock = DockStyle.Bottom;
+            developerMode.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            developerMode.ForeColor = Color.Gainsboro;
+            developerMode.Location = new Point(3, 72);
+            developerMode.Name = "developerMode";
+            developerMode.Padding = new Padding(0, 0, 1, 0);
+            developerMode.Size = new Size(224, 17);
+            developerMode.TabIndex = 22;
+            developerMode.Text = "Режим разработчика:";
+            developerMode.UseVisualStyleBackColor = true;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label14.ForeColor = Color.Gainsboro;
+            label14.Location = new Point(3, 22);
+            label14.Margin = new Padding(1, 0, 1, 0);
+            label14.Name = "label14";
+            label14.Size = new Size(123, 13);
+            label14.TabIndex = 28;
+            label14.Text = "Цвет рабочей области:";
+            // 
+            // groupBox4
+            // 
+            groupBox4.Controls.Add(innerStateCP);
+            groupBox4.Controls.Add(highlightedBorderCP);
+            groupBox4.Controls.Add(label8);
+            groupBox4.Controls.Add(label9);
+            groupBox4.Controls.Add(inactiveBorderCP);
+            groupBox4.Controls.Add(activeBorderCP);
+            groupBox4.Controls.Add(label6);
+            groupBox4.Controls.Add(label7);
+            groupBox4.Controls.Add(label5);
+            groupBox4.Controls.Add(label4);
+            groupBox4.Controls.Add(borderNUD);
+            groupBox4.Controls.Add(cirlceDiameterNUD);
+            groupBox4.FlatStyle = FlatStyle.Popup;
+            groupBox4.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            groupBox4.ForeColor = Color.LightGray;
+            groupBox4.Location = new Point(3, 101);
+            groupBox4.Name = "groupBox4";
+            groupBox4.Size = new Size(230, 173);
+            groupBox4.TabIndex = 21;
+            groupBox4.TabStop = false;
+            groupBox4.Text = "Параметры отрисовки состояний";
+            // 
+            // innerStateCP
+            // 
+            innerStateCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            innerStateCP.BackColor = Color.LightGray;
+            innerStateCP.BorderStyle = BorderStyle.Fixed3D;
+            innerStateCP.Enabled = false;
+            innerStateCP.Location = new Point(149, 147);
+            innerStateCP.MaximumSize = new Size(77, 20);
+            innerStateCP.MinimumSize = new Size(77, 20);
+            innerStateCP.Name = "innerStateCP";
+            innerStateCP.Size = new Size(77, 20);
+            innerStateCP.TabIndex = 30;
+            innerStateCP.TabStop = false;
+            // 
+            // highlightedBorderCP
+            // 
+            highlightedBorderCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            highlightedBorderCP.BackColor = Color.DarkGray;
+            highlightedBorderCP.BorderStyle = BorderStyle.Fixed3D;
+            highlightedBorderCP.Enabled = false;
+            highlightedBorderCP.Location = new Point(149, 121);
+            highlightedBorderCP.MaximumSize = new Size(77, 20);
+            highlightedBorderCP.MinimumSize = new Size(77, 20);
+            highlightedBorderCP.Name = "highlightedBorderCP";
+            highlightedBorderCP.Size = new Size(77, 20);
+            highlightedBorderCP.TabIndex = 29;
+            highlightedBorderCP.TabStop = false;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label8.ForeColor = Color.Gainsboro;
+            label8.Location = new Point(3, 149);
+            label8.Margin = new Padding(1, 0, 1, 0);
+            label8.Name = "label8";
+            label8.Size = new Size(136, 13);
+            label8.TabIndex = 28;
+            label8.Text = "Цвет заливки состояния:";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label9.ForeColor = Color.Gainsboro;
+            label9.Location = new Point(3, 123);
+            label9.Margin = new Padding(1, 0, 1, 0);
+            label9.Name = "label9";
+            label9.Size = new Size(137, 13);
+            label9.TabIndex = 27;
+            label9.Text = "Цвет подсветки границы:";
+            // 
+            // inactiveBorderCP
+            // 
+            inactiveBorderCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            inactiveBorderCP.BackColor = Color.Black;
+            inactiveBorderCP.BorderStyle = BorderStyle.Fixed3D;
+            inactiveBorderCP.Enabled = false;
+            inactiveBorderCP.Location = new Point(149, 95);
+            inactiveBorderCP.MaximumSize = new Size(77, 20);
+            inactiveBorderCP.MinimumSize = new Size(77, 20);
+            inactiveBorderCP.Name = "inactiveBorderCP";
+            inactiveBorderCP.Size = new Size(77, 20);
+            inactiveBorderCP.TabIndex = 26;
+            inactiveBorderCP.TabStop = false;
+            // 
+            // activeBorderCP
+            // 
+            activeBorderCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            activeBorderCP.BackColor = Color.LimeGreen;
+            activeBorderCP.BorderStyle = BorderStyle.Fixed3D;
+            activeBorderCP.Enabled = false;
+            activeBorderCP.Location = new Point(149, 69);
+            activeBorderCP.MaximumSize = new Size(77, 20);
+            activeBorderCP.MinimumSize = new Size(77, 20);
+            activeBorderCP.Name = "activeBorderCP";
+            activeBorderCP.Size = new Size(77, 20);
+            activeBorderCP.TabIndex = 25;
+            activeBorderCP.TabStop = false;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label6.ForeColor = Color.Gainsboro;
+            label6.Location = new Point(3, 97);
+            label6.Margin = new Padding(1, 0, 1, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(146, 13);
+            label6.TabIndex = 24;
+            label6.Text = "Цвет неактивной границы: ";
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label7.ForeColor = Color.Gainsboro;
+            label7.Location = new Point(3, 71);
+            label7.Margin = new Padding(1, 0, 1, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(131, 13);
+            label7.TabIndex = 23;
+            label7.Text = "Цвет активной границы:";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label5.ForeColor = Color.Gainsboro;
+            label5.Location = new Point(3, 45);
+            label5.Margin = new Padding(1, 0, 1, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(95, 13);
+            label5.TabIndex = 17;
+            label5.Text = "Ширина границы:";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label4.ForeColor = Color.Gainsboro;
+            label4.Location = new Point(3, 19);
+            label4.Margin = new Padding(1, 0, 1, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(112, 13);
+            label4.TabIndex = 16;
+            label4.Text = "Диаметр состояния:";
+            // 
+            // borderNUD
+            // 
+            borderNUD.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            borderNUD.BackColor = Color.FromArgb(48, 48, 48);
+            borderNUD.Enabled = false;
+            borderNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            borderNUD.ForeColor = Color.Gainsboro;
+            borderNUD.Location = new Point(149, 43);
+            borderNUD.Maximum = new decimal(new int[] { 5, 0, 0, 0 });
+            borderNUD.MaximumSize = new Size(77, 0);
+            borderNUD.Minimum = new decimal(new int[] { 2, 0, 0, 0 });
+            borderNUD.MinimumSize = new Size(77, 0);
+            borderNUD.Name = "borderNUD";
+            borderNUD.Size = new Size(77, 20);
+            borderNUD.TabIndex = 15;
+            borderNUD.Value = new decimal(new int[] { 5, 0, 0, 0 });
+            // 
+            // cirlceDiameterNUD
+            // 
+            cirlceDiameterNUD.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            cirlceDiameterNUD.BackColor = Color.FromArgb(48, 48, 48);
+            cirlceDiameterNUD.Enabled = false;
+            cirlceDiameterNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            cirlceDiameterNUD.ForeColor = Color.Gainsboro;
+            cirlceDiameterNUD.Location = new Point(149, 17);
+            cirlceDiameterNUD.Maximum = new decimal(new int[] { 60, 0, 0, 0 });
+            cirlceDiameterNUD.MaximumSize = new Size(77, 0);
+            cirlceDiameterNUD.Minimum = new decimal(new int[] { 30, 0, 0, 0 });
+            cirlceDiameterNUD.MinimumSize = new Size(77, 0);
+            cirlceDiameterNUD.Name = "cirlceDiameterNUD";
+            cirlceDiameterNUD.Size = new Size(77, 20);
+            cirlceDiameterNUD.TabIndex = 14;
+            cirlceDiameterNUD.Value = new decimal(new int[] { 50, 0, 0, 0 });
+            // 
+            // groupBox5
+            // 
+            groupBox5.Controls.Add(prohibitIntersectingPaths);
+            groupBox5.Controls.Add(groupBox7);
+            groupBox5.Controls.Add(groupBox6);
+            groupBox5.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            groupBox5.ForeColor = Color.LightGray;
+            groupBox5.Location = new Point(3, 280);
+            groupBox5.Name = "groupBox5";
+            groupBox5.Size = new Size(230, 192);
+            groupBox5.TabIndex = 23;
+            groupBox5.TabStop = false;
+            groupBox5.Text = "Отрисовка переходов";
+            // 
+            // prohibitIntersectingPaths
+            // 
+            prohibitIntersectingPaths.AutoSize = true;
+            prohibitIntersectingPaths.CheckAlign = ContentAlignment.MiddleRight;
+            prohibitIntersectingPaths.Checked = true;
+            prohibitIntersectingPaths.CheckState = CheckState.Checked;
+            prohibitIntersectingPaths.Dock = DockStyle.Bottom;
+            prohibitIntersectingPaths.Enabled = false;
+            prohibitIntersectingPaths.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            prohibitIntersectingPaths.ForeColor = Color.Gainsboro;
+            prohibitIntersectingPaths.Location = new Point(3, 172);
+            prohibitIntersectingPaths.Name = "prohibitIntersectingPaths";
+            prohibitIntersectingPaths.Padding = new Padding(0, 0, 1, 0);
+            prohibitIntersectingPaths.Size = new Size(224, 17);
+            prohibitIntersectingPaths.TabIndex = 26;
+            prohibitIntersectingPaths.Text = "Запрет самопересечений переходов: ";
+            prohibitIntersectingPaths.UseVisualStyleBackColor = true;
+            // 
+            // groupBox7
+            // 
+            groupBox7.Controls.Add(label12);
+            groupBox7.Controls.Add(label13);
+            groupBox7.Controls.Add(transitionBlackPenCP);
+            groupBox7.Controls.Add(transitionBlackPenNUD);
+            groupBox7.Font = new System.Drawing.Font("Times New Roman", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            groupBox7.ForeColor = Color.LightGray;
+            groupBox7.Location = new Point(6, 93);
+            groupBox7.Name = "groupBox7";
+            groupBox7.Size = new Size(218, 70);
+            groupBox7.TabIndex = 25;
+            groupBox7.TabStop = false;
+            groupBox7.Text = "Неактивные переходы";
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label12.ForeColor = Color.Gainsboro;
+            label12.Location = new Point(3, 45);
+            label12.Margin = new Padding(1, 0, 1, 0);
+            label12.Name = "label12";
+            label12.Size = new Size(68, 13);
+            label12.TabIndex = 34;
+            label12.Text = "Цвет линии:";
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label13.ForeColor = Color.Gainsboro;
+            label13.Location = new Point(3, 19);
+            label13.Margin = new Padding(1, 0, 1, 0);
+            label13.Name = "label13";
+            label13.Size = new Size(89, 13);
+            label13.TabIndex = 33;
+            label13.Text = "Толщина линии:";
+            // 
+            // transitionBlackPenCP
+            // 
+            transitionBlackPenCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            transitionBlackPenCP.BackColor = Color.Black;
+            transitionBlackPenCP.BorderStyle = BorderStyle.Fixed3D;
+            transitionBlackPenCP.Enabled = false;
+            transitionBlackPenCP.Location = new Point(135, 43);
+            transitionBlackPenCP.MaximumSize = new Size(77, 20);
+            transitionBlackPenCP.MinimumSize = new Size(77, 20);
+            transitionBlackPenCP.Name = "transitionBlackPenCP";
+            transitionBlackPenCP.Size = new Size(77, 20);
+            transitionBlackPenCP.TabIndex = 32;
+            transitionBlackPenCP.TabStop = false;
+            // 
+            // transitionBlackPenNUD
+            // 
+            transitionBlackPenNUD.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            transitionBlackPenNUD.BackColor = Color.FromArgb(48, 48, 48);
+            transitionBlackPenNUD.DecimalPlaces = 1;
+            transitionBlackPenNUD.Enabled = false;
+            transitionBlackPenNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            transitionBlackPenNUD.ForeColor = Color.Gainsboro;
+            transitionBlackPenNUD.Increment = new decimal(new int[] { 1, 0, 0, 65536 });
+            transitionBlackPenNUD.Location = new Point(135, 17);
+            transitionBlackPenNUD.Maximum = new decimal(new int[] { 100, 0, 0, 65536 });
+            transitionBlackPenNUD.MaximumSize = new Size(77, 0);
+            transitionBlackPenNUD.Minimum = new decimal(new int[] { 10, 0, 0, 65536 });
+            transitionBlackPenNUD.MinimumSize = new Size(77, 0);
+            transitionBlackPenNUD.Name = "transitionBlackPenNUD";
+            transitionBlackPenNUD.Size = new Size(77, 20);
+            transitionBlackPenNUD.TabIndex = 31;
+            transitionBlackPenNUD.Value = new decimal(new int[] { 30, 0, 0, 65536 });
+            // 
+            // groupBox6
+            // 
+            groupBox6.Controls.Add(label10);
+            groupBox6.Controls.Add(label11);
+            groupBox6.Controls.Add(transitionLightPenCP);
+            groupBox6.Controls.Add(transitionLightPenNUD);
+            groupBox6.Font = new System.Drawing.Font("Times New Roman", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 204);
+            groupBox6.ForeColor = Color.LightGray;
+            groupBox6.Location = new Point(6, 17);
+            groupBox6.Name = "groupBox6";
+            groupBox6.Size = new Size(218, 70);
+            groupBox6.TabIndex = 24;
+            groupBox6.TabStop = false;
+            groupBox6.Text = "Активные переходы";
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label10.ForeColor = Color.Gainsboro;
+            label10.Location = new Point(3, 45);
+            label10.Margin = new Padding(1, 0, 1, 0);
+            label10.Name = "label10";
+            label10.Size = new Size(68, 13);
+            label10.TabIndex = 30;
+            label10.Text = "Цвет линии:";
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            label11.ForeColor = Color.Gainsboro;
+            label11.Location = new Point(3, 19);
+            label11.Margin = new Padding(1, 0, 1, 0);
+            label11.Name = "label11";
+            label11.Size = new Size(89, 13);
+            label11.TabIndex = 29;
+            label11.Text = "Толщина линии:";
+            // 
+            // transitionLightPenCP
+            // 
+            transitionLightPenCP.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            transitionLightPenCP.BackColor = Color.LimeGreen;
+            transitionLightPenCP.BorderStyle = BorderStyle.Fixed3D;
+            transitionLightPenCP.Enabled = false;
+            transitionLightPenCP.Location = new Point(135, 43);
+            transitionLightPenCP.MaximumSize = new Size(77, 20);
+            transitionLightPenCP.MinimumSize = new Size(77, 20);
+            transitionLightPenCP.Name = "transitionLightPenCP";
+            transitionLightPenCP.Size = new Size(77, 20);
+            transitionLightPenCP.TabIndex = 27;
+            transitionLightPenCP.TabStop = false;
+            // 
+            // transitionLightPenNUD
+            // 
+            transitionLightPenNUD.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            transitionLightPenNUD.BackColor = Color.FromArgb(48, 48, 48);
+            transitionLightPenNUD.DecimalPlaces = 1;
+            transitionLightPenNUD.Enabled = false;
+            transitionLightPenNUD.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            transitionLightPenNUD.ForeColor = Color.Gainsboro;
+            transitionLightPenNUD.Increment = new decimal(new int[] { 1, 0, 0, 65536 });
+            transitionLightPenNUD.Location = new Point(135, 17);
+            transitionLightPenNUD.Maximum = new decimal(new int[] { 100, 0, 0, 65536 });
+            transitionLightPenNUD.MaximumSize = new Size(77, 0);
+            transitionLightPenNUD.Minimum = new decimal(new int[] { 10, 0, 0, 65536 });
+            transitionLightPenNUD.MinimumSize = new Size(77, 0);
+            transitionLightPenNUD.Name = "transitionLightPenNUD";
+            transitionLightPenNUD.Size = new Size(77, 20);
+            transitionLightPenNUD.TabIndex = 26;
+            transitionLightPenNUD.Value = new decimal(new int[] { 30, 0, 0, 65536 });
+            // 
+            // container
+            // 
+            container.BackColor = Color.FromArgb(96, 96, 96);
+            container.Dock = DockStyle.Fill;
+            container.Location = new Point(276, 3);
+            container.MinimumSize = new Size(555, 666);
+            container.Name = "container";
+            container.Size = new Size(555, 666);
+            container.TabIndex = 2;
+            container.TabStop = false;
             // 
             // terminal1
             // 
-            this.terminal1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.terminal1.Location = new System.Drawing.Point(0, 0);
-            this.terminal1.Margin = new System.Windows.Forms.Padding(13);
-            this.terminal1.Name = "terminal1";
-            this.terminal1.Size = new System.Drawing.Size(834, 304);
-            this.terminal1.TabIndex = 0;
+            terminal1.Dock = DockStyle.Fill;
+            terminal1.Location = new Point(0, 0);
+            terminal1.Margin = new Padding(13);
+            terminal1.Name = "terminal1";
+            terminal1.Size = new Size(834, 304);
+            terminal1.TabIndex = 0;
+            // 
+            // mainGB
+            // 
+            mainGB.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            mainGB.Controls.Add(mainHorizontalSplitContainer);
+            mainGB.Location = new Point(12, 30);
+            mainGB.Name = "mainGB";
+            mainGB.Size = new Size(840, 999);
+            mainGB.TabIndex = 2;
+            mainGB.TabStop = false;
+            // 
+            // colorPicker
+            // 
+            colorPicker.AnyColor = true;
+            colorPicker.Color = Color.Lime;
+            colorPicker.FullOpen = true;
+            colorPicker.ShowHelp = true;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
-            this.ClientSize = new System.Drawing.Size(864, 1041);
-            this.Controls.Add(this.mainGB);
-            this.Controls.Add(this.mainToolStrip);
-            this.MinimumSize = new System.Drawing.Size(880, 1080);
-            this.Name = "MainForm";
-            this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Теория Автоматов";
-            this.Load += new System.EventHandler(this.Form_Load);
-            this.mainToolStrip.ResumeLayout(false);
-            this.mainToolStrip.PerformLayout();
-            this.mainHorizontalSplitContainer.Panel1.ResumeLayout(false);
-            this.mainHorizontalSplitContainer.Panel1.PerformLayout();
-            this.mainHorizontalSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.mainHorizontalSplitContainer)).EndInit();
-            this.mainHorizontalSplitContainer.ResumeLayout(false);
-            this.tableLayoutPanel.ResumeLayout(false);
-            this.groupBoxesPanel.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.settingsFLP.ResumeLayout(false);
-            this.groupBox8.ResumeLayout(false);
-            this.groupBox8.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.drawStepDelayNUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.containerCP)).EndInit();
-            this.groupBox4.ResumeLayout(false);
-            this.groupBox4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.innerStateCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.highlightedBorderCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.inactiveBorderCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.activeBorderCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.borderNUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cirlceDiameterNUD)).EndInit();
-            this.groupBox5.ResumeLayout(false);
-            this.groupBox5.PerformLayout();
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionBlackPenCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionBlackPenNUD)).EndInit();
-            this.groupBox6.ResumeLayout(false);
-            this.groupBox6.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenCP)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.transitionLightPenNUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.container)).EndInit();
-            this.mainGB.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            BackColor = Color.FromArgb(40, 40, 40);
+            ClientSize = new Size(864, 1041);
+            Controls.Add(mainGB);
+            Controls.Add(mainToolStrip);
+            MinimumSize = new Size(880, 1080);
+            Name = "MainForm";
+            ShowIcon = false;
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Теория Автоматов";
+            Load += Form_Load;
+            mainToolStrip.ResumeLayout(false);
+            mainToolStrip.PerformLayout();
+            mainHorizontalSplitContainer.Panel1.ResumeLayout(false);
+            mainHorizontalSplitContainer.Panel1.PerformLayout();
+            mainHorizontalSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)mainHorizontalSplitContainer).EndInit();
+            mainHorizontalSplitContainer.ResumeLayout(false);
+            tableLayoutPanel.ResumeLayout(false);
+            groupBoxesPanel.ResumeLayout(false);
+            groupBox3.ResumeLayout(false);
+            groupBox3.PerformLayout();
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            groupBox2.ResumeLayout(false);
+            settingsFLP.ResumeLayout(false);
+            groupBox8.ResumeLayout(false);
+            groupBox8.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)drawStepDelayNUD).EndInit();
+            ((System.ComponentModel.ISupportInitialize)containerCP).EndInit();
+            groupBox4.ResumeLayout(false);
+            groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)innerStateCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)highlightedBorderCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)inactiveBorderCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)activeBorderCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)borderNUD).EndInit();
+            ((System.ComponentModel.ISupportInitialize)cirlceDiameterNUD).EndInit();
+            groupBox5.ResumeLayout(false);
+            groupBox5.PerformLayout();
+            groupBox7.ResumeLayout(false);
+            groupBox7.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)transitionBlackPenCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)transitionBlackPenNUD).EndInit();
+            groupBox6.ResumeLayout(false);
+            groupBox6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)transitionLightPenCP).EndInit();
+            ((System.ComponentModel.ISupportInitialize)transitionLightPenNUD).EndInit();
+            ((System.ComponentModel.ISupportInitialize)container).EndInit();
+            mainGB.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

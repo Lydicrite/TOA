@@ -15,6 +15,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 {
     internal class Terminal : UserControl
     {
+        #region Поля класса
+
         public RichTextBox pshTerminal;
         private Panel suggestionsPanel;
         private ListBox suggestionsList;
@@ -44,6 +46,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         private DataGridViewTextBoxColumn sourceColumn;
         private DataGridViewTextBoxColumn messageColumn;
         private ExecutionIssueType _visibleIssueTypes = ExecutionIssueType.All;
+
+        #endregion
 
         public Terminal()
         {

@@ -2,33 +2,33 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// Общие сведения об этой сборке предоставляются следующим набором
-// набора атрибутов. Измените значения этих атрибутов для изменения сведений,
-// связанных со сборкой.
-[assembly: AssemblyTitle("TOA")]
+// Общие сведения об этой сборке предоставляются следующим набором 
+// набор атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
+// общие сведения об этой сборке.
+[assembly: AssemblyTitle("TOA.Properties")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TOA")]
+[assembly: AssemblyProduct("TOA.Properties")]
 [assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UnitTestProject")]
 
-// Установка значения False для параметра ComVisible делает типы в этой сборке невидимыми
-// для компонентов COM. Если необходимо обратиться к типу в этой сборке через
-// COM, следует установить атрибут ComVisible в TRUE для этого типа.
+// Установка параметра ComVisible в значение false делает типы в этой сборке невидимыми 
+// для компонентов модели COM.  Если тип в этой сборке необходимо сделать доступным 
+// из модели COM, установите атрибут ComVisible для этого типа в значение true.
 [assembly: ComVisible(false)]
+[assembly: InternalsVisibleTo("TOATests")]
 
-// Следующий GUID служит для идентификации библиотеки типов, если этот проект будет видимым для COM
-[assembly: Guid("eafc0b18-e6e2-4aa8-b549-8efbbc565b80")]
+// Следующий GUID представляет идентификатор typelib, если этот проект доступен из модели COM
+[assembly: Guid("2f0487c8-8d38-4200-aea6-ae3a3ef9d343")] 
 
-// Сведения о версии сборки состоят из указанных ниже четырех значений:
+// Сведения о версии для сборки состоят из следующих четырех значений:
 //
 //      Основной номер версии
-//      Дополнительный номер версии
+//      Дополнительный номер версии 
 //      Номер сборки
-//      Редакция
+//      Номер редакции
 //
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]

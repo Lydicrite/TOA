@@ -58,71 +58,71 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         /// <param name="location">Точка для отображения контекстного меню.</param>
         public override void ShowContextMenu(Point location)
         {
-            ContextMenu contextMenu = new ContextMenu();
+            ContextMenuStrip contextMenu = new ContextMenuStrip();
 
             // Добавление связей с другими состояниями
             if (Automaton.StatesAlphabet.Any())
             {
-                MenuItem addTransitionMenu = new MenuItem("Добавить связь: ...");
+                ToolStripMenuItem addTransitionMenu = new ToolStripMenuItem("Добавить связь: ...");
                 foreach (var input in Automaton.InputAlphabet)
                 {
                     bool transitionExists = Transitions.ContainsKey(input);
 
-                    MenuItem inputMenu = new MenuItem($"при входе \"{input}\"...");
+                    ToolStripMenuItem inputMenu = new ToolStripMenuItem($"при входе \"{input}\"...");
                     foreach (var state in Automaton.StatesAlphabet)
                     {
                         bool specificTransitionExists = Transitions.Contains(new KeyValuePair<char, MooreAutomatonState>(input, state));
 
                         if (!transitionExists && !specificTransitionExists)
                         {
-                            inputMenu.MenuItems.Add(
-                                new MenuItem($"перейти в состояние \"{state.Name}\"",
-                                (s, e) => AddTransition(input, state))
+                            inputMenu.DropDownItems.Add(
+                                new ToolStripMenuItem($"перейти в состояние \"{state.Name}\"",
+                                null, (s, e) => AddTransition(input, state))
                             );
                         }
                     }
 
-                    if (inputMenu.MenuItems.Count > 0)
-                        addTransitionMenu.MenuItems.Add(inputMenu);
+                    if (inputMenu.DropDownItems.Count > 0)
+                        addTransitionMenu.DropDownItems.Add(inputMenu);
                 }
 
-                if (addTransitionMenu.MenuItems.Count > 0)
-                    contextMenu.MenuItems.Add(addTransitionMenu);
+                if (addTransitionMenu.DropDownItems.Count > 0)
+                    contextMenu.Items.Add(addTransitionMenu);
             }
 
             // Редактирование выходов
-            MenuItem editOutputMenu = new MenuItem("Задать выход");
+            ToolStripMenuItem editOutputMenu = new ToolStripMenuItem("Задать выход");
             foreach (var output in Automaton.OutputAlphabet)
             {
-                editOutputMenu.MenuItems.Add(
-                    new MenuItem(
+                editOutputMenu.DropDownItems.Add(
+                    new ToolStripMenuItem(
                         Output == output ? $"[✓] {output}" : $"[ ] {output}",
-                        (s, e) => ToggleOutput(output)
-                    )
+                        null, (s, e) => ToggleOutput(output))
                 );
             }
-            contextMenu.MenuItems.Add(editOutputMenu);
+            contextMenu.Items.Add(editOutputMenu);
 
             // Удаление связей
             if (Transitions.Any())
             {
-                MenuItem removeTransitionMenu = new MenuItem("Удалить связь...");
+                ToolStripMenuItem removeTransitionMenu = new ToolStripMenuItem("Удалить связь...");
                 foreach (var func in Transitions)
                 {
-                    removeTransitionMenu.MenuItems.Add(
-                        new MenuItem(
+                    removeTransitionMenu.DropDownItems.Add(
+                        new ToolStripMenuItem(
                             $"по входу \"{func.Key}\" с состоянием \"{func.Value.Name}\"",
-                            (s, e) => RemoveTransition(func.Key)
-                        )
+                            null, (s, e) => RemoveTransition(func.Key))
                     );
                 }
-                contextMenu.MenuItems.Add(removeTransitionMenu);
+                contextMenu.Items.Add(removeTransitionMenu);
             }
 
-            contextMenu.MenuItems.Add("-");
-            contextMenu.MenuItems.Add(new MenuItem("Удалить это состояние", (s, e) => Automaton.DeleteState(this)));
-            contextMenu.MenuItems.Add("-");
-            contextMenu.MenuItems.Add(new MenuItem("Отмена"));
+            // Разделитель и пункты управления состоянием
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add(new ToolStripMenuItem("Удалить это состояние",
+                null, (s, e) => Automaton.DeleteState(this)));
+            contextMenu.Items.Add(new ToolStripSeparator());
+            contextMenu.Items.Add(new ToolStripMenuItem("Отмена"));
 
             contextMenu.Show(Automaton.Container, location);
         }

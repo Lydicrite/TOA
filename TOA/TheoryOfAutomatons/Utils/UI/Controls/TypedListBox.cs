@@ -27,6 +27,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
 
         [Category("Данные")]
         [Description("Определяет тип данных для хранимых в элементе Value.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SupportedTypes SupportedType
         {
             get { return supportedType; }

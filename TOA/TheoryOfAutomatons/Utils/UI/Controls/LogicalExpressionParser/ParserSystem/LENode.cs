@@ -34,6 +34,8 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         #endregion
     }
 
+
+
     internal class ConstantNode : LENode
     {
         private readonly bool _value;
@@ -52,6 +54,8 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
         public override string ToStringTree() => _value.ToString().ToLower();
     }
+
+
 
     internal class VariableNode : LENode
     {
@@ -74,6 +78,8 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
         public override string ToStringTree() => Name;
     }
+
+
 
     internal class UnaryNode : LENode
     {
@@ -114,6 +120,8 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
         public override string ToStringTree() => $"{Operator}({Operand.ToStringTree()})";
     }
+
+
 
     internal class BinaryNode : LENode
     {

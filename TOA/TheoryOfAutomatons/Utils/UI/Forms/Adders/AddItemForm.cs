@@ -2,13 +2,19 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheoryOfAutomatons.Utils.UI.Controls;
+using System.ComponentModel;
 
 namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
 {
     internal partial class AddItemForm : Form
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public object Value { get; private set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Description { get; private set; }
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SupportedTypes SelectedType { get; private set; }
 
         public AddItemForm(SupportedTypes type = SupportedTypes.Char)

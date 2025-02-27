@@ -18,6 +18,8 @@ namespace TheoryOfAutomatons.Automaton
 {
     internal class AutomatonCreator
     {
+        #region Поля
+
         private DFMealyAutomaton DFMealyAutomaton = null;
         private DFMooreAutomaton DFMooreAutomaton = null;
 
@@ -58,6 +60,9 @@ namespace TheoryOfAutomatons.Automaton
 
         private List<Point> ExistingInitialPoints;
         private static Random random = new Random();
+
+        #endregion
+
         public AutomatonCreator
         (
             ToolStripButton stfb, ToolStripButton lffb, ToolStripButton clb,
