@@ -1,136 +1,346 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Security;
+using System.Text;
+using System.Threading;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues
 {
     [Flags]
-    internal enum ExecutionIssueType
+    public enum ExecutionIssueType
     {
-        None = 0,
-        Warning = 1,
-        Error = 2,
-        Information = 4,
-        All = Warning | Error | Information
+        None = 1,
+        Warning = 2,
+        Error = 4,
+        Message = 8,
+        All = Warning | Error | Message
     }
 
-    internal class ExecutionIssue
+    [Flags]
+    public enum ExecutionIssueCategory
     {
+        IO = 1,
+        UI = 2,
+        Algorithmic = 4,
+        Security = 8,
+        Data = 16
+    }
+
+    [DataContract]
+    public class ExecutionIssue
+    {
+        #region Свойства ошибки
+
+        #region Базовые свойства
+
+        [DataMember(Order = 1)]
+        public Guid Id { get; } = Guid.NewGuid();
+
+        [DataMember(Order = 2)]
         public DateTime Timestamp { get; }
+
+        [DataMember(Order = 3)]
         public ExecutionIssueType Type { get; }
+
+        [DataMember(Order = 4)]
+        public ExecutionIssueCategory Category { get; }
+
+        [DataMember(Order = 5)]
         public string Source { get; }
+
+        [DataMember(Order = 6)]
         public string Message { get; }
+
+        [DataMember(Order = 7)]
+        public string StackTrace { get; }
+
+        [DataMember(Order = 8)]
+        public string TargetSite { get; }
+
+        [DataMember(Order = 9)]
+        public string HelpLink { get; }
+
+        [DataMember(Order = 10)]
+        public string ErrorCode { get; }
+
+        [IgnoreDataMember]
         public Exception Exception { get; }
 
-        public ExecutionIssue(ExecutionIssueType type, string source, string message, Exception ex = null)
+        #endregion
+
+        #region Контекст выполнения
+
+        [DataMember(Order = 11)]
+        public string MachineName { get; } = Environment.MachineName;
+
+        [DataMember(Order = 12)]
+        public string OSVersion { get; } = Environment.OSVersion.VersionString;
+
+        [DataMember(Order = 13)]
+        public string AppVersion { get; } = Assembly.GetEntryAssembly()?.GetName().Version.ToString();
+
+        [DataMember(Order = 14)]
+        public string UserName { get; } = Environment.UserName;
+
+        #endregion
+
+        #region Детализация
+
+        [DataMember(Order = 15)]
+        public List<ExecutionIssue> InnerIssues { get; } = new List<ExecutionIssue>();
+
+        [DataMember(Order = 16)]
+        public string CodeSnippet { get; }
+
+        [DataMember(Order = 17)]
+        public string MethodPath { get; }
+
+        #endregion
+
+        #endregion
+
+        public ExecutionIssue
+        (
+            ExecutionIssueType type,
+            ExecutionIssueCategory category,
+            string source,
+            string message,
+            Exception ex = null,
+            string codeSnippet = null
+        )
         {
-            Timestamp = DateTime.Now;
+            Timestamp = DateTime.UtcNow;
             Type = type;
-            Source = source;
-            Message = message;
+            Category = category;
+            Source = source ?? throw new ArgumentNullException(nameof(source));
+            Message = message ?? throw new ArgumentNullException(nameof(message));
             Exception = ex;
+            StackTrace = ex?.StackTrace;
+            MethodPath = GetMethodPath(ex);
+            TargetSite = ex?.TargetSite?.ToString();
+            HelpLink = ex?.HelpLink;
+            ErrorCode = GenerateErrorCode(ex);
+            CodeSnippet = codeSnippet;
         }
+
+        private string GetMethodPath(Exception ex)
+        {
+            if (ex == null) return null;
+
+            try
+            {
+                var stackFrame = new StackTrace(ex, true)
+                    .GetFrames()?
+                    .FirstOrDefault(f => f.GetFileLineNumber() > 0);
+
+                return stackFrame != null
+                    ? $"{stackFrame.GetMethod()?.DeclaringType?.FullName}.{stackFrame.GetMethod()?.Name}:{stackFrame.GetFileLineNumber()}"
+                    : null;
+            }
+            catch (Exception)
+            {
+                return "Не удалость получить часть стека";
+            }
+        }
+
+        private string GenerateErrorCode(Exception ex)
+        {
+            if (ex == null) return null;
+
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + ex.GetType().Name.GetHashCode(StringComparison.Ordinal);
+                hash = hash * 31 + (Message?.GetHashCode(StringComparison.Ordinal) ?? 0);
+                hash = hash * 31 + (Source?.GetHashCode(StringComparison.Ordinal) ?? 0);
+                return $"ERR-{Math.Abs(hash):X8}";
+            }
+        }
+
+        public string GetTechnicalDetails() =>
+            $"[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] \"{Type}\" в {Source}\n" +
+            $"Категория: {Category}\n" +
+            $"Сообщение: {Message}\n" +
+            $"Исключение: \"{Exception?.GetType().FullName}\"\n" +
+            $"Код ошибки: {ErrorCode}\n" +
+            $"Трассировка стека:\n{StackTrace}\n" +
+            $"Помощь: {HelpLink}";
+
+        public void AddInnerIssue(ExecutionIssue issue) => InnerIssues.Add(issue);
+
+        public void Dispose() => InnerIssues.Clear();
     }
 
 
 
 
-    internal static class ExecutionIssuesHelper
+    public static class ExecutionIssuesHelper
     {
-        private static Size _iconSize = new Size(20, 20);
-        private static Dictionary<ExecutionIssueType, Image> _iconCache = new Dictionary<ExecutionIssueType, Image>();
+        private static readonly Size _iconSize = new Size(20, 20);
+        private static readonly ReaderWriterLockSlim _cacheLock = new ReaderWriterLockSlim();
+        private static readonly Dictionary<ExecutionIssueType, Image> _iconCache = new Dictionary<ExecutionIssueType, Image>();
 
         public static Image GetCachedIcon(this ExecutionIssueType type)
         {
-            if (!_iconCache.ContainsKey(type))
+            _cacheLock.EnterReadLock();
+            try
             {
-                _iconCache[type] = GetIcon(type);
+                if (_iconCache.TryGetValue(type, out var cachedIcon))
+                    return cachedIcon;
             }
-            return _iconCache[type];
-        }
-
-        public static int ToIndex(this ExecutionIssueType type)
-        {
-            switch (type)
+            finally
             {
-                case ExecutionIssueType.Warning: return 0;
-                case ExecutionIssueType.Error: return 1;
-                case ExecutionIssueType.Information: return 2;
-                default: return 2;
+                _cacheLock.ExitReadLock();
             }
-        }
 
-        public static Color ToColor(this ExecutionIssueType type)
-        {
-            switch (type)
+            _cacheLock.EnterWriteLock();
+            try
             {
-                case ExecutionIssueType.Warning: return Color.DarkOrange;
-                case ExecutionIssueType.Error: return Color.Red;
-                case ExecutionIssueType.Information: return Color.DodgerBlue;
-                default: return Color.DodgerBlue;
+                var icon = GetIcon(type);
+                _iconCache[type] = icon;
+                return icon;
+            }
+            finally
+            {
+                _cacheLock.ExitWriteLock();
             }
         }
 
-        public static string GetTypeName(this ExecutionIssueType type)
+        public static int ToIndex(this ExecutionIssueType type) => type switch
         {
-            switch (type)
-            {
-                case ExecutionIssueType.Warning: return "Предупреждения";
-                case ExecutionIssueType.Error: return "Ошибки";
-                case ExecutionIssueType.Information: return "Сообщения";
-                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-        }
+            ExecutionIssueType.Warning => 0,
+            ExecutionIssueType.Error => 1,
+            ExecutionIssueType.Message => 2,
+            _ => 2
+        };
 
-        private static Image GetIcon(this ExecutionIssueType type)
+        public static Color ToColor(this ExecutionIssueType type) => type switch
         {
-            switch (type)
+            ExecutionIssueType.Warning => Color.DarkOrange,
+            ExecutionIssueType.Error => Color.Red,
+            ExecutionIssueType.Message => Color.DodgerBlue,
+            _ => Color.DodgerBlue
+        };
+
+        public static string GetTypeName(this ExecutionIssueType type) => type switch
+        {
+            ExecutionIssueType.Warning => "Предупреждения",
+            ExecutionIssueType.Error => "Ошибки",
+            ExecutionIssueType.Message => "Сообщения",
+            _ => throw new ArgumentOutOfRangeException(nameof(type))
+        };
+
+        private static Image GetIcon(ExecutionIssueType type)
+        {
+            Icon icon = type switch
             {
-                case ExecutionIssueType.Error: return GetResizedIcon(SystemIcons.Error, _iconSize);
-                case ExecutionIssueType.Warning: return GetResizedIcon(SystemIcons.Warning, _iconSize);
-                case ExecutionIssueType.Information: return GetResizedIcon(SystemIcons.Information, _iconSize);
-                default: return null;
-            }
+                ExecutionIssueType.Error => SystemIcons.Error,
+                ExecutionIssueType.Warning => SystemIcons.Warning,
+                ExecutionIssueType.Message => SystemIcons.Information,
+                _ => null
+            };
+
+            return icon != null ? GetResizedIcon(icon, _iconSize) : null;
         }
 
         private static Image GetResizedIcon(Icon icon, Size size)
         {
             if (icon == null) return null;
-            Bitmap resized = new Bitmap(size.Width, size.Height);
-            using (Graphics g = Graphics.FromImage(resized))
+
+            using var srcBitmap = icon.ToBitmap();
+            var destBitmap = new Bitmap(size.Width, size.Height);
+
+            using (var g = Graphics.FromImage(destBitmap))
             {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(icon.ToBitmap(), new Rectangle(0, 0, size.Width, size.Height));
+                g.DrawImage(srcBitmap, new Rectangle(0, 0, size.Width, size.Height));
             }
-            return resized;
+            return destBitmap;
+        }
+
+        public static void ExportToFile(IEnumerable<ExecutionIssue> issues, string path, bool includeTechnicalDetails = true)
+        {
+            var content = includeTechnicalDetails
+                ? string.Join("\n\n", issues.Select(i => i.GetTechnicalDetails()))
+                : string.Join("\n", issues.Select(i => $"[{i.Timestamp:HH:mm:ss}] {i.Type}: {i.Message}"));
+
+            File.WriteAllText(path, content, Encoding.UTF8);
+        }
+
+        public static string ToHtmlReport(this IEnumerable<ExecutionIssue> issues, bool includeStackTrace = false)
+        {
+            var sb = new StringBuilder(@"<style>
+                .error { color: #dc3545; } 
+                .warning { color: #ffc107; } 
+                .info { color: #17a2b8; }
+                table { border-collapse: collapse; width: 100%; }
+                td, th { border: 1px solid #ddd; padding: 8px; }
+                </style>
+                <table>
+                <tr><th>Time</th><th>Type</th><th>Message</th></tr>");
+
+            foreach (var issue in issues)
+            {
+                sb.Append($@"<tr class='{issue.Type.ToString().ToLower()}'>
+                    <td>{issue.Timestamp:HH:mm:ss.fff}</td>
+                    <td>{issue.Type}</td>
+                    <td>{SecurityElement.Escape(issue.Message)}" +
+                    (includeStackTrace ? $"<pre>{SecurityElement.Escape(issue.StackTrace)}</pre>" : "") +
+                    "</td></tr>");
+            }
+            return sb.Append("</table>").ToString();
         }
     }
 
-    internal static class ExceptionGenerator
+
+    public static class ExceptionGenerator
     {
-        private static readonly Random _random = new Random();
+        private static readonly ThreadLocal<Random> _random = new ThreadLocal<Random>(() =>
+             new Random(Interlocked.Increment(ref _seed)));
+
+        private static int _seed = Environment.TickCount;
         private static readonly List<Func<Exception>> _exceptionFactories = new List<Func<Exception>>
         {
-            () => new ArgumentException("Неверное значение аргумента"),
-            () => new InvalidOperationException("Недопустимая операция"),
-            () => new DivideByZeroException("Попытка деления на ноль"),
-            () => new IndexOutOfRangeException("Индекс за пределами массива"),
-            () => new FileNotFoundException("Файл не найден"),
-            () => new TimeoutException("Превышено время ожидания"),
-            () => new FormatException("Неверный формат данных"),
-            () => new NotSupportedException("Данная функциональность не поддерживается"),
-            () => new UnauthorizedAccessException("Отказано в доступе"),
-            () => new ArgumentOutOfRangeException("Параметр вне допустимого диапазона"),
-            () => new DirectoryNotFoundException("Каталог не найден"),
-            () => new IOException("Ошибка ввода-вывода"),
-            () => new ArithmeticException("Арифметическая ошибка")
+            () => new ArgumentException("Invalid argument value"),
+            () => new InvalidOperationException("Invalid operation"),
+            () => new DivideByZeroException("Division by zero"),
+            () => new IndexOutOfRangeException("Index out of range"),
+            () => new FileNotFoundException("File not found"),
+            () => new TimeoutException("Operation timeout"),
+            () => new FormatException("Invalid data format"),
+            () => new NotSupportedException("Feature not supported"),
+            () => new UnauthorizedAccessException("Access denied"),
+            () => new ArgumentOutOfRangeException("Parameter out of range"),
+            () => new DirectoryNotFoundException("Directory not found"),
+            () => new IOException("I/O error"),
+            () => new SecurityException("Security violation"),
+            () => new ArithmeticException("Arithmetic error")
         };
 
-        public static void ThrowRandomException()
+        public static void ThrowRandomException(int? seed = null)
         {
-            int index = _random.Next(_exceptionFactories.Count);
+            var random = seed.HasValue
+                ? new Random(seed.Value)
+                : _random.Value;
+
+            int index = random.Next(_exceptionFactories.Count);
             throw _exceptionFactories[index]();
+        }
+
+        public static void AddCustomException(Func<Exception> exceptionFactory)
+        {
+            if (exceptionFactory == null)
+                throw new ArgumentNullException(nameof(exceptionFactory));
+
+            _exceptionFactories.Add(exceptionFactory);
         }
     }
 }

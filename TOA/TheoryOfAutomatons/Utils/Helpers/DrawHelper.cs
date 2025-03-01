@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -66,6 +67,8 @@ namespace TheoryOfAutomatons.Utils.Helpers
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             if (g.TextRenderingHint != System.Drawing.Text.TextRenderingHint.AntiAlias)
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            if (g.PixelOffsetMode != System.Drawing.Drawing2D.PixelOffsetMode.HighQuality)
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
         }
 
         /// <summary>

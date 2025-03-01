@@ -95,6 +95,7 @@ namespace TheoryOfAutomatons
             transitionLightPenCP = new PictureBox();
             transitionLightPenNUD = new NumericUpDown();
             container = new PictureBox();
+            workspace1 = new Workspace();
             terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             mainGB = new GroupBox();
             colorPicker = new ColorDialog();
@@ -228,6 +229,7 @@ namespace TheoryOfAutomatons
             // mainHorizontalSplitContainer.Panel2
             // 
             mainHorizontalSplitContainer.Panel2.BackColor = Color.FromArgb(26, 26, 26);
+            mainHorizontalSplitContainer.Panel2.Controls.Add(workspace1);
             mainHorizontalSplitContainer.Panel2.Controls.Add(terminal1);
             mainHorizontalSplitContainer.Size = new Size(834, 977);
             mainHorizontalSplitContainer.SplitterDistance = 669;
@@ -914,19 +916,32 @@ namespace TheoryOfAutomatons
             container.BackColor = Color.FromArgb(96, 96, 96);
             container.Dock = DockStyle.Fill;
             container.Location = new Point(276, 3);
-            container.MinimumSize = new Size(555, 666);
             container.Name = "container";
-            container.Size = new Size(555, 666);
+            container.Size = new Size(555, 663);
             container.TabIndex = 2;
             container.TabStop = false;
             // 
+            // workspace1
+            // 
+            workspace1.BackColor = Color.FromArgb(96, 96, 96);
+            workspace1.GridColor = Color.FromArgb(120, 120, 120);
+            workspace1.GridSize = 10;
+            workspace1.Location = new Point(468, 3);
+            workspace1.Margin = new Padding(4, 3, 4, 3);
+            workspace1.MaxScale = 5F;
+            workspace1.MinScale = 0.05F;
+            workspace1.Name = "workspace1";
+            workspace1.ScaleFactor = 1F;
+            workspace1.ShowGrid = true;
+            workspace1.Size = new Size(362, 298);
+            workspace1.TabIndex = 1;
+            // 
             // terminal1
             // 
-            terminal1.Dock = DockStyle.Fill;
             terminal1.Location = new Point(0, 0);
             terminal1.Margin = new Padding(13);
             terminal1.Name = "terminal1";
-            terminal1.Size = new Size(834, 304);
+            terminal1.Size = new Size(451, 304);
             terminal1.TabIndex = 0;
             // 
             // mainGB
@@ -1028,7 +1043,6 @@ namespace TheoryOfAutomatons
         private System.Windows.Forms.Button generateRandomSequence;
         private System.Windows.Forms.TextBox sequenceTextBox;
         private System.Windows.Forms.Button analyze;
-        private System.Windows.Forms.PictureBox container;
         private ToolStripButton clearTSB;
         private TypedListBox inputAlphabet;
         private TypedListBox outputAlphabet;
@@ -1067,6 +1081,7 @@ namespace TheoryOfAutomatons
         private Label label14;
         private Label label15;
         private NumericUpDown drawStepDelayNUD;
+        private PictureBox container;
+        private Workspace workspace1;
     }
 }
-

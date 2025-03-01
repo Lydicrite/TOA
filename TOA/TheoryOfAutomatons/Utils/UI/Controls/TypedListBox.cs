@@ -14,6 +14,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls
         String
     }
 
+    [ToolboxItem(true)]
     internal partial class TypedListBox : UserControl
     {
         private ListBox listBox;

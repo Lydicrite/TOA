@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 {
-    internal class CommandArgs
+    public class CommandArgs
     {
         public string[] Arguments { get; }
         public Terminal Terminal { get; }

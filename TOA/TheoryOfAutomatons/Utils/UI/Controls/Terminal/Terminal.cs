@@ -13,7 +13,8 @@ using TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 {
-    internal class Terminal : UserControl
+    [ToolboxItem(true)]
+    public class Terminal : UserControl
     {
         #region Поля класса
 
@@ -205,7 +206,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             iconColumn.Width = 20;
             iconColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
             iconColumn.DefaultCellStyle.NullValue = null;
-            issuesDataGridView.Font = new Font("Arial", 7f, FontStyle.Bold);
+            issuesDataGridView.Font = new Font("Times New Roman", 6f, FontStyle.Bold);
             issuesDataGridView.VirtualMode = true;
             issuesDataGridView.AllowDrop = false;
             issuesDataGridView.AutoGenerateColumns = true;
@@ -221,12 +222,12 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             }
             catch (Exception ex)
             {
-                LogExecIssue(ExecutionIssueType.Error, "Lydicrite", $"Это пример поимки ошибки", ex);
+                LogExecIssue(ExecutionIssueType.Error, ExecutionIssueCategory.UI, "Lydicrite", $"Это пример поимки ошибки", ex);
             }
             finally
             {
-                LogExecIssue(ExecutionIssueType.Warning, "Was", "Это пример вывода предупреждения");
-                LogExecIssue(ExecutionIssueType.Information, "Here", "Это пример вывода сообщения");
+                LogExecIssue(ExecutionIssueType.Warning, ExecutionIssueCategory.Security, "Was", "Это пример вывода предупреждения");
+                LogExecIssue(ExecutionIssueType.Message, ExecutionIssueCategory.Data, "Here", "Это пример вывода сообщения");
             }
         }
 
@@ -255,7 +256,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                         text = showWarningsFilter.Checked ? $"{typeName} ({count})" : $"{typeName} (0 из {count})";
                         showWarningsFilter.Text = text;
                         break;
-                    case ExecutionIssueType.Information:
+                    case ExecutionIssueType.Message:
                         text = showInfoMessagesFilter.Checked ? $"{typeName} ({count})" : $"{typeName} (0 из {count})";
                         showInfoMessagesFilter.Text = text;
                         break;
@@ -272,40 +273,40 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             _visibleIssueTypes = ExecutionIssueType.None;
             if (showErrors) _visibleIssueTypes |= ExecutionIssueType.Error;
             if (showWarnings) _visibleIssueTypes |= ExecutionIssueType.Warning;
-            if (showInfoMessages) _visibleIssueTypes |= ExecutionIssueType.Information;
+            if (showInfoMessages) _visibleIssueTypes |= ExecutionIssueType.Message;
 
             UpdateFilteredView();
         }
 
-        public void LogExecIssue(ExecutionIssueType issueTupe, string source, string message, Exception ex = null)
+        public void LogExecIssue(ExecutionIssueType issueTupe, ExecutionIssueCategory cat, string source, string message, Exception ex = null, string codeSnippet = null)
         {
             switch (issueTupe)
             {
                 case ExecutionIssueType.Error:
-                    LogError(source, message, ex); break;
+                    LogError(source, message, cat, ex, codeSnippet); break;
                 case ExecutionIssueType.Warning:
-                    LogWarning(source, message, ex); break;
-                case ExecutionIssueType.Information:
-                    LogMessage(source, message, ex); break;
+                    LogWarning(source, message, cat, ex, codeSnippet); break;
+                case ExecutionIssueType.Message:
+                    LogMessage(source, message, cat, ex, codeSnippet); break;
                 default: throw new NotImplementedException();
             }
         }
 
-        private void LogError(string source, string message, Exception ex = null)
+        private void LogError(string source, string message, ExecutionIssueCategory cat, Exception ex = null, string codeSnippet = null)
         {
-            var issue = new ExecutionIssue(ExecutionIssueType.Error, source, message, ex);
+            var issue = new ExecutionIssue(ExecutionIssueType.Error, cat, source, message, ex, codeSnippet);
             AddIssueToList(issue);
         }
 
-        private void LogWarning(string source, string message, Exception ex = null)
+        private void LogWarning(string source, string message, ExecutionIssueCategory cat, Exception ex = null, string codeSnippet = null)
         {
-            var issue = new ExecutionIssue(ExecutionIssueType.Warning, source, message, ex);
+            var issue = new ExecutionIssue(ExecutionIssueType.Warning, cat, source, message, ex, codeSnippet);
             AddIssueToList(issue);
         }
 
-        private void LogMessage(string source, string message, Exception ex = null)
+        private void LogMessage(string source, string message, ExecutionIssueCategory cat, Exception ex = null, string codeSnippet = null)
         {
-            var issue = new ExecutionIssue(ExecutionIssueType.Information, source, message, ex);
+            var issue = new ExecutionIssue(ExecutionIssueType.Message, cat,source, message, ex, codeSnippet);
             AddIssueToList(issue);
         }
 
@@ -573,351 +574,358 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         // Метод для инициализации компонентов
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.terminalTab = new Syncfusion.Windows.Forms.Tools.TabControlAdv();
-            this.pshPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
-            this.suggestionsPanel = new System.Windows.Forms.Panel();
-            this.suggestionsList = new System.Windows.Forms.ListBox();
-            this.pshTerminal = new System.Windows.Forms.RichTextBox();
-            this.runtimePage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
-            this.issueMainTLP = new System.Windows.Forms.TableLayoutPanel();
-            this.issuesDataGridView = new System.Windows.Forms.DataGridView();
-            this.iconColumn = new System.Windows.Forms.DataGridViewImageColumn();
-            this.typeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.timeColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sourceColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.messageColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.issueMainFLP = new System.Windows.Forms.FlowLayoutPanel();
-            this.showErrorsFilter = new System.Windows.Forms.CheckBox();
-            this.showWarningsFilter = new System.Windows.Forms.CheckBox();
-            this.showInfoMessagesFilter = new System.Windows.Forms.CheckBox();
-            this.configPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
-            this.issueIcons = new System.Windows.Forms.ImageList(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.terminalTab)).BeginInit();
-            this.terminalTab.SuspendLayout();
-            this.pshPage.SuspendLayout();
-            this.suggestionsPanel.SuspendLayout();
-            this.runtimePage.SuspendLayout();
-            this.issueMainTLP.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.issuesDataGridView)).BeginInit();
-            this.issueMainFLP.SuspendLayout();
-            this.SuspendLayout();
+            components = new Container();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            terminalTab = new Syncfusion.Windows.Forms.Tools.TabControlAdv();
+            pshPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
+            suggestionsPanel = new Panel();
+            suggestionsList = new ListBox();
+            pshTerminal = new RichTextBox();
+            runtimePage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
+            issueMainTLP = new TableLayoutPanel();
+            issuesDataGridView = new DataGridView();
+            iconColumn = new DataGridViewImageColumn();
+            typeColumn = new DataGridViewTextBoxColumn();
+            timeColumn = new DataGridViewTextBoxColumn();
+            sourceColumn = new DataGridViewTextBoxColumn();
+            messageColumn = new DataGridViewTextBoxColumn();
+            issueMainFLP = new FlowLayoutPanel();
+            showErrorsFilter = new CheckBox();
+            showWarningsFilter = new CheckBox();
+            showInfoMessagesFilter = new CheckBox();
+            configPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
+            issueIcons = new ImageList(components);
+            ((ISupportInitialize)terminalTab).BeginInit();
+            terminalTab.SuspendLayout();
+            pshPage.SuspendLayout();
+            suggestionsPanel.SuspendLayout();
+            runtimePage.SuspendLayout();
+            issueMainTLP.SuspendLayout();
+            ((ISupportInitialize)issuesDataGridView).BeginInit();
+            issueMainFLP.SuspendLayout();
+            SuspendLayout();
             // 
             // terminalTab
             // 
-            this.terminalTab.Alignment = System.Windows.Forms.TabAlignment.Bottom;
-            this.terminalTab.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.terminalTab.BeforeTouchSize = new System.Drawing.Size(617, 281);
-            this.terminalTab.Controls.Add(this.pshPage);
-            this.terminalTab.Controls.Add(this.runtimePage);
-            this.terminalTab.Controls.Add(this.configPage);
-            this.terminalTab.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.terminalTab.Location = new System.Drawing.Point(0, 0);
-            this.terminalTab.Margin = new System.Windows.Forms.Padding(7);
-            this.terminalTab.Name = "terminalTab";
-            this.terminalTab.Size = new System.Drawing.Size(617, 281);
-            this.terminalTab.TabIndex = 0;
-            this.terminalTab.ThemeStyle.PrimitiveButtonStyle.DisabledNextPageImage = null;
+            terminalTab.Alignment = TabAlignment.Bottom;
+            terminalTab.BackColor = Color.FromArgb(32, 32, 32);
+            terminalTab.BeforeTouchSize = new Size(720, 324);
+            terminalTab.Controls.Add(pshPage);
+            terminalTab.Controls.Add(runtimePage);
+            terminalTab.Controls.Add(configPage);
+            terminalTab.Dock = DockStyle.Fill;
+            terminalTab.Location = new Point(0, 0);
+            terminalTab.Margin = new Padding(8);
+            terminalTab.Name = "terminalTab";
+            terminalTab.Size = new Size(720, 324);
+            terminalTab.TabIndex = 0;
+            terminalTab.ThemeStyle.PrimitiveButtonStyle.DisabledNextPageImage = null;
             // 
             // pshPage
             // 
-            this.pshPage.Controls.Add(this.suggestionsPanel);
-            this.pshPage.Controls.Add(this.pshTerminal);
-            this.pshPage.Image = null;
-            this.pshPage.ImageSize = new System.Drawing.Size(16, 16);
-            this.pshPage.Location = new System.Drawing.Point(1, 2);
-            this.pshPage.Name = "pshPage";
-            this.pshPage.ShowCloseButton = true;
-            this.pshPage.Size = new System.Drawing.Size(614, 254);
-            this.pshPage.TabForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.pshPage.TabIndex = 1;
-            this.pshPage.Text = "PowerShell";
-            this.pshPage.ThemesEnabled = false;
+            pshPage.Controls.Add(suggestionsPanel);
+            pshPage.Controls.Add(pshTerminal);
+            pshPage.Image = null;
+            pshPage.ImageSize = new Size(16, 16);
+            pshPage.Location = new Point(1, 2);
+            pshPage.Margin = new Padding(4, 3, 4, 3);
+            pshPage.Name = "pshPage";
+            pshPage.ShowCloseButton = true;
+            pshPage.Size = new Size(717, 295);
+            pshPage.TabForeColor = Color.FromArgb(224, 224, 224);
+            pshPage.TabIndex = 1;
+            pshPage.Text = "PowerShell";
+            pshPage.ThemesEnabled = false;
             // 
             // suggestionsPanel
             // 
-            this.suggestionsPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
-            this.suggestionsPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.suggestionsPanel.Controls.Add(this.suggestionsList);
-            this.suggestionsPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.suggestionsPanel.Location = new System.Drawing.Point(464, 0);
-            this.suggestionsPanel.Name = "suggestionsPanel";
-            this.suggestionsPanel.Size = new System.Drawing.Size(150, 254);
-            this.suggestionsPanel.TabIndex = 2;
-            this.suggestionsPanel.Visible = false;
+            suggestionsPanel.BackColor = Color.FromArgb(24, 24, 24);
+            suggestionsPanel.BorderStyle = BorderStyle.Fixed3D;
+            suggestionsPanel.Controls.Add(suggestionsList);
+            suggestionsPanel.Dock = DockStyle.Right;
+            suggestionsPanel.Location = new Point(543, 0);
+            suggestionsPanel.Margin = new Padding(4, 3, 4, 3);
+            suggestionsPanel.Name = "suggestionsPanel";
+            suggestionsPanel.Size = new Size(174, 295);
+            suggestionsPanel.TabIndex = 2;
+            suggestionsPanel.Visible = false;
             // 
             // suggestionsList
             // 
-            this.suggestionsList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
-            this.suggestionsList.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.suggestionsList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.suggestionsList.FormattingEnabled = true;
-            this.suggestionsList.Location = new System.Drawing.Point(0, 0);
-            this.suggestionsList.Name = "suggestionsList";
-            this.suggestionsList.Size = new System.Drawing.Size(146, 250);
-            this.suggestionsList.TabIndex = 0;
-            this.suggestionsList.Visible = false;
-            this.suggestionsList.Click += new System.EventHandler(this.suggestionsList_Click);
+            suggestionsList.BackColor = Color.FromArgb(24, 24, 24);
+            suggestionsList.Dock = DockStyle.Fill;
+            suggestionsList.ForeColor = Color.FromArgb(224, 224, 224);
+            suggestionsList.FormattingEnabled = true;
+            suggestionsList.Location = new Point(0, 0);
+            suggestionsList.Margin = new Padding(4, 3, 4, 3);
+            suggestionsList.Name = "suggestionsList";
+            suggestionsList.Size = new Size(170, 291);
+            suggestionsList.TabIndex = 0;
+            suggestionsList.Visible = false;
+            suggestionsList.Click += suggestionsList_Click;
             // 
             // pshTerminal
             // 
-            this.pshTerminal.BackColor = System.Drawing.Color.Black;
-            this.pshTerminal.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pshTerminal.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.pshTerminal.Location = new System.Drawing.Point(0, 0);
-            this.pshTerminal.Name = "pshTerminal";
-            this.pshTerminal.Size = new System.Drawing.Size(614, 254);
-            this.pshTerminal.TabIndex = 0;
-            this.pshTerminal.Text = "";
-            this.pshTerminal.SelectionChanged += new System.EventHandler(this.pshTerminal_SelectionChanged);
-            this.pshTerminal.TextChanged += new System.EventHandler(this.pshTerminal_TextChanged);
-            this.pshTerminal.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pshTerminal_KeyDown);
-            this.pshTerminal.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.pshTerminal_KeyPress);
-            this.pshTerminal.KeyUp += new System.Windows.Forms.KeyEventHandler(this.pshTerminal_KeyUp);
+            pshTerminal.BackColor = Color.Black;
+            pshTerminal.Dock = DockStyle.Fill;
+            pshTerminal.ForeColor = Color.FromArgb(224, 224, 224);
+            pshTerminal.Location = new Point(0, 0);
+            pshTerminal.Margin = new Padding(4, 3, 4, 3);
+            pshTerminal.Name = "pshTerminal";
+            pshTerminal.Size = new Size(717, 295);
+            pshTerminal.TabIndex = 0;
+            pshTerminal.Text = "";
+            pshTerminal.SelectionChanged += pshTerminal_SelectionChanged;
+            pshTerminal.TextChanged += pshTerminal_TextChanged;
+            pshTerminal.KeyDown += pshTerminal_KeyDown;
+            pshTerminal.KeyPress += pshTerminal_KeyPress;
+            pshTerminal.KeyUp += pshTerminal_KeyUp;
             // 
             // runtimePage
             // 
-            this.runtimePage.Controls.Add(this.issueMainTLP);
-            this.runtimePage.Image = null;
-            this.runtimePage.ImageSize = new System.Drawing.Size(16, 16);
-            this.runtimePage.Location = new System.Drawing.Point(1, 2);
-            this.runtimePage.Name = "runtimePage";
-            this.runtimePage.ShowCloseButton = true;
-            this.runtimePage.Size = new System.Drawing.Size(614, 254);
-            this.runtimePage.TabForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.runtimePage.TabIndex = 2;
-            this.runtimePage.Text = "Проблемы выполнения";
-            this.runtimePage.ThemesEnabled = false;
+            runtimePage.Controls.Add(issueMainTLP);
+            runtimePage.Image = null;
+            runtimePage.ImageSize = new Size(16, 16);
+            runtimePage.Location = new Point(1, 2);
+            runtimePage.Margin = new Padding(4, 3, 4, 3);
+            runtimePage.Name = "runtimePage";
+            runtimePage.ShowCloseButton = true;
+            runtimePage.Size = new Size(717, 295);
+            runtimePage.TabForeColor = Color.FromArgb(224, 224, 224);
+            runtimePage.TabIndex = 2;
+            runtimePage.Text = "Проблемы выполнения";
+            runtimePage.ThemesEnabled = false;
             // 
             // issueMainTLP
             // 
-            this.issueMainTLP.ColumnCount = 1;
-            this.issueMainTLP.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.issueMainTLP.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.issueMainTLP.Controls.Add(this.issuesDataGridView, 0, 1);
-            this.issueMainTLP.Controls.Add(this.issueMainFLP, 0, 0);
-            this.issueMainTLP.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.issueMainTLP.Location = new System.Drawing.Point(0, 0);
-            this.issueMainTLP.Name = "issueMainTLP";
-            this.issueMainTLP.RowCount = 2;
-            this.issueMainTLP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.56693F));
-            this.issueMainTLP.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 85.43307F));
-            this.issueMainTLP.Size = new System.Drawing.Size(614, 254);
-            this.issueMainTLP.TabIndex = 1;
+            issueMainTLP.ColumnCount = 1;
+            issueMainTLP.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            issueMainTLP.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            issueMainTLP.Controls.Add(issuesDataGridView, 0, 1);
+            issueMainTLP.Controls.Add(issueMainFLP, 0, 0);
+            issueMainTLP.Dock = DockStyle.Fill;
+            issueMainTLP.Location = new Point(0, 0);
+            issueMainTLP.Margin = new Padding(4, 3, 4, 3);
+            issueMainTLP.Name = "issueMainTLP";
+            issueMainTLP.RowCount = 2;
+            issueMainTLP.RowStyles.Add(new RowStyle(SizeType.Percent, 14.56693F));
+            issueMainTLP.RowStyles.Add(new RowStyle(SizeType.Percent, 85.43307F));
+            issueMainTLP.Size = new Size(717, 295);
+            issueMainTLP.TabIndex = 1;
             // 
             // issuesDataGridView
             // 
-            this.issuesDataGridView.AllowUserToAddRows = false;
-            this.issuesDataGridView.AllowUserToDeleteRows = false;
-            this.issuesDataGridView.AllowUserToResizeRows = false;
-            this.issuesDataGridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            this.issuesDataGridView.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.DisplayedCells;
-            this.issuesDataGridView.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.issuesDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.issuesDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.MidnightBlue;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.issuesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            this.issuesDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.issuesDataGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.iconColumn,
-            this.typeColumn,
-            this.timeColumn,
-            this.sourceColumn,
-            this.messageColumn});
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.MidnightBlue;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.issuesDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
-            this.issuesDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.issuesDataGridView.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.issuesDataGridView.EnableHeadersVisualStyles = false;
-            this.issuesDataGridView.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.issuesDataGridView.Location = new System.Drawing.Point(3, 40);
-            this.issuesDataGridView.Name = "issuesDataGridView";
-            this.issuesDataGridView.ReadOnly = true;
-            this.issuesDataGridView.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.MidnightBlue;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.Gainsboro;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.issuesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.issuesDataGridView.RowHeadersVisible = false;
-            this.issuesDataGridView.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.Color.Lime;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Blue;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.White;
-            this.issuesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle4;
-            this.issuesDataGridView.RowTemplate.DefaultCellStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionBackColor = System.Drawing.Color.DimGray;
-            this.issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = System.Drawing.Color.WhiteSmoke;
-            this.issuesDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.issuesDataGridView.Size = new System.Drawing.Size(608, 211);
-            this.issuesDataGridView.TabIndex = 15;
+            issuesDataGridView.AllowUserToAddRows = false;
+            issuesDataGridView.AllowUserToDeleteRows = false;
+            issuesDataGridView.AllowUserToResizeRows = false;
+            issuesDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            issuesDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+            issuesDataGridView.BackgroundColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.BorderStyle = BorderStyle.Fixed3D;
+            issuesDataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle1.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle1.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            issuesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            issuesDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            issuesDataGridView.Columns.AddRange(new DataGridViewColumn[] { iconColumn, typeColumn, timeColumn, sourceColumn, messageColumn });
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle2.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle2.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle2.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            issuesDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+            issuesDataGridView.Dock = DockStyle.Fill;
+            issuesDataGridView.EditMode = DataGridViewEditMode.EditProgrammatically;
+            issuesDataGridView.EnableHeadersVisualStyles = false;
+            issuesDataGridView.GridColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.Location = new Point(4, 45);
+            issuesDataGridView.Margin = new Padding(4, 3, 4, 3);
+            issuesDataGridView.Name = "issuesDataGridView";
+            issuesDataGridView.ReadOnly = true;
+            issuesDataGridView.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle3.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle3.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            issuesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            issuesDataGridView.RowHeadersVisible = false;
+            issuesDataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
+            dataGridViewCellStyle4.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle4.ForeColor = Color.Lime;
+            dataGridViewCellStyle4.SelectionBackColor = Color.Blue;
+            dataGridViewCellStyle4.SelectionForeColor = Color.White;
+            issuesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            issuesDataGridView.RowTemplate.DefaultCellStyle.BackColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionBackColor = Color.DimGray;
+            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = Color.WhiteSmoke;
+            issuesDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            issuesDataGridView.Size = new Size(709, 247);
+            issuesDataGridView.TabIndex = 15;
             // 
             // iconColumn
             // 
-            this.iconColumn.FillWeight = 30.45685F;
-            this.iconColumn.HeaderText = "";
-            this.iconColumn.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom;
-            this.iconColumn.Name = "iconColumn";
-            this.iconColumn.ReadOnly = true;
-            this.iconColumn.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.iconColumn.Width = 18;
+            iconColumn.FillWeight = 30.45685F;
+            iconColumn.HeaderText = "";
+            iconColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            iconColumn.Name = "iconColumn";
+            iconColumn.ReadOnly = true;
+            iconColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            iconColumn.Width = 18;
             // 
             // typeColumn
             // 
-            this.typeColumn.FillWeight = 169.5432F;
-            this.typeColumn.HeaderText = "Тип";
-            this.typeColumn.Name = "typeColumn";
-            this.typeColumn.ReadOnly = true;
-            this.typeColumn.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.typeColumn.Width = 52;
+            typeColumn.FillWeight = 169.5432F;
+            typeColumn.HeaderText = "Тип";
+            typeColumn.Name = "typeColumn";
+            typeColumn.ReadOnly = true;
+            typeColumn.Resizable = DataGridViewTriState.True;
+            typeColumn.Width = 51;
             // 
             // timeColumn
             // 
-            this.timeColumn.HeaderText = "Время";
-            this.timeColumn.Name = "timeColumn";
-            this.timeColumn.ReadOnly = true;
-            this.timeColumn.Width = 68;
+            timeColumn.HeaderText = "Время";
+            timeColumn.Name = "timeColumn";
+            timeColumn.ReadOnly = true;
+            timeColumn.Width = 66;
             // 
             // sourceColumn
             // 
-            this.sourceColumn.HeaderText = "Источник";
-            this.sourceColumn.Name = "sourceColumn";
-            this.sourceColumn.ReadOnly = true;
-            this.sourceColumn.Width = 85;
+            sourceColumn.HeaderText = "Источник";
+            sourceColumn.Name = "sourceColumn";
+            sourceColumn.ReadOnly = true;
+            sourceColumn.Width = 85;
             // 
             // messageColumn
             // 
-            this.messageColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.messageColumn.HeaderText = "Данные";
-            this.messageColumn.Name = "messageColumn";
-            this.messageColumn.ReadOnly = true;
+            messageColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            messageColumn.HeaderText = "Данные";
+            messageColumn.Name = "messageColumn";
+            messageColumn.ReadOnly = true;
             // 
             // issueMainFLP
             // 
-            this.issueMainFLP.Controls.Add(this.showErrorsFilter);
-            this.issueMainFLP.Controls.Add(this.showWarningsFilter);
-            this.issueMainFLP.Controls.Add(this.showInfoMessagesFilter);
-            this.issueMainFLP.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.issueMainFLP.Location = new System.Drawing.Point(3, 3);
-            this.issueMainFLP.Name = "issueMainFLP";
-            this.issueMainFLP.Size = new System.Drawing.Size(608, 31);
-            this.issueMainFLP.TabIndex = 0;
+            issueMainFLP.Controls.Add(showErrorsFilter);
+            issueMainFLP.Controls.Add(showWarningsFilter);
+            issueMainFLP.Controls.Add(showInfoMessagesFilter);
+            issueMainFLP.Dock = DockStyle.Fill;
+            issueMainFLP.Location = new Point(4, 3);
+            issueMainFLP.Margin = new Padding(4, 3, 4, 3);
+            issueMainFLP.Name = "issueMainFLP";
+            issueMainFLP.Size = new Size(709, 36);
+            issueMainFLP.TabIndex = 0;
             // 
             // showErrorsFilter
             // 
-            this.showErrorsFilter.Appearance = System.Windows.Forms.Appearance.Button;
-            this.showErrorsFilter.AutoSize = true;
-            this.showErrorsFilter.Checked = true;
-            this.showErrorsFilter.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.showErrorsFilter.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.showErrorsFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.showErrorsFilter.ForeColor = System.Drawing.Color.Gainsboro;
-            this.showErrorsFilter.Image = global::TOA.Properties.Resources.ErrorIcon;
-            this.showErrorsFilter.ImageAlign = System.Drawing.ContentAlignment.BottomRight;
-            this.showErrorsFilter.Location = new System.Drawing.Point(3, 3);
-            this.showErrorsFilter.Name = "showErrorsFilter";
-            this.showErrorsFilter.Size = new System.Drawing.Size(72, 23);
-            this.showErrorsFilter.TabIndex = 0;
-            this.showErrorsFilter.Text = "Ошибки";
-            this.showErrorsFilter.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.showErrorsFilter.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.showErrorsFilter.UseVisualStyleBackColor = true;
-            this.showErrorsFilter.CheckedChanged += new System.EventHandler(this.showErrors_CheckedChanged);
+            showErrorsFilter.Appearance = Appearance.Button;
+            showErrorsFilter.AutoSize = true;
+            showErrorsFilter.Checked = true;
+            showErrorsFilter.CheckState = CheckState.Checked;
+            showErrorsFilter.FlatAppearance.CheckedBackColor = Color.FromArgb(64, 64, 64);
+            showErrorsFilter.FlatStyle = FlatStyle.Flat;
+            showErrorsFilter.ForeColor = Color.Gainsboro;
+            showErrorsFilter.Image = TOA.Properties.Resources.ErrorIcon;
+            showErrorsFilter.ImageAlign = ContentAlignment.BottomRight;
+            showErrorsFilter.Location = new Point(4, 3);
+            showErrorsFilter.Margin = new Padding(4, 3, 4, 3);
+            showErrorsFilter.Name = "showErrorsFilter";
+            showErrorsFilter.Size = new Size(79, 25);
+            showErrorsFilter.TabIndex = 0;
+            showErrorsFilter.Text = "Ошибки";
+            showErrorsFilter.TextAlign = ContentAlignment.MiddleCenter;
+            showErrorsFilter.TextImageRelation = TextImageRelation.ImageBeforeText;
+            showErrorsFilter.UseVisualStyleBackColor = true;
+            showErrorsFilter.CheckedChanged += showErrors_CheckedChanged;
             // 
             // showWarningsFilter
             // 
-            this.showWarningsFilter.Appearance = System.Windows.Forms.Appearance.Button;
-            this.showWarningsFilter.AutoSize = true;
-            this.showWarningsFilter.Checked = true;
-            this.showWarningsFilter.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.showWarningsFilter.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.showWarningsFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.showWarningsFilter.ForeColor = System.Drawing.Color.Gainsboro;
-            this.showWarningsFilter.Image = global::TOA.Properties.Resources.WarningIcon;
-            this.showWarningsFilter.Location = new System.Drawing.Point(81, 3);
-            this.showWarningsFilter.Name = "showWarningsFilter";
-            this.showWarningsFilter.Size = new System.Drawing.Size(119, 23);
-            this.showWarningsFilter.TabIndex = 1;
-            this.showWarningsFilter.Text = "Предупреждения";
-            this.showWarningsFilter.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.showWarningsFilter.UseVisualStyleBackColor = true;
-            this.showWarningsFilter.CheckedChanged += new System.EventHandler(this.showWarnings_CheckedChanged);
+            showWarningsFilter.Appearance = Appearance.Button;
+            showWarningsFilter.AutoSize = true;
+            showWarningsFilter.Checked = true;
+            showWarningsFilter.CheckState = CheckState.Checked;
+            showWarningsFilter.FlatAppearance.CheckedBackColor = Color.FromArgb(64, 64, 64);
+            showWarningsFilter.FlatStyle = FlatStyle.Flat;
+            showWarningsFilter.ForeColor = Color.Gainsboro;
+            showWarningsFilter.Image = TOA.Properties.Resources.WarningIcon;
+            showWarningsFilter.Location = new Point(91, 3);
+            showWarningsFilter.Margin = new Padding(4, 3, 4, 3);
+            showWarningsFilter.Name = "showWarningsFilter";
+            showWarningsFilter.Size = new Size(127, 25);
+            showWarningsFilter.TabIndex = 1;
+            showWarningsFilter.Text = "Предупреждения";
+            showWarningsFilter.TextImageRelation = TextImageRelation.ImageBeforeText;
+            showWarningsFilter.UseVisualStyleBackColor = true;
+            showWarningsFilter.CheckedChanged += showWarnings_CheckedChanged;
             // 
             // showInfoMessagesFilter
             // 
-            this.showInfoMessagesFilter.Appearance = System.Windows.Forms.Appearance.Button;
-            this.showInfoMessagesFilter.AutoSize = true;
-            this.showInfoMessagesFilter.Checked = true;
-            this.showInfoMessagesFilter.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.showInfoMessagesFilter.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.showInfoMessagesFilter.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.showInfoMessagesFilter.ForeColor = System.Drawing.Color.Gainsboro;
-            this.showInfoMessagesFilter.Image = global::TOA.Properties.Resources.InformationIcon;
-            this.showInfoMessagesFilter.Location = new System.Drawing.Point(206, 3);
-            this.showInfoMessagesFilter.Name = "showInfoMessagesFilter";
-            this.showInfoMessagesFilter.Size = new System.Drawing.Size(90, 23);
-            this.showInfoMessagesFilter.TabIndex = 2;
-            this.showInfoMessagesFilter.Text = "Сообщения";
-            this.showInfoMessagesFilter.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.showInfoMessagesFilter.UseVisualStyleBackColor = true;
-            this.showInfoMessagesFilter.CheckedChanged += new System.EventHandler(this.showInfoMessages_CheckedChanged);
+            showInfoMessagesFilter.Appearance = Appearance.Button;
+            showInfoMessagesFilter.AutoSize = true;
+            showInfoMessagesFilter.Checked = true;
+            showInfoMessagesFilter.CheckState = CheckState.Checked;
+            showInfoMessagesFilter.FlatAppearance.CheckedBackColor = Color.FromArgb(64, 64, 64);
+            showInfoMessagesFilter.FlatStyle = FlatStyle.Flat;
+            showInfoMessagesFilter.ForeColor = Color.Gainsboro;
+            showInfoMessagesFilter.Image = TOA.Properties.Resources.InformationIcon;
+            showInfoMessagesFilter.Location = new Point(226, 3);
+            showInfoMessagesFilter.Margin = new Padding(4, 3, 4, 3);
+            showInfoMessagesFilter.Name = "showInfoMessagesFilter";
+            showInfoMessagesFilter.Size = new Size(98, 25);
+            showInfoMessagesFilter.TabIndex = 2;
+            showInfoMessagesFilter.Text = "Сообщения";
+            showInfoMessagesFilter.TextImageRelation = TextImageRelation.ImageBeforeText;
+            showInfoMessagesFilter.UseVisualStyleBackColor = true;
+            showInfoMessagesFilter.CheckedChanged += showInfoMessages_CheckedChanged;
             // 
             // configPage
             // 
-            this.configPage.Image = null;
-            this.configPage.ImageSize = new System.Drawing.Size(16, 16);
-            this.configPage.Location = new System.Drawing.Point(1, 2);
-            this.configPage.Name = "configPage";
-            this.configPage.ShowCloseButton = true;
-            this.configPage.Size = new System.Drawing.Size(614, 254);
-            this.configPage.TabForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.configPage.TabIndex = 3;
-            this.configPage.Text = "Проблемы конфигурации";
-            this.configPage.ThemesEnabled = false;
+            configPage.Image = null;
+            configPage.ImageSize = new Size(16, 16);
+            configPage.Location = new Point(1, 2);
+            configPage.Margin = new Padding(4, 3, 4, 3);
+            configPage.Name = "configPage";
+            configPage.ShowCloseButton = true;
+            configPage.Size = new Size(717, 295);
+            configPage.TabForeColor = Color.FromArgb(224, 224, 224);
+            configPage.TabIndex = 3;
+            configPage.Text = "Проблемы конфигурации";
+            configPage.ThemesEnabled = false;
             // 
             // issueIcons
             // 
-            this.issueIcons.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.issueIcons.ImageSize = new System.Drawing.Size(15, 15);
-            this.issueIcons.TransparentColor = System.Drawing.Color.Transparent;
+            issueIcons.ColorDepth = ColorDepth.Depth8Bit;
+            issueIcons.ImageSize = new Size(15, 15);
+            issueIcons.TransparentColor = Color.Transparent;
             // 
             // Terminal
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.terminalTab);
-            this.Margin = new System.Windows.Forms.Padding(13);
-            this.Name = "Terminal";
-            this.Size = new System.Drawing.Size(617, 281);
-            ((System.ComponentModel.ISupportInitialize)(this.terminalTab)).EndInit();
-            this.terminalTab.ResumeLayout(false);
-            this.pshPage.ResumeLayout(false);
-            this.suggestionsPanel.ResumeLayout(false);
-            this.runtimePage.ResumeLayout(false);
-            this.issueMainTLP.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.issuesDataGridView)).EndInit();
-            this.issueMainFLP.ResumeLayout(false);
-            this.issueMainFLP.PerformLayout();
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(terminalTab);
+            Margin = new Padding(15);
+            Name = "Terminal";
+            Size = new Size(720, 324);
+            ((ISupportInitialize)terminalTab).EndInit();
+            terminalTab.ResumeLayout(false);
+            pshPage.ResumeLayout(false);
+            suggestionsPanel.ResumeLayout(false);
+            runtimePage.ResumeLayout(false);
+            issueMainTLP.ResumeLayout(false);
+            ((ISupportInitialize)issuesDataGridView).EndInit();
+            issueMainFLP.ResumeLayout(false);
+            issueMainFLP.PerformLayout();
+            ResumeLayout(false);
 
         }
 

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,285 +12,440 @@ using System.Windows.Forms;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls
 {
+    [ToolboxItem(true)]
     public partial class Workspace : UserControl
     {
-        private float scaleFactor = 1.0f;
-        private float minScaleFactor = 0.05f;
-        private Bitmap workspaceBitmap;
-        private Graphics workspaceGraphics;
+        private VScrollBar _vScrollBar;
+        private HScrollBar _hScrollBar;
 
-        private VScrollBar vScrollBar;
-        private HScrollBar hScrollBar;
+        private const float DEFAULT_MIN_SCALE = 0.05f;
+        private const float DEFAULT_MAX_SCALE = 5.0f;
 
-        private int zoomStepPercentage = 1;
+        private float _scaleFactor = 1.0f;
+        private float _minScale = DEFAULT_MIN_SCALE;
+        private float _maxScale = DEFAULT_MAX_SCALE;
+        private Bitmap _workspaceBitmap;
+        private Graphics _workspaceGraphics;
+        private Matrix _transformCache;
 
-        private int scaledWidth;
-        private int scaledHeight;
-        private int visibleWidth;
-        private int visibleHeight;
+        private int _zoomStepPercentage = 5;
+        private bool _isDragging;
+        private Point _lastDragPosition;
 
-        /// <summary>
-        /// Текущий коэффициент масштабирования.
-        /// </summary>
-        [Category("Layout")]
-        [Description("Текущий коэффициент масштабирования.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        private float _dpiScaleX = 1.0f;
+        private float _dpiScaleY = 1.0f;
+        private ToolTip _zoomToolTip = new ToolTip();
+
+
+
+        #region Properties
+
+        [Category("Layout"), Description("Current zoom scale factor")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public float ScaleFactor
         {
-            get => scaleFactor;
+            get => _scaleFactor;
             set
             {
-                if (value < minScaleFactor)
-                    scaleFactor = minScaleFactor;
-                else if (value >= 1.0f)
-                    scaleFactor = 1.0f;
-                else
-                    scaleFactor = value;
+                var newScale = Math.Clamp(value, _minScale, _maxScale);
+                if (Math.Abs(newScale - _scaleFactor) < 0.001f) return;
 
-                RecalculateSizes();
-                UpdateScrollBars();
-                this.Invalidate();
+                _scaleFactor = newScale;
+                UpdateZoomTooltip();
+                UpdateTransformCache();
+                UpdateWorkspace();
             }
         }
 
-        /// <summary>
-        /// Минимальный коэффициент масштабирования.
-        /// </summary>
-        [Category("Layout")]
-        [Description("Минимальный коэффициент масштабирования.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public float MinScaleFactor
+        [Category("Layout"), Description("Minimum allowed zoom scale")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public float MinScale
         {
-            get => minScaleFactor;
-            set
-            {
-                if (value < 0.05f)
-                    minScaleFactor = 0.05f;
-                else if (value >= 1.0f)
-                    minScaleFactor = 1.0f;
-                else
-                    minScaleFactor = value;
-
-                if (scaleFactor < minScaleFactor)
-                    scaleFactor = minScaleFactor;
-
-                RecalculateSizes();
-                UpdateScrollBars();
-                this.Invalidate();
-            }
+            get => _minScale;
+            set => _minScale = Math.Clamp(value, 0.01f, _maxScale);
         }
 
-        /// <summary>
-        /// Шаг изменения масштаба.
-        /// </summary>
-        [Category("Layout")]
-        [Description("Шаг изменения масштаба в процентах при прокрутке колесом мыши.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int ZoomStepPercentage
+        [Category("Layout"), Description("Maximum allowed zoom scale")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public float MaxScale
         {
-            get => zoomStepPercentage;
-            set
-            {
-                if (value >= 1 && value <= 10)
-                    zoomStepPercentage = value;
-            }
+            get => _maxScale;
+            set => _maxScale = Math.Max(value, _minScale);
         }
 
-        /// <summary>
-        /// Объект Graphics для использования.
-        /// </summary>
+        [Category("Appearance"), Description("Enable grid display")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ShowGrid { get; set; }
+
+        [Category("Appearance"), Description("Grid cell size in pixels")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int GridSize { get; set; } = 20;
+
+        [Category("Appearance"), Description("Grid color")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color GridColor { get; set; } = Color.LightGray;
+
         [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Graphics GraphicsObject
-        {
-            get => workspaceGraphics;
-            set
-            {
-                if (value != null)
-                    workspaceGraphics = value;
-            }
-        }
+        public Graphics WorkspaceGraphics => _workspaceGraphics;
+
+        #endregion
+
+
 
         public Workspace()
         {
             InitializeComponent();
-            InitializeWorkspace();
-        }
 
-        private void InitializeWorkspace()
-        {
-            CreateBitmap();
-            this.DoubleBuffered = true;
+            this.AutoScroll = false;
 
-            this.MouseWheel += Workspace_MouseWheel;
-            this.MouseDown += Workspace_MouseDown;
-            this.MouseUp += Workspace_MouseUp;
-            this.Resize += Workspace_Resize;
-        }
+            SetStyle(ControlStyles.OptimizedDoubleBuffer |
+                    ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.UserPaint, true);
 
-        private void CreateBitmap()
-        {
-            workspaceBitmap = new Bitmap(this.Size.Width, this.Size.Height);
-            workspaceGraphics = Graphics.FromImage(workspaceBitmap);
-            workspaceGraphics.Clear(this.BackColor);
+            SetupScrollBars();
+            InitializeGraphics();
+            SubscribeEvents();
+
+            DoubleBuffered = true;
+            ResizeRedraw = true;
         }
 
 
 
-        private void Workspace_Resize(object sender, EventArgs e)
+
+
+        #region Initialization
+
+        private void SetupScrollBars()
         {
-            CreateBitmap();
-            RecalculateSizes();
+            _vScrollBar = new VScrollBar { Dock = DockStyle.Right };
+            _hScrollBar = new HScrollBar { Dock = DockStyle.Bottom };
+
+            Controls.Add(_vScrollBar);
+            Controls.Add(_hScrollBar);
+
+            _vScrollBar.Scroll += (_, _) => Invalidate();
+            _hScrollBar.Scroll += (_, _) => Invalidate();
+        }
+
+        private void InitializeGraphics()
+        {
+            CreateWorkspaceBitmap();
+            _workspaceGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+            _workspaceGraphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+            _workspaceGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            UpdateTransformCache();
+        }
+
+        private void SubscribeEvents()
+        {
+            MouseWheel += OnMouseWheel;
+            MouseDown += OnMouseDown;
+            MouseUp += OnMouseUp;
+            MouseMove += OnMouseMove;
+            Resize += OnResize;
+        }
+
+        #endregion
+
+
+
+
+
+        #region Event Handlers
+
+        private void OnMouseWheel(object sender, MouseEventArgs e)
+        {
+            if (ModifierKeys != Keys.Control) return;
+
+            var zoomFactor = 1 + _zoomStepPercentage / 100f * Math.Sign(e.Delta);
+            ScaleFactor *= zoomFactor;
+        }
+
+        private void OnMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && ModifierKeys == Keys.Control)
+            {
+                _isDragging = true;
+                _lastDragPosition = e.Location;
+                Cursor = Cursors.SizeAll;
+            }
+        }
+
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDragging) return;
+
+            var dx = e.X - _lastDragPosition.X;
+            var dy = e.Y - _lastDragPosition.Y;
+
+            SmoothScroll(_hScrollBar, Math.Clamp(_hScrollBar.Value - dx, 0, _hScrollBar.Maximum));
+            SmoothScroll(_vScrollBar, Math.Clamp(_vScrollBar.Value - dy, 0, _vScrollBar.Maximum));
+
+            _lastDragPosition = e.Location;
+        }
+
+        private void OnMouseUp(object sender, MouseEventArgs e) => ResetDragState();
+
+        private void OnResize(object sender, EventArgs e)
+        {
+            CreateWorkspaceBitmap();
             UpdateScrollBars();
-            this.Invalidate();
+            UpdateTransformCache();
+            Invalidate();
         }
 
-        private void Workspace_MouseWheel(object sender, MouseEventArgs e)
+        #endregion
+
+
+
+
+
+        #region Drawing Logic
+
+        public Point TransformScreenToVirtual(Point screenPoint)
         {
-            if (ModifierKeys.HasFlag(Keys.Control))
-            {
-                float zoomChange = zoomStepPercentage / 100.0f;
-                ScaleFactor += (e.Delta > 0) ? zoomChange : -zoomChange;
-            }
+            // Учет прокрутки и масштаба
+            return new Point(
+                (int)((screenPoint.X + _hScrollBar.Value) / _scaleFactor),
+                (int)((screenPoint.Y + _vScrollBar.Value) / _scaleFactor)
+            );
         }
 
-        private void Workspace_MouseDown(object sender, MouseEventArgs e)
+        public Point TransformVirtualToScreen(Point virtualPoint)
         {
-            if (e.Button == MouseButtons.Left && ModifierKeys.HasFlag(Keys.Control))
-            {
-                this.Cursor = Cursors.SizeAll;
-            }
+            return new Point(
+                (int)(virtualPoint.X * _scaleFactor - _hScrollBar.Value),
+                (int)(virtualPoint.Y * _scaleFactor - _vScrollBar.Value)
+            );
         }
 
-        private void Workspace_MouseUp(object sender, MouseEventArgs e)
+        protected override void OnCreateControl()
         {
-            this.Cursor = Cursors.Default;
+            base.OnCreateControl();
+            using var g = CreateGraphics();
+            _dpiScaleX = g.DpiX / 96.0f;
+            _dpiScaleY = g.DpiY / 96.0f;
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (workspaceBitmap == null)
-                return;
+            if (_workspaceBitmap == null) return;
 
-            Graphics g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+            var g = e.Graphics;
 
-            // Получаем текущие значения прокрутки
-            int scrollX = hScrollBar.Value;
-            int scrollY = vScrollBar.Value;
+            // Сохраняем оригинальную трансформацию
+            var originalTransform = g.Transform;
+            g.Transform = _transformCache;
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
 
-            // Растягиваем изображение
-            Rectangle srcRect = new Rectangle((int)(scrollX / scaleFactor), (int)(scrollY / scaleFactor),
-                (int)(visibleWidth / scaleFactor), (int)(visibleHeight / scaleFactor));
+            // Отрисовка основного содержимого
+            var destRect = new RectangleF(
+                -_hScrollBar.Value / _scaleFactor,
+                -_vScrollBar.Value / _scaleFactor,
+                _workspaceBitmap.Width,
+                _workspaceBitmap.Height);
+            g.DrawImage(_workspaceBitmap, destRect);
 
-            // Ограничиваем область источника битмапа
-            srcRect.Width = Math.Min(srcRect.Width, workspaceBitmap.Width - srcRect.X);
-            srcRect.Height = Math.Min(srcRect.Height, workspaceBitmap.Height - srcRect.Y);
+            // Восстанавливаем трансформацию
+            g.Transform = originalTransform;
 
-            Rectangle destRect = new Rectangle(0, 0, visibleWidth, visibleHeight);
+            // Отрисовка сетки (без трансформации)
+            if (ShowGrid)
+            {
+                using var gridPen = new Pen(GridColor, 0.5f);
+                float scaledGridSize = GridSize * _scaleFactor;
 
-            g.DrawImage(workspaceBitmap, destRect, srcRect, GraphicsUnit.Pixel);
+                // Учет прокрутки и масштаба для позиционирования сетки
+                float startX = _hScrollBar.Value % scaledGridSize;
+                float startY = _vScrollBar.Value % scaledGridSize;
+
+                for (float x = startX; x < ClientSize.Width; x += scaledGridSize)
+                    g.DrawLine(gridPen, x, 0, x, ClientSize.Height);
+
+                for (float y = startY; y < ClientSize.Height; y += scaledGridSize)
+                    g.DrawLine(gridPen, 0, y, ClientSize.Width, y);
+            }
         }
 
+        #endregion
 
+
+
+
+
+        #region Improved Features
+
+        public void InvalidateRegion(RectangleF region)
+        {
+            var scaledRegion = new Rectangle(
+                (int)((region.X * _scaleFactor) - _hScrollBar.Value),
+                (int)((region.Y * _scaleFactor) - _vScrollBar.Value),
+                (int)(region.Width * _scaleFactor),
+                (int)(region.Height * _scaleFactor));
+
+            Invalidate(scaledRegion);
+        }
+
+        private void UpdateTransformCache()
+        {
+            _transformCache?.Dispose();
+            _transformCache = new Matrix();
+            _transformCache.Translate(-_hScrollBar.Value, -_vScrollBar.Value);
+            _transformCache.Scale(_scaleFactor, _scaleFactor);
+        }
+
+        private void UpdateZoomTooltip()
+        {
+            _zoomToolTip.SetToolTip(this, $"Zoom: {_scaleFactor * 100:0}%");
+        }
+
+        private void SmoothScroll(ScrollBar scrollBar, int targetValue)
+        {
+            if (scrollBar.Value == targetValue) return;
+
+            Timer animationTimer = new Timer { Interval = 10 };
+            int startValue = scrollBar.Value;
+            int steps = 15;
+            int currentStep = 0;
+
+            animationTimer.Tick += (s, e) =>
+            {
+                if (currentStep >= steps)
+                {
+                    animationTimer.Stop();
+                    animationTimer.Dispose();
+                    return;
+                }
+
+                float t = currentStep++ / (float)steps;
+                scrollBar.Value = (int)(startValue + (targetValue - startValue) * EaseOutQuad(t));
+                Invalidate();
+            };
+
+            animationTimer.Start();
+        }
+
+        private float EaseOutQuad(float t) => t * (2 - t);
+
+        #endregion
+
+
+
+
+
+        #region Helpers
+
+        private void CreateWorkspaceBitmap()
+        {
+            _workspaceGraphics?.Dispose();
+            _workspaceBitmap?.Dispose();
+
+            int width = (int)(Width * _dpiScaleX);
+            int height = (int)(Height * _dpiScaleY);
+
+            _workspaceBitmap = new Bitmap(Math.Max(1, width), Math.Max(1, height));
+            _workspaceGraphics = Graphics.FromImage(_workspaceBitmap);
+            _workspaceGraphics.Clear(BackColor);
+        }
 
         private void UpdateScrollBars()
         {
-            if (workspaceBitmap == null)
-                return;
+            int contentWidth = (int)(_workspaceBitmap.Width * _scaleFactor);
+            int contentHeight = (int)(_workspaceBitmap.Height * _scaleFactor);
 
-            // Обновляем максимумы и видимые области полос прокрутки
-            hScrollBar.Maximum = scaledWidth > visibleWidth ? scaledWidth - 1 : 0;
-            hScrollBar.LargeChange = visibleWidth;
-            hScrollBar.Enabled = scaledWidth > visibleWidth;
-
-            vScrollBar.Maximum = scaledHeight > visibleHeight ? scaledHeight - 1 : 0;
-            vScrollBar.LargeChange = visibleHeight;
-            vScrollBar.Enabled = scaledHeight > visibleHeight;
+            UpdateScrollBar(_hScrollBar, contentWidth, ClientSize.Width);
+            UpdateScrollBar(_vScrollBar, contentHeight, ClientSize.Height);
         }
 
-        private void RecalculateSizes()
+        private static void UpdateScrollBar(ScrollBar scrollBar, int contentSize, int clientSize)
         {
-            scaledWidth = (int)(workspaceBitmap.Width * scaleFactor);
-            scaledHeight = (int)(workspaceBitmap.Height * scaleFactor);
-            visibleWidth = this.ClientSize.Width - (vScrollBar.Visible ? vScrollBar.Width : 0);
-            visibleHeight = this.ClientSize.Height - (hScrollBar.Visible ? hScrollBar.Height : 0);
+            scrollBar.Enabled = contentSize > clientSize;
+            scrollBar.Maximum = Math.Max(0, contentSize - 1);
+            scrollBar.LargeChange = Math.Max(1, clientSize);
         }
 
-        public void SetScale(float newScaleFactor)
+        private void UpdateWorkspace()
         {
-            if (newScaleFactor < minScaleFactor)
-                newScaleFactor = minScaleFactor;
-
-            scaleFactor = newScaleFactor;
             UpdateScrollBars();
-            this.Invalidate();
+            UpdateTransformCache();
+            Invalidate();
         }
 
-        public void ResetScale()
+        private void ResetDragState()
         {
-            scaleFactor = 1.0f;
-            UpdateScrollBars();
-            this.Invalidate();
+            _isDragging = false;
+            Cursor = Cursors.Default;
         }
+
+        #endregion
+
+
+
+
+
+        #region Public Methods
+
+        public void ResetZoom() => ScaleFactor = 1.0f;
 
         public void ClearWorkspace(Color color)
         {
-            if (workspaceGraphics != null)
-            {
-                workspaceGraphics.Clear(color);
-                this.Invalidate();
-            }
+            _workspaceGraphics?.Clear(color);
+            Invalidate();
         }
+
+        #endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _workspaceGraphics?.Dispose();
+                _workspaceBitmap?.Dispose();
+                _transformCache?.Dispose();
+                _zoomToolTip?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+
 
         #region Код, автоматически созданный конструктором компонентов
 
         private System.ComponentModel.IContainer components = null;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
         private void InitializeComponent()
         {
-            this.vScrollBar = new System.Windows.Forms.VScrollBar();
-            this.hScrollBar = new System.Windows.Forms.HScrollBar();
-            this.SuspendLayout();
+            _vScrollBar = new VScrollBar();
+            _hScrollBar = new HScrollBar();
+            SuspendLayout();
             // 
-            // vScrollBar
+            // _vScrollBar
             // 
-            this.vScrollBar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.vScrollBar.Location = new System.Drawing.Point(324, 0);
-            this.vScrollBar.Name = "vScrollBar";
-            this.vScrollBar.Size = new System.Drawing.Size(17, 247);
-            this.vScrollBar.TabIndex = 0;
+            _vScrollBar.Dock = DockStyle.Right;
+            _vScrollBar.Location = new Point(383, 0);
+            _vScrollBar.Name = "_vScrollBar";
+            _vScrollBar.Size = new Size(17, 283);
+            _vScrollBar.TabIndex = 0;
             // 
-            // hScrollBar
+            // _hScrollBar
             // 
-            this.hScrollBar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.hScrollBar.Location = new System.Drawing.Point(0, 247);
-            this.hScrollBar.Name = "hScrollBar";
-            this.hScrollBar.Size = new System.Drawing.Size(341, 17);
-            this.hScrollBar.TabIndex = 1;
+            _hScrollBar.Dock = DockStyle.Bottom;
+            _hScrollBar.Location = new Point(0, 283);
+            _hScrollBar.Name = "_hScrollBar";
+            _hScrollBar.Size = new Size(400, 17);
+            _hScrollBar.TabIndex = 1;
             // 
             // Workspace
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
-            this.Controls.Add(this.vScrollBar);
-            this.Controls.Add(this.hScrollBar);
-            this.Name = "Workspace";
-            this.Size = new System.Drawing.Size(341, 264);
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(96, 96, 96);
+            Margin = new Padding(4, 3, 4, 3);
+            Name = "Workspace";
+            Size = new Size(400, 300);
+            ResumeLayout(false);
 
         }
 

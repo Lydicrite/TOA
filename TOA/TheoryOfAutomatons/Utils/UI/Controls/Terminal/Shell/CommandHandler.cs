@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 {
     [AttributeUsage(AttributeTargets.Method)]
-    internal class TerminalCommandAttribute : Attribute
+    public class TerminalCommandAttribute : Attribute
     {
         public string Name { get; }
         public string Description { get; }
@@ -25,7 +25,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 
 
 
-    internal class CommandHandler
+    public class CommandHandler
     {
         public static readonly char CommandChar = '\\';
         public Dictionary<string, MethodInfo> Commands => _commands;
@@ -83,7 +83,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 
 
 
-        internal static class TerminalCommands
+        public static class TerminalCommands
         {
             [TerminalCommand("help", "Показывает список доступных команд", "help [command]")]
             public static CommandResult Help(string[] args, Terminal terminal)

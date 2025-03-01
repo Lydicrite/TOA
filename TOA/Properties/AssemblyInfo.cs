@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("TOA.Properties")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Lydicrite")]
 [assembly: AssemblyProduct("TOA.Properties")]
 [assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
@@ -18,7 +18,8 @@ using System.Runtime.InteropServices;
 // для компонентов модели COM.  Если тип в этой сборке необходимо сделать доступным 
 // из модели COM, установите атрибут ComVisible для этого типа в значение true.
 [assembly: ComVisible(false)]
-[assembly: InternalsVisibleTo("TOATests")]
+[assembly: InternalsVisibleTo("TOATests", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo("TOA.Designer", AllInternalsVisible = true)]
 
 // Следующий GUID представляет идентификатор typelib, если этот проект доступен из модели COM
 [assembly: Guid("2f0487c8-8d38-4200-aea6-ae3a3ef9d343")] 

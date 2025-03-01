@@ -279,7 +279,8 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 dTSms,
                 aB, iB, hB, iS, cC,
                 bPW, bPC,
-                lPW, lPC
+                lPW, lPC,
+                this
             );
 
             // Инициализация текущего экземпляра автомата

@@ -420,10 +420,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="t">Время в миллисекундах.</param>
         public void SetDrawStepDelay(int t)
         {
-            if (t > 10 && t < 0.15)
-                return;
-            else
-                DrawStepDelay = t;
+            DrawStepDelay = t;
         }
 
         /// <summary>

@@ -13,6 +13,7 @@ using TheoryOfAutomatons.Utils.UI.Controls;
 using TheoryOfAutomatons.Utils.UI.Forms.Adders;
 using Syncfusion.DocIO.DLS;
 using TheoryOfAutomatons.Utils.Helpers;
+using TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton
 {
@@ -748,14 +749,15 @@ namespace TheoryOfAutomatons.Automaton
 
         #region Вспомогательное
 
-        public void LoadParameters
+        public void LoadParameters<TState>
         (
              int type, int cD, int bW,
              int dTSms,
              Color aB, Color iB, Color hB, Color iS, Color cC,
              float bPW, Color bPC,
-             float lPW, Color lPC
-        )
+             float lPW, Color lPC,
+             DFAutomaton<TState> automaton
+        ) where TState : class
         {
             DFATypeSelectorCB.SelectedIndex = type;
             CircleDiameterNUD.Value = cD;
@@ -766,6 +768,7 @@ namespace TheoryOfAutomatons.Automaton
             InactiveBorderCP.BackColor = iB;
             HighlightedBorderCP.BackColor = hB;
             InnerStateCP.BackColor = iS;
+            Container.BackColor = cC;
             ContainerCP.BackColor = cC;
 
             TransitionsBPNUD.Value = Convert.ToDecimal(bPW);
@@ -773,6 +776,21 @@ namespace TheoryOfAutomatons.Automaton
 
             TransitionsLPNUD.Value = Convert.ToDecimal(lPW);
             TransitionsLPCP.BackColor = lPC;
+
+            automaton.SetStateDiameter(cD);
+            automaton.SetStateBorder(bW);
+            automaton.SetDrawStepDelay(dTSms);
+
+            automaton.SetActiveBorderColor(aB);
+            automaton.SetInactiveBorderColor(iB);
+            automaton.SetHighlightedBorderColor(hB);
+            automaton.SetInnerStateColor(iS);
+            automaton.SetContainerBackColor(cC);
+
+            automaton.SetTransitionBlackPen(bPC, bPW);
+            automaton.SetTransitionLightPen(lPC, lPW);
+
+            Check();
         }
 
         public void SetDescriptions(List<DescribedObject<object>> ia, List<DescribedObject<object>> ib)

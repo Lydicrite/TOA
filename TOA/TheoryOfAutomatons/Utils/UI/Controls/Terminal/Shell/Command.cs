@@ -2,7 +2,7 @@
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 {
-    internal class Command
+    public class Command
     {
         public string Name { get; }
         public string Description { get; }
@@ -16,7 +16,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
         }
     }
 
-    internal class CommandResult
+    public class CommandResult
     {
         public bool Success { get; }
         public string Message { get; }

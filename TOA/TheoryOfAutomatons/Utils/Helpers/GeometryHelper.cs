@@ -228,7 +228,7 @@ namespace TheoryOfAutomatons.Utils.Helpers
             var maxY = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.Y);
             int 
                 width = (int)Math.Max((double)((formWidth - 555) + maxX + 2 * automaton.CircleDiameter), (double)formWidth), 
-                height = (int)Math.Max((double)((formHeight - 666) + maxY + 2 * automaton.CircleDiameter), (double)formHeight);
+                height = (int)Math.Max((double)((formHeight - 663) + maxY + 2 * automaton.CircleDiameter), (double)formHeight);
 
             form.MinimumSize = new Size(width, height);
             form.Size = form.MinimumSize;
