@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheoryOfAutomatons.Utils;
 using TheoryOfAutomatons.Utils.UI.Controls;
+using System;
 
 namespace TheoryOfAutomatons
 {
@@ -94,9 +95,17 @@ namespace TheoryOfAutomatons
             label11 = new Label();
             transitionLightPenCP = new PictureBox();
             transitionLightPenNUD = new NumericUpDown();
+            containerMenuSplitter = new SplitContainer();
+            containerPanel = new Panel();
             container = new PictureBox();
-            workspace1 = new Workspace();
-            terminal1 = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
+            zoomPanel = new Panel();
+            groupBox10 = new GroupBox();
+            clearZoom = new Button();
+            zoomTrackBar = new Syncfusion.Windows.Forms.Tools.TrackBarEx(10, 1000);
+            groupBox9 = new GroupBox();
+            labelScreenCoords = new Label();
+            labelRealCoords = new Label();
+            mainTerminal = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             mainGB = new GroupBox();
             colorPicker = new ColorDialog();
             mainToolStrip.SuspendLayout();
@@ -127,7 +136,15 @@ namespace TheoryOfAutomatons
             groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)transitionLightPenCP).BeginInit();
             ((System.ComponentModel.ISupportInitialize)transitionLightPenNUD).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)containerMenuSplitter).BeginInit();
+            containerMenuSplitter.Panel1.SuspendLayout();
+            containerMenuSplitter.Panel2.SuspendLayout();
+            containerMenuSplitter.SuspendLayout();
+            containerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)container).BeginInit();
+            zoomPanel.SuspendLayout();
+            groupBox10.SuspendLayout();
+            groupBox9.SuspendLayout();
             mainGB.SuspendLayout();
             SuspendLayout();
             // 
@@ -217,6 +234,7 @@ namespace TheoryOfAutomatons
             // mainHorizontalSplitContainer
             // 
             mainHorizontalSplitContainer.Dock = DockStyle.Fill;
+            mainHorizontalSplitContainer.FixedPanel = FixedPanel.Panel2;
             mainHorizontalSplitContainer.IsSplitterFixed = true;
             mainHorizontalSplitContainer.Location = new Point(3, 19);
             mainHorizontalSplitContainer.Name = "mainHorizontalSplitContainer";
@@ -229,10 +247,9 @@ namespace TheoryOfAutomatons
             // mainHorizontalSplitContainer.Panel2
             // 
             mainHorizontalSplitContainer.Panel2.BackColor = Color.FromArgb(26, 26, 26);
-            mainHorizontalSplitContainer.Panel2.Controls.Add(workspace1);
-            mainHorizontalSplitContainer.Panel2.Controls.Add(terminal1);
-            mainHorizontalSplitContainer.Size = new Size(834, 977);
-            mainHorizontalSplitContainer.SplitterDistance = 669;
+            mainHorizontalSplitContainer.Panel2.Controls.Add(mainTerminal);
+            mainHorizontalSplitContainer.Size = new Size(834, 877);
+            mainHorizontalSplitContainer.SplitterDistance = 643;
             mainHorizontalSplitContainer.TabIndex = 0;
             // 
             // tableLayoutPanel
@@ -244,14 +261,14 @@ namespace TheoryOfAutomatons
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 273F));
             tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel.Controls.Add(groupBoxesPanel, 0, 0);
-            tableLayoutPanel.Controls.Add(container, 1, 0);
+            tableLayoutPanel.Controls.Add(containerMenuSplitter, 1, 0);
             tableLayoutPanel.Dock = DockStyle.Fill;
             tableLayoutPanel.Location = new Point(0, 0);
             tableLayoutPanel.Name = "tableLayoutPanel";
             tableLayoutPanel.RowCount = 1;
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
             tableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 672F));
-            tableLayoutPanel.Size = new Size(834, 669);
+            tableLayoutPanel.Size = new Size(834, 643);
             tableLayoutPanel.TabIndex = 3;
             // 
             // groupBoxesPanel
@@ -269,10 +286,10 @@ namespace TheoryOfAutomatons
             groupBoxesPanel.RowCount = 4;
             groupBoxesPanel.RowStyles.Add(new RowStyle());
             groupBoxesPanel.RowStyles.Add(new RowStyle());
-            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 340F));
-            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 8F));
+            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 308F));
+            groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
             groupBoxesPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            groupBoxesPanel.Size = new Size(267, 663);
+            groupBoxesPanel.Size = new Size(267, 637);
             groupBoxesPanel.TabIndex = 1;
             // 
             // groupBox3
@@ -280,13 +297,13 @@ namespace TheoryOfAutomatons
             groupBox3.Controls.Add(generateRandomSequence);
             groupBox3.Controls.Add(sequenceTextBox);
             groupBox3.Controls.Add(analyze);
-            groupBox3.Dock = DockStyle.Fill;
+            groupBox3.Dock = DockStyle.Bottom;
             groupBox3.FlatStyle = FlatStyle.Popup;
             groupBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
             groupBox3.ForeColor = Color.Aquamarine;
-            groupBox3.Location = new Point(3, 611);
+            groupBox3.Location = new Point(3, 579);
             groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(264, 49);
+            groupBox3.Size = new Size(264, 55);
             groupBox3.TabIndex = 4;
             groupBox3.TabStop = false;
             groupBox3.Text = "Анализ входной строки";
@@ -432,14 +449,15 @@ namespace TheoryOfAutomatons
             // 
             // groupBox2
             // 
+            groupBox2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            groupBox2.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             groupBox2.Controls.Add(settingsFLP);
-            groupBox2.Dock = DockStyle.Fill;
             groupBox2.FlatStyle = FlatStyle.Popup;
             groupBox2.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 204);
             groupBox2.ForeColor = Color.Aquamarine;
             groupBox2.Location = new Point(3, 271);
             groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(264, 334);
+            groupBox2.Size = new Size(264, 302);
             groupBox2.TabIndex = 5;
             groupBox2.TabStop = false;
             groupBox2.Text = "Параметры отрисовки";
@@ -452,11 +470,10 @@ namespace TheoryOfAutomatons
             settingsFLP.Controls.Add(groupBox8);
             settingsFLP.Controls.Add(groupBox4);
             settingsFLP.Controls.Add(groupBox5);
-            settingsFLP.Dock = DockStyle.Fill;
             settingsFLP.FlowDirection = FlowDirection.TopDown;
             settingsFLP.Location = new Point(3, 19);
             settingsFLP.Name = "settingsFLP";
-            settingsFLP.Size = new Size(258, 312);
+            settingsFLP.Size = new Size(258, 280);
             settingsFLP.TabIndex = 0;
             settingsFLP.WrapContents = false;
             // 
@@ -911,38 +928,161 @@ namespace TheoryOfAutomatons
             transitionLightPenNUD.TabIndex = 26;
             transitionLightPenNUD.Value = new decimal(new int[] { 30, 0, 0, 65536 });
             // 
+            // containerMenuSplitter
+            // 
+            containerMenuSplitter.Dock = DockStyle.Fill;
+            containerMenuSplitter.FixedPanel = FixedPanel.Panel2;
+            containerMenuSplitter.IsSplitterFixed = true;
+            containerMenuSplitter.Location = new Point(276, 3);
+            containerMenuSplitter.Name = "containerMenuSplitter";
+            containerMenuSplitter.Orientation = Orientation.Horizontal;
+            // 
+            // containerMenuSplitter.Panel1
+            // 
+            containerMenuSplitter.Panel1.Controls.Add(containerPanel);
+            // 
+            // containerMenuSplitter.Panel2
+            // 
+            containerMenuSplitter.Panel2.Controls.Add(zoomPanel);
+            containerMenuSplitter.Size = new Size(555, 637);
+            containerMenuSplitter.SplitterDistance = 571;
+            containerMenuSplitter.TabIndex = 2;
+            // 
+            // containerPanel
+            // 
+            containerPanel.AutoScroll = true;
+            containerPanel.AutoSize = true;
+            containerPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            containerPanel.BorderStyle = BorderStyle.Fixed3D;
+            containerPanel.Controls.Add(container);
+            containerPanel.Dock = DockStyle.Fill;
+            containerPanel.Location = new Point(0, 0);
+            containerPanel.Margin = new Padding(7);
+            containerPanel.Name = "containerPanel";
+            containerPanel.Size = new Size(555, 571);
+            containerPanel.TabIndex = 3;
+            // 
             // container
             // 
             container.BackColor = Color.FromArgb(96, 96, 96);
-            container.Dock = DockStyle.Fill;
-            container.Location = new Point(276, 3);
+            container.BorderStyle = BorderStyle.Fixed3D;
+            container.Location = new Point(5, 7);
+            container.Margin = new Padding(7);
             container.Name = "container";
-            container.Size = new Size(555, 663);
-            container.TabIndex = 2;
+            container.Padding = new Padding(7);
+            container.Size = new Size(541, 555);
+            container.SizeMode = PictureBoxSizeMode.AutoSize;
+            container.TabIndex = 3;
             container.TabStop = false;
+            container.Paint += Container_Paint;
+            container.MouseWheel += Container_MouseWheel;
             // 
-            // workspace1
+            // zoomPanel
             // 
-            workspace1.BackColor = Color.FromArgb(96, 96, 96);
-            workspace1.GridColor = Color.FromArgb(120, 120, 120);
-            workspace1.GridSize = 10;
-            workspace1.Location = new Point(468, 3);
-            workspace1.Margin = new Padding(4, 3, 4, 3);
-            workspace1.MaxScale = 5F;
-            workspace1.MinScale = 0.05F;
-            workspace1.Name = "workspace1";
-            workspace1.ScaleFactor = 1F;
-            workspace1.ShowGrid = true;
-            workspace1.Size = new Size(362, 298);
-            workspace1.TabIndex = 1;
+            zoomPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            zoomPanel.BorderStyle = BorderStyle.Fixed3D;
+            zoomPanel.Controls.Add(groupBox10);
+            zoomPanel.Controls.Add(groupBox9);
+            zoomPanel.Dock = DockStyle.Fill;
+            zoomPanel.Location = new Point(0, 0);
+            zoomPanel.Name = "zoomPanel";
+            zoomPanel.Size = new Size(555, 62);
+            zoomPanel.TabIndex = 0;
             // 
-            // terminal1
+            // groupBox10
             // 
-            terminal1.Location = new Point(0, 0);
-            terminal1.Margin = new Padding(13);
-            terminal1.Name = "terminal1";
-            terminal1.Size = new Size(451, 304);
-            terminal1.TabIndex = 0;
+            groupBox10.Controls.Add(clearZoom);
+            groupBox10.Controls.Add(zoomTrackBar);
+            groupBox10.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold);
+            groupBox10.ForeColor = Color.LightGray;
+            groupBox10.Location = new Point(159, 2);
+            groupBox10.Name = "groupBox10";
+            groupBox10.Size = new Size(310, 56);
+            groupBox10.TabIndex = 4;
+            groupBox10.TabStop = false;
+            groupBox10.Text = "Масштаб";
+            // 
+            // clearZoom
+            // 
+            clearZoom.BackColor = Color.FromArgb(48, 48, 48);
+            clearZoom.BackgroundImageLayout = ImageLayout.Center;
+            clearZoom.FlatStyle = FlatStyle.Flat;
+            clearZoom.Font = new System.Drawing.Font("Arial Narrow", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            clearZoom.ForeColor = Color.Gainsboro;
+            clearZoom.Location = new Point(212, 10);
+            clearZoom.Name = "clearZoom";
+            clearZoom.Size = new Size(92, 40);
+            clearZoom.TabIndex = 5;
+            clearZoom.Text = "Сброс масштаба";
+            clearZoom.UseVisualStyleBackColor = false;
+            // 
+            // zoomTrackBar
+            // 
+            zoomTrackBar.BackColor = Color.FromArgb(64, 64, 64);
+            zoomTrackBar.BeforeTouchSize = new Size(200, 20);
+            zoomTrackBar.ButtonColor = Color.FromArgb(64, 64, 64);
+            zoomTrackBar.ButtonSignColor = Color.Red;
+            zoomTrackBar.CanOverrideStyle = true;
+            zoomTrackBar.ForeColor = Color.Black;
+            zoomTrackBar.LargeChange = 100;
+            zoomTrackBar.Location = new Point(6, 22);
+            zoomTrackBar.Name = "zoomTrackBar";
+            zoomTrackBar.Size = new Size(200, 20);
+            zoomTrackBar.SliderSize = new Size(7, 14);
+            zoomTrackBar.SmallChange = 10;
+            zoomTrackBar.Style = Syncfusion.Windows.Forms.Tools.TrackBarEx.Theme.Metro;
+            zoomTrackBar.TabIndex = 1;
+            zoomTrackBar.ThemeName = "Metro";
+            zoomTrackBar.TimerInterval = 100;
+            zoomTrackBar.TrackBarGradientEnd = Color.FromArgb(32, 32, 32);
+            zoomTrackBar.TrackBarGradientStart = Color.FromArgb(32, 32, 32);
+            zoomTrackBar.Value = 100;
+            // 
+            // groupBox9
+            // 
+            groupBox9.Controls.Add(labelScreenCoords);
+            groupBox9.Controls.Add(labelRealCoords);
+            groupBox9.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold);
+            groupBox9.ForeColor = Color.LightGray;
+            groupBox9.Location = new Point(3, 2);
+            groupBox9.Name = "groupBox9";
+            groupBox9.Size = new Size(150, 56);
+            groupBox9.TabIndex = 3;
+            groupBox9.TabStop = false;
+            groupBox9.Text = "Координаты";
+            // 
+            // labelScreenCoords
+            // 
+            labelScreenCoords.AutoSize = true;
+            labelScreenCoords.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            labelScreenCoords.ForeColor = Color.Gainsboro;
+            labelScreenCoords.Location = new Point(4, 38);
+            labelScreenCoords.Margin = new Padding(1, 0, 1, 0);
+            labelScreenCoords.Name = "labelScreenCoords";
+            labelScreenCoords.Size = new Size(90, 13);
+            labelScreenCoords.TabIndex = 25;
+            labelScreenCoords.Text = "Экранные: (X; Y)";
+            // 
+            // labelRealCoords
+            // 
+            labelRealCoords.AutoSize = true;
+            labelRealCoords.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
+            labelRealCoords.ForeColor = Color.Gainsboro;
+            labelRealCoords.Location = new Point(4, 17);
+            labelRealCoords.Margin = new Padding(1, 0, 1, 0);
+            labelRealCoords.Name = "labelRealCoords";
+            labelRealCoords.Size = new Size(90, 13);
+            labelRealCoords.TabIndex = 24;
+            labelRealCoords.Text = "Реальные: (X; Y)";
+            // 
+            // mainTerminal
+            // 
+            mainTerminal.Dock = DockStyle.Fill;
+            mainTerminal.Location = new Point(0, 0);
+            mainTerminal.Margin = new Padding(13);
+            mainTerminal.Name = "mainTerminal";
+            mainTerminal.Size = new Size(834, 230);
+            mainTerminal.TabIndex = 0;
             // 
             // mainGB
             // 
@@ -950,7 +1090,7 @@ namespace TheoryOfAutomatons
             mainGB.Controls.Add(mainHorizontalSplitContainer);
             mainGB.Location = new Point(12, 30);
             mainGB.Name = "mainGB";
-            mainGB.Size = new Size(840, 999);
+            mainGB.Size = new Size(840, 899);
             mainGB.TabIndex = 2;
             mainGB.TabStop = false;
             // 
@@ -966,10 +1106,10 @@ namespace TheoryOfAutomatons
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = Color.FromArgb(40, 40, 40);
-            ClientSize = new Size(864, 1041);
+            ClientSize = new Size(864, 941);
             Controls.Add(mainGB);
             Controls.Add(mainToolStrip);
-            MinimumSize = new Size(880, 1080);
+            MinimumSize = new Size(880, 980);
             Name = "MainForm";
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterScreen;
@@ -1012,11 +1152,22 @@ namespace TheoryOfAutomatons
             groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)transitionLightPenCP).EndInit();
             ((System.ComponentModel.ISupportInitialize)transitionLightPenNUD).EndInit();
+            containerMenuSplitter.Panel1.ResumeLayout(false);
+            containerMenuSplitter.Panel1.PerformLayout();
+            containerMenuSplitter.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)containerMenuSplitter).EndInit();
+            containerMenuSplitter.ResumeLayout(false);
+            containerPanel.ResumeLayout(false);
+            containerPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)container).EndInit();
+            zoomPanel.ResumeLayout(false);
+            groupBox10.ResumeLayout(false);
+            groupBox10.PerformLayout();
+            groupBox9.ResumeLayout(false);
+            groupBox9.PerformLayout();
             mainGB.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
-
         }
 
         #endregion
@@ -1074,14 +1225,22 @@ namespace TheoryOfAutomatons
         private NumericUpDown transitionBlackPenNUD;
         private Label label10;
         private Label label11;
-        private Utils.UI.Controls.Terminal.Terminal terminal1;
+        private Utils.UI.Controls.Terminal.Terminal mainTerminal;
         private ColorDialog colorPicker;
         private GroupBox groupBox8;
         private PictureBox containerCP;
         private Label label14;
         private Label label15;
         private NumericUpDown drawStepDelayNUD;
-        private PictureBox container;
-        private Workspace workspace1;
+        private SplitContainer containerMenuSplitter;
+        private Panel containerPanel;
+        public PictureBox container;
+        private Panel zoomPanel;
+        private GroupBox groupBox10;
+        private Button clearZoom;
+        private Syncfusion.Windows.Forms.Tools.TrackBarEx zoomTrackBar;
+        private GroupBox groupBox9;
+        private Label labelScreenCoords;
+        private Label labelRealCoords;
     }
 }

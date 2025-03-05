@@ -68,6 +68,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         public override void DrawTransition(Pen p, Graphics g, bool[,] space, bool needRecalculate)
         {
             base.DrawTransition(p, g, space, needRecalculate);
+            DrawHelper.SetGraphicsParameters(g);
             if (needRecalculate)
             {
                 TransitionHelper.DetermineStartAndEnd(this, space, state => state.TransitionStartPoints);

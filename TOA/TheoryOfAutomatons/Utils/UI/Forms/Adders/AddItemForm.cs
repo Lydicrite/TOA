@@ -93,33 +93,78 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Добавить элемент";
-            this.Size = new Size(300, 200);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterParent;
-
-            lblValue = new Label() { Text = "Значение:", Left = 10, Top = 20, Width = 80 };
-            txtValue = new TextBox() { Left = 100, Top = 20, Width = 150 };
-
-            lblDescription = new Label() { Text = "Описание:", Left = 10, Top = 60, Width = 80 };
-            txtDescription = new TextBox() { Left = 100, Top = 60, Width = 150 };
-
-            btnOK = new Button() { Text = "OK", Left = 50, Top = 100, Width = 80 };
+            lblValue = new Label();
+            txtValue = new TextBox();
+            lblDescription = new Label();
+            txtDescription = new TextBox();
+            btnOK = new Button();
+            btnCancel = new Button();
+            SuspendLayout();
+            // 
+            // lblValue
+            // 
+            lblValue.Location = new Point(0, 0);
+            lblValue.Name = "lblValue";
+            lblValue.Size = new Size(100, 23);
+            lblValue.TabIndex = 0;
+            // 
+            // txtValue
+            // 
+            txtValue.Location = new Point(0, 0);
+            txtValue.Name = "txtValue";
+            txtValue.Size = new Size(100, 23);
+            txtValue.TabIndex = 1;
+            // 
+            // lblDescription
+            // 
+            lblDescription.Location = new Point(0, 0);
+            lblDescription.Name = "lblDescription";
+            lblDescription.Size = new Size(100, 23);
+            lblDescription.TabIndex = 2;
+            // 
+            // txtDescription
+            // 
+            txtDescription.Location = new Point(0, 0);
+            txtDescription.Name = "txtDescription";
+            txtDescription.Size = new Size(100, 23);
+            txtDescription.TabIndex = 3;
+            // 
+            // btnOK
+            // 
+            btnOK.Location = new Point(0, 0);
+            btnOK.Name = "btnOK";
+            btnOK.Size = new Size(75, 23);
+            btnOK.TabIndex = 4;
             btnOK.Click += BtnOK_Click;
-
-            btnCancel = new Button() { Text = "Отмена", Left = 150, Top = 100, Width = 80 };
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(0, 0);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(75, 23);
+            btnCancel.TabIndex = 5;
             btnCancel.Click += BtnCancel_Click;
-
-            this.Controls.Add(lblValue);
-            this.Controls.Add(txtValue);
-            this.Controls.Add(lblDescription);
-            this.Controls.Add(txtDescription);
-            this.Controls.Add(btnOK);
-            this.Controls.Add(btnCancel);
+            // 
+            // AddItemForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(32, 32, 32);
+            ClientSize = new Size(284, 161);
+            Controls.Add(lblValue);
+            Controls.Add(txtValue);
+            Controls.Add(lblDescription);
+            Controls.Add(txtDescription);
+            Controls.Add(btnOK);
+            Controls.Add(btnCancel);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "AddItemForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Добавить элемент";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

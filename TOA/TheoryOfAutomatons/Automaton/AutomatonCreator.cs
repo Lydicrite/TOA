@@ -14,6 +14,7 @@ using TheoryOfAutomatons.Utils.UI.Forms.Adders;
 using Syncfusion.DocIO.DLS;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Automaton.Common;
+using TheoryOfAutomatons.Utils.UI.Controls.Terminal;
 
 namespace TheoryOfAutomatons.Automaton
 {
@@ -55,8 +56,9 @@ namespace TheoryOfAutomatons.Automaton
         private CheckBox PreventPathsInersectionsChB;
         private CheckBox DeveloperModeChB;
 
-        private PictureBox Container;
-        public Form Form { get; private set; }
+        public Terminal Terminal;
+        public PictureBox Container;
+        public MainForm Form { get; private set; }
         private ColorDialog ColorPicker;
 
         private List<Point> ExistingInitialPoints;
@@ -74,7 +76,7 @@ namespace TheoryOfAutomatons.Automaton
             NumericUpDown circleDiameter, NumericUpDown border, NumericUpDown dSDNUD, NumericUpDown tLPNUD, NumericUpDown tBPNUD,
             PictureBox cCP, PictureBox aBCP, PictureBox iBCP, PictureBox hBCP, PictureBox iSCP, PictureBox tLPCP, PictureBox tBPCP,
             CheckBox intersections, CheckBox devMode,
-            PictureBox container, Form form, ColorDialog cp
+            PictureBox container, MainForm form, ColorDialog cp, Terminal terminal
         )
         {
             #region Установка полей
@@ -112,6 +114,7 @@ namespace TheoryOfAutomatons.Automaton
             Container = container;
             Form = form;
             ColorPicker = cp;
+            Terminal = terminal;
 
             #endregion
 

@@ -66,28 +66,60 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Добавить состояние Автомата";
-            this.Size = new Size(300, 200);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterParent;
-
-            lblDescr = new Label() { Text = "Описание:", Left = 10, Top = 20, Width = 80 };
-            txtDescr = new TextBox() { Left = 100, Top = 20, Width = 150 };
-
-            btnOK = new Button() { Text = "OK", Left = 50, Top = 60, Width = 80 };
+            lblDescr = new Label();
+            txtDescr = new TextBox();
+            btnOK = new Button();
+            btnCancel = new Button();
+            SuspendLayout();
+            // 
+            // lblDescr
+            // 
+            lblDescr.Location = new Point(0, 0);
+            lblDescr.Name = "lblDescr";
+            lblDescr.Size = new Size(100, 23);
+            lblDescr.TabIndex = 0;
+            // 
+            // txtDescr
+            // 
+            txtDescr.Location = new Point(0, 0);
+            txtDescr.Name = "txtDescr";
+            txtDescr.Size = new Size(100, 23);
+            txtDescr.TabIndex = 1;
+            // 
+            // btnOK
+            // 
+            btnOK.Location = new Point(0, 0);
+            btnOK.Name = "btnOK";
+            btnOK.Size = new Size(75, 23);
+            btnOK.TabIndex = 2;
             btnOK.Click += BtnOK_Click;
-
-            btnCancel = new Button() { Text = "Отмена", Left = 150, Top = 60, Width = 80 };
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(0, 0);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(75, 23);
+            btnCancel.TabIndex = 3;
             btnCancel.Click += BtnCancel_Click;
-
-            this.Controls.Add(lblDescr);
-            this.Controls.Add(txtDescr);
-            this.Controls.Add(btnOK);
-            this.Controls.Add(btnCancel);
+            // 
+            // AddStateForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(32, 32, 32);
+            ClientSize = new Size(284, 161);
+            Controls.Add(lblDescr);
+            Controls.Add(txtDescr);
+            Controls.Add(btnOK);
+            Controls.Add(btnCancel);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "AddStateForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Добавить состояние Автомата";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

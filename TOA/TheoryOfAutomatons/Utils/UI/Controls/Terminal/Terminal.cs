@@ -10,6 +10,9 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell;
 using TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues;
+using static Syncfusion.Windows.Forms.Tools.Navigation.Bar;
+using System.IO;
+using TheoryOfAutomatons.Utils.UI.Forms.Adders;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 {
@@ -41,12 +44,18 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         // Ошибки
         private readonly BindingList<ExecutionIssue> _executionIssues = new BindingList<ExecutionIssue>();
         private DataGridView issuesDataGridView;
+        private ExecutionIssueType _visibleIssueTypes = ExecutionIssueType.All;
+        private ContextMenuStrip issueContextMenu;
+        private ToolStripMenuItem detailsMenuItem;
+        private ToolStripMenuItem copyMessageMenuItem;
+        private ToolStripMenuItem copyDetailsMenuItem;
         private DataGridViewImageColumn iconColumn;
         private DataGridViewTextBoxColumn typeColumn;
+        private DataGridViewTextBoxColumn categoryColumn;
         private DataGridViewTextBoxColumn timeColumn;
         private DataGridViewTextBoxColumn sourceColumn;
         private DataGridViewTextBoxColumn messageColumn;
-        private ExecutionIssueType _visibleIssueTypes = ExecutionIssueType.All;
+        private ToolStripMenuItem openLogMenuItem;
 
         #endregion
 
@@ -83,12 +92,12 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             _isProcessingInput = true;
             pshTerminal.SelectionStart = pshTerminal.TextLength;
             pshTerminal.SelectionColor = Color.Green;
-            AppendText(CommandHandler.CommandChar + "> ", Color.Green);
+            AppendText(CommandHandler.CommandChar + "> ", Color.Green, false);
             pshTerminal.ScrollToCaret();
             _isProcessingInput = false;
         }
 
-        public void AppendText(string text, Color color)
+        public void AppendText(string text, Color color, bool autoPrompt = true)
         {
             if (pshTerminal.InvokeRequired)
             {
@@ -99,6 +108,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             pshTerminal.SelectionStart = pshTerminal.TextLength;
             pshTerminal.SelectionColor = color;
             pshTerminal.AppendText(text);
+            if (autoPrompt)
+                AppendPrompt();
             pshTerminal.ScrollToCaret();
         }
 
@@ -137,26 +148,34 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             var sw = Stopwatch.StartNew();
             try
             {
-                input = input.TrimStart(CommandHandler.CommandChar, '>', ' ');
-                if (string.IsNullOrWhiteSpace(input)) return;
-
-                _commandHistory.Insert(0, input);
-                _historyIndex = -1;
-
-                AppendText($" --- [{DateTime.Now:HH:mm:ss}] --- ", Color.Gray);
-                // _highlighter.HighlightInput(pshTerminal, input);
-
-                var result = _commandHandler.Execute(input, this);
-                if (input != "clear")
+                if (input.StartsWith(CommandHandler.CommandChar.ToString()))
                 {
-                    var s = result.ExecutionTimeToString();
-                    AppendText(s, Color.Gray);
-                    AppendText(Environment.NewLine + result.ToString() + Environment.NewLine, result.Success ? Color.Lime : Color.Red);
+                    input = input.TrimStart(CommandHandler.CommandChar, '>', ' ');
+                    if (string.IsNullOrWhiteSpace(input)) return;
+
+                    _commandHistory.Insert(0, input);
+                    _historyIndex = -1;
+
+                    AppendText($" --- [{DateTime.Now:HH:mm:ss}] --- ", Color.Gray, false);
+                    // _highlighter.HighlightInput(pshTerminal, input);
+
+                    var result = _commandHandler.Execute(input, this);
+                    if (input != "clear")
+                    {
+                        var s = result.ExecutionTimeToString();
+                        AppendText(s, Color.Gray, false);
+                        AppendText(Environment.NewLine + result.ToString() + Environment.NewLine, result.Success ? Color.Lime : Color.Red, true);
+                    }
+                } 
+                else
+                {
+                    AppendText($"\n{input} не является командной\n", Color.Green, false);
                 }
+
             }
             catch (Exception ex)
             {
-                AppendText($"ERROR: {ex.Message}\n", Color.Red);
+                AppendText($"ERROR: {ex.Message}\n", Color.Red, true);
             }
             finally
             {
@@ -215,6 +234,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             issuesDataGridView.CellValueNeeded += IssuesDataGridView_CellValueNeeded;
             issuesDataGridView.CellFormatting += IssuesDataGridView_CellFormatting;
 
+            InitializeIssueContextMenu();
+
             // Пример
             try
             {
@@ -229,6 +250,39 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                 LogExecIssue(ExecutionIssueType.Warning, ExecutionIssueCategory.Security, "Was", "Это пример вывода предупреждения");
                 LogExecIssue(ExecutionIssueType.Message, ExecutionIssueCategory.Data, "Here", "Это пример вывода сообщения");
             }
+        }
+
+        private void InitializeIssueContextMenu()
+        {
+            issueContextMenu = new ContextMenuStrip();
+
+            // Пункт "Показать детали"
+            detailsMenuItem = new ToolStripMenuItem("Показать детали ошибки");
+            detailsMenuItem.Click += (s, e) => ShowSelectedIssueDetails();
+
+            // Пункт "Копировать сообщение"
+            copyMessageMenuItem = new ToolStripMenuItem("Копировать сообщение");
+            copyMessageMenuItem.Click += (s, e) => CopyIssueMessage();
+
+            // Пункт "Копировать детали"
+            copyDetailsMenuItem = new ToolStripMenuItem("Копировать полные данные");
+            copyDetailsMenuItem.Click += (s, e) => CopyIssueDetails();
+
+            // Пункт "Открыть в логе"
+            openLogMenuItem = new ToolStripMenuItem("Открыть в файле журнала");
+            openLogMenuItem.Click += (s, e) => OpenInLogFile();
+
+            issueContextMenu.Items.AddRange(new ToolStripItem[] {
+                detailsMenuItem,
+                new ToolStripSeparator(),
+                copyMessageMenuItem,
+                copyDetailsMenuItem,
+                new ToolStripSeparator(),
+                openLogMenuItem
+            });
+
+            issuesDataGridView.ContextMenuStrip = issueContextMenu;
+            issuesDataGridView.MouseDown += IssuesDataGridView_MouseDown;
         }
 
         private void UpdateFilteredView()
@@ -342,6 +396,14 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     e.Handled = true; // Блокируем ввод
                 }
             }
+            if (e.KeyChar == ' ')
+            {
+                int currentPos = pshTerminal.SelectionStart;
+                if (currentPos > 0 && pshTerminal.Text[currentPos - 1] == ' ')
+                {
+                    e.Handled = true; // Блокируем ввод
+                }
+            }
         }
 
         private void pshTerminal_KeyDown(object sender, KeyEventArgs e)
@@ -364,7 +426,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 
                 if (currentLineIndex == lastLineIndex && isCursorAtEnd)
                 {
-                    var input = GetCurrentLine().TrimStart(CommandHandler.CommandChar, '>', ' ');
+                    var input = GetCurrentLine().Substring(3);
                     if (!string.IsNullOrEmpty(input))
                         ProcessCommand(input);
                     AppendPrompt();
@@ -399,9 +461,9 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                 string clipboardText = Clipboard.GetText().Replace("\n", "").Replace("\r", "");
                 pshTerminal.SelectedText = clipboardText;
             }
-            else if(e.Control && e.KeyCode == Keys.L)
+            else if (e.Control && e.KeyCode == Keys.L)
             {
-                ProcessCommand("clear");
+                ProcessCommand("\\clear");
             }
         }
 
@@ -430,7 +492,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     }
 
                     _isProcessingInput = false;
-                }
+                }                
             }
 
 
@@ -516,15 +578,18 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                         e.Value = issue.Type.GetCachedIcon();
                         break;
                     case 1: // Тип
-                        e.Value = issue.Type.ToString();
+                        e.Value = issue.Type.ToFriendlyString();
                         break;
-                    case 2: // Время
-                        e.Value = issue.Timestamp.ToString("HH:mm:ss");
+                    case 2: // Тип
+                        e.Value = issue.Category.ToFriendlyString();
                         break;
-                    case 3: // Источник
+                    case 3: // Время
+                        e.Value = issue.Timestamp.ToLocalTime().ToString("G");
+                        break;
+                    case 4: // Источник
                         e.Value = issue.Source;
                         break;
-                    case 4: // Сообщение
+                    case 5: // Сообщение
                         e.Value = issue.Message;
                         break;
                 }
@@ -554,6 +619,83 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         private void showInfoMessages_CheckedChanged(object sender, EventArgs e)
         {
             UpdateFilters(showErrorsFilter.Checked, showWarningsFilter.Checked, showInfoMessagesFilter.Checked);
+        }
+
+        private void IssuesDataGridView_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                var hitTest = issuesDataGridView.HitTest(e.X, e.Y);
+                if (hitTest.RowIndex >= 0 && hitTest.ColumnIndex >= 0)
+                {
+                    issuesDataGridView.ClearSelection();
+                    issuesDataGridView.Rows[hitTest.RowIndex].Selected = true;
+                }
+                else
+                {
+                    issueContextMenu.Hide();
+                }
+            }
+        }
+
+        private ExecutionIssue GetSelectedIssue()
+        {
+            if (issuesDataGridView.SelectedRows.Count == 0) return null;
+            var filtered = _executionIssues.Where(i => _visibleIssueTypes.HasFlag(i.Type)).ToList();
+            int index = issuesDataGridView.SelectedRows[0].Index;
+            return filtered.ElementAtOrDefault(index);
+        }
+
+        private void ShowSelectedIssueDetails()
+        {
+            var issue = GetSelectedIssue();
+            if (issue == null) return;
+            else
+            {
+                var info = issue.GetTechnicalDetails();
+                ShowIssueDetails form = new ShowIssueDetails($"\nПерехвачена проблема {issue.ErrorCode}: \n{info}");
+                form.Show(this);
+            }
+        }
+
+        private void CopyIssueMessage()
+        {
+            var issue = GetSelectedIssue();
+            if (issue != null)
+            {
+                Clipboard.SetText(issue.Message);
+                AppendText($"\nСообщение проблемы {issue.ErrorCode} скопировано в буфер\n", Color.LightBlue);
+                AppendPrompt();
+            }
+        }
+
+        private void CopyIssueDetails()
+        {
+            var issue = GetSelectedIssue();
+            if (issue != null)
+            {
+                Clipboard.SetText(issue.GetTechnicalDetails());
+                AppendText($"\nВсе данные проблемы {issue.ErrorCode} скопированы\n", Color.LightBlue);
+                AppendPrompt();
+            }
+        }
+
+        private void OpenInLogFile()
+        {
+            var issue = GetSelectedIssue();
+            if (issue == null) return;
+
+            try
+            {
+                string logPath = Path.Combine(Application.StartupPath, "error_log.txt");
+                File.AppendAllText(logPath, $"\n\n{issue.GetTechnicalDetails()}");
+                Process.Start("notepad.exe", logPath);
+            }
+            catch (Exception ex)
+            {
+                LogExecIssue(ExecutionIssueType.Error, ExecutionIssueCategory.IO,
+                    "Контекстное меню", "Ошибка открытия лога", ex);
+            }
         }
 
         #endregion
@@ -587,17 +729,18 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             runtimePage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             issueMainTLP = new TableLayoutPanel();
             issuesDataGridView = new DataGridView();
-            iconColumn = new DataGridViewImageColumn();
-            typeColumn = new DataGridViewTextBoxColumn();
-            timeColumn = new DataGridViewTextBoxColumn();
-            sourceColumn = new DataGridViewTextBoxColumn();
-            messageColumn = new DataGridViewTextBoxColumn();
             issueMainFLP = new FlowLayoutPanel();
             showErrorsFilter = new CheckBox();
             showWarningsFilter = new CheckBox();
             showInfoMessagesFilter = new CheckBox();
             configPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             issueIcons = new ImageList(components);
+            iconColumn = new DataGridViewImageColumn();
+            typeColumn = new DataGridViewTextBoxColumn();
+            categoryColumn = new DataGridViewTextBoxColumn();
+            timeColumn = new DataGridViewTextBoxColumn();
+            sourceColumn = new DataGridViewTextBoxColumn();
+            messageColumn = new DataGridViewTextBoxColumn();
             ((ISupportInitialize)terminalTab).BeginInit();
             terminalTab.SuspendLayout();
             pshPage.SuspendLayout();
@@ -734,7 +877,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
             issuesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             issuesDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            issuesDataGridView.Columns.AddRange(new DataGridViewColumn[] { iconColumn, typeColumn, timeColumn, sourceColumn, messageColumn });
+            issuesDataGridView.Columns.AddRange(new DataGridViewColumn[] { iconColumn, typeColumn, categoryColumn, timeColumn, sourceColumn, messageColumn });
             dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = Color.FromArgb(64, 64, 64);
             dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
@@ -773,46 +916,6 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             issuesDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             issuesDataGridView.Size = new Size(709, 247);
             issuesDataGridView.TabIndex = 15;
-            // 
-            // iconColumn
-            // 
-            iconColumn.FillWeight = 30.45685F;
-            iconColumn.HeaderText = "";
-            iconColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
-            iconColumn.Name = "iconColumn";
-            iconColumn.ReadOnly = true;
-            iconColumn.SortMode = DataGridViewColumnSortMode.Automatic;
-            iconColumn.Width = 18;
-            // 
-            // typeColumn
-            // 
-            typeColumn.FillWeight = 169.5432F;
-            typeColumn.HeaderText = "Тип";
-            typeColumn.Name = "typeColumn";
-            typeColumn.ReadOnly = true;
-            typeColumn.Resizable = DataGridViewTriState.True;
-            typeColumn.Width = 51;
-            // 
-            // timeColumn
-            // 
-            timeColumn.HeaderText = "Время";
-            timeColumn.Name = "timeColumn";
-            timeColumn.ReadOnly = true;
-            timeColumn.Width = 66;
-            // 
-            // sourceColumn
-            // 
-            sourceColumn.HeaderText = "Источник";
-            sourceColumn.Name = "sourceColumn";
-            sourceColumn.ReadOnly = true;
-            sourceColumn.Width = 85;
-            // 
-            // messageColumn
-            // 
-            messageColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            messageColumn.HeaderText = "Данные";
-            messageColumn.Name = "messageColumn";
-            messageColumn.ReadOnly = true;
             // 
             // issueMainFLP
             // 
@@ -907,6 +1010,53 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             issueIcons.ColorDepth = ColorDepth.Depth8Bit;
             issueIcons.ImageSize = new Size(15, 15);
             issueIcons.TransparentColor = Color.Transparent;
+            // 
+            // iconColumn
+            // 
+            iconColumn.FillWeight = 30.45685F;
+            iconColumn.HeaderText = "";
+            iconColumn.ImageLayout = DataGridViewImageCellLayout.Zoom;
+            iconColumn.Name = "iconColumn";
+            iconColumn.ReadOnly = true;
+            iconColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            iconColumn.Width = 5;
+            // 
+            // typeColumn
+            // 
+            typeColumn.FillWeight = 169.5432F;
+            typeColumn.HeaderText = "Тип";
+            typeColumn.Name = "typeColumn";
+            typeColumn.ReadOnly = true;
+            typeColumn.Resizable = DataGridViewTriState.True;
+            typeColumn.Width = 51;
+            // 
+            // categoryColumn
+            // 
+            categoryColumn.HeaderText = "Категория";
+            categoryColumn.Name = "categoryColumn";
+            categoryColumn.ReadOnly = true;
+            categoryColumn.Width = 87;
+            // 
+            // timeColumn
+            // 
+            timeColumn.HeaderText = "Время";
+            timeColumn.Name = "timeColumn";
+            timeColumn.ReadOnly = true;
+            timeColumn.Width = 66;
+            // 
+            // sourceColumn
+            // 
+            sourceColumn.HeaderText = "Источник";
+            sourceColumn.Name = "sourceColumn";
+            sourceColumn.ReadOnly = true;
+            sourceColumn.Width = 85;
+            // 
+            // messageColumn
+            // 
+            messageColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            messageColumn.HeaderText = "Данные";
+            messageColumn.Name = "messageColumn";
+            messageColumn.ReadOnly = true;
             // 
             // Terminal
             // 

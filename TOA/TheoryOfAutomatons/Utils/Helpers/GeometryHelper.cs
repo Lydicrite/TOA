@@ -212,30 +212,27 @@ namespace TheoryOfAutomatons.Utils.Helpers
         /// </summary>
         /// <param name="automaton">Автомат.</param>
         /// <param name="form">Форма.</param>
-        public static void AdaptContainerSize<TState>(DFAutomaton<TState> automaton, Form form) where TState : class
+        public static void AdaptContainerSize<TState>(DFAutomaton<TState> automaton, PictureBox container, MainForm form) where TState : class
         {
-            if (form == null)
+            if (container == null)
                 return;
 
-            form.MinimumSize = new Size(880, 1080);
-            form.Size = form.MinimumSize;
+            container.Size = new Size(541, 555);
 
-            int formWidth = form.Size.Width;
-            int formHeight = form.Size.Height;
-            form.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            int containerWidth = container.Size.Width;
+            int containerHeight = container.Size.Height;
 
             int maxX = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.X);
             var maxY = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.Y);
             int 
-                width = (int)Math.Max((double)((formWidth - 555) + maxX + 2 * automaton.CircleDiameter), (double)formWidth), 
-                height = (int)Math.Max((double)((formHeight - 663) + maxY + 2 * automaton.CircleDiameter), (double)formHeight);
+                newContainerWidth = (int)Math.Max((double)(containerWidth + maxX + 2 * automaton.CircleDiameter), (double)containerWidth), 
+                newContainerHeight = (int)Math.Max((double)(containerHeight + maxY + 2 * automaton.CircleDiameter), (double)containerHeight);
 
-            form.MinimumSize = new Size(width, height);
-            form.Size = form.MinimumSize;
+            container.Size = new Size(newContainerWidth, newContainerHeight);
+            form.OriginalSize = container.Size;
+
             automaton.FillMaps();
             automaton.OnTransitionsChanged();
-
-            form.AutoSizeMode = AutoSizeMode.GrowOnly;
         }
 
 

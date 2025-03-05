@@ -127,7 +127,26 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues
             TargetSite = ex?.TargetSite?.ToString();
             HelpLink = ex?.HelpLink;
             ErrorCode = GenerateErrorCode(ex);
-            CodeSnippet = codeSnippet;
+            CodeSnippet = GetCodeSnippet(ex);
+        }
+
+        private string GetCodeSnippet(Exception ex)
+        {
+            try
+            {
+                var stackFrame = new StackTrace(ex, true).GetFrame(0);
+                if (stackFrame == null) return null;
+
+                var fileName = stackFrame.GetFileName();
+                var lineNumber = stackFrame.GetFileLineNumber();
+
+                return File.Exists(fileName)
+                    ? string.Join("\n", File.ReadLines(fileName)
+                        .Skip(lineNumber - 15)
+                        .Take(30))
+                    : null;
+            }
+            catch { return null; }
         }
 
         private string GetMethodPath(Exception ex)
@@ -152,26 +171,60 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues
 
         private string GenerateErrorCode(Exception ex)
         {
-            if (ex == null) return null;
-
-            unchecked
+            if (ex != null)
             {
                 int hash = 17;
                 hash = hash * 31 + ex.GetType().Name.GetHashCode(StringComparison.Ordinal);
                 hash = hash * 31 + (Message?.GetHashCode(StringComparison.Ordinal) ?? 0);
                 hash = hash * 31 + (Source?.GetHashCode(StringComparison.Ordinal) ?? 0);
-                return $"ERR-{Math.Abs(hash):X8}";
+
+                return $"ISS-{Math.Abs(hash):X8}";
+            } 
+            else
+            {
+                int hash = 17;
+                hash = hash * 31 + Type.GetHashCode();
+                hash = hash * 31 + (Message?.GetHashCode(StringComparison.Ordinal) ?? 0);
+                hash = hash * 31 + (Source?.GetHashCode(StringComparison.Ordinal) ?? 0);
+
+                return $"ISS-{Math.Abs(hash):X8}";
             }
         }
 
-        public string GetTechnicalDetails() =>
-            $"[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}] \"{Type}\" в {Source}\n" +
-            $"Категория: {Category}\n" +
-            $"Сообщение: {Message}\n" +
-            $"Исключение: \"{Exception?.GetType().FullName}\"\n" +
-            $"Код ошибки: {ErrorCode}\n" +
-            $"Трассировка стека:\n{StackTrace}\n" +
-            $"Помощь: {HelpLink}";
+        public string GetTechnicalDetails()
+        {
+            const string separator = "--------------------------------------------------";
+            const string indent = "\n\t";
+            var details = new StringBuilder();
+
+            void AppendSection(string title, object value)
+                => details.Append($"{indent}[{title}] {value}");
+
+            void AppendMultilineSection(string title, string content)
+            {
+                if (string.IsNullOrEmpty(content)) return;
+
+                details.Append($"{indent}[{title}]{indent}{separator}")
+                       .Append($"\n\n{indent}{content}")
+                       .Append($"\n\n{indent}{separator}");
+            }
+
+            // Основная информация
+            AppendSection("Тип", Type);
+            AppendSection("Категория", Category);
+            AppendSection("Время", Timestamp.ToLocalTime().ToString("G"));
+
+            // Опциональные поля
+            if (!string.IsNullOrEmpty(Source)) AppendSection("Источник", Source);
+            if (!string.IsNullOrEmpty(ErrorCode)) AppendSection("Код", ErrorCode);
+            if (!string.IsNullOrEmpty(Message)) AppendSection("Сообщение", Message);
+
+            // Многострочные секции
+            AppendMultilineSection("Стек вызовов", StackTrace);
+            AppendMultilineSection("Фрагмент кода", CodeSnippet);
+
+            return details.ToString();
+        }
 
         public void AddInnerIssue(ExecutionIssue issue) => InnerIssues.Add(issue);
 
@@ -297,6 +350,31 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues
                     "</td></tr>");
             }
             return sb.Append("</table>").ToString();
+        }
+
+
+        public static string ToFriendlyString(this ExecutionIssueType type)
+        {
+            return type switch
+            {
+                ExecutionIssueType.Error => "Ошибка",
+                ExecutionIssueType.Warning => "Предупреждение",
+                ExecutionIssueType.Message => "Информация",
+                _ => "Неизвестно"
+            };
+        }
+
+        public static string ToFriendlyString(this ExecutionIssueCategory category)
+        {
+            return category switch
+            {
+                ExecutionIssueCategory.IO => "Ввод/вывод",
+                ExecutionIssueCategory.UI => "Интерфейс",
+                ExecutionIssueCategory.Algorithmic => "Алгоритм",
+                ExecutionIssueCategory.Security => "Безопасность",
+                ExecutionIssueCategory.Data => "Данные",
+                _ => "Другое"
+            };
         }
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -63,12 +64,14 @@ namespace TheoryOfAutomatons.Utils.Helpers
         /// <param name="g">Объект <see cref="Graphics"/>, для которого устанавливаются параметры.</param>
         public static void SetGraphicsParameters(Graphics g)
         {
-            if (g.SmoothingMode != System.Drawing.Drawing2D.SmoothingMode.AntiAlias)
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            if (g.TextRenderingHint != System.Drawing.Text.TextRenderingHint.AntiAlias)
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            if (g.PixelOffsetMode != System.Drawing.Drawing2D.PixelOffsetMode.HighQuality)
+            if (g.SmoothingMode != SmoothingMode.AntiAlias)
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+            if (g.TextRenderingHint !=TextRenderingHint.AntiAlias)
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+            if (g.PixelOffsetMode != PixelOffsetMode.HighQuality)
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            if (g.InterpolationMode != InterpolationMode.HighQualityBicubic)
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
         }
 
         /// <summary>

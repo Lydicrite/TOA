@@ -12,6 +12,7 @@ using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Utils.Containers;
 using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
+using TheoryOfAutomatons.Utils.UI.Controls;
 
 namespace TheoryOfAutomatons.Automaton.Common
 {
@@ -284,7 +285,7 @@ namespace TheoryOfAutomatons.Automaton.Common
             Transitions = new List<AutomatonTransition<TState>>();
             // OutputFunction реализуется отдельно для каждого типа автомата
 
-            Container.Image = new Bitmap(Container.Width, Container.Height);
+            Container.CreateGraphics();
             TransitionsCache = new Bitmap(Container.Width, Container.Height);
 
             InputsDescription = new List<string>();

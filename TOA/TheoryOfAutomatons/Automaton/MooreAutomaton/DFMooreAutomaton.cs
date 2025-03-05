@@ -10,6 +10,7 @@ using System.IO;
 
 using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
+using TheoryOfAutomatons.Utils.UI.Controls;
 
 namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 {
@@ -321,7 +322,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 this.AddState(state);
             }
 
-            GeometryHelper.AdaptContainerSize(this, MainForm.AutomatonCreator.Form);
+            GeometryHelper.AdaptContainerSize(this, MainForm.AutomatonCreator.Container, MainForm.AutomatonCreator.Form);
 
             // Добавление функций переходов и выходов для состояний
             for (int i = 0; i < automatonData.StatesAlphabet.Count; i++)
