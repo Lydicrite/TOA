@@ -74,7 +74,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
             log.AppendLine($"Обработка входной последовательности {inputSequence}:");
             for (int i = 0; i < inputSequence.Length; i++)
             {
-                FillMaps();
+                // FillMaps();
 
                 CurrentInputSymbol = inputSequence[i];
                 CurrentState.IsInput = true;
@@ -104,7 +104,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 CurrentState.IsInput = false;
                 CurrentState = nextState;
 
-                FillMaps();
+                // FillMaps();
 
                 // Отображение конца обработки символа
                 OnTransitionsChanged();

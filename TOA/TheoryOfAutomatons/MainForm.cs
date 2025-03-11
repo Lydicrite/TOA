@@ -12,6 +12,7 @@ namespace TheoryOfAutomatons
         public Size OriginalSize = new Size(541, 555);
         private Point lastScrollPosition;
         private Point mouseDownPosition;
+        private Point _lastScreenPoint;
 
         public MainForm()
         {
@@ -21,6 +22,13 @@ namespace TheoryOfAutomatons
         internal static AutomatonCreator AutomatonCreator;
         private void Form_Load(object sender, EventArgs e)
         {
+            SetStyle
+            (
+                 ControlStyles.OptimizedDoubleBuffer |
+                 ControlStyles.AllPaintingInWmPaint |
+                 ControlStyles.UserPaint, true
+            );
+
             AutomatonCreator = new AutomatonCreator
             (
                 saveToFileTSB, loadFromFileTSB, clearTSB,
@@ -31,7 +39,7 @@ namespace TheoryOfAutomatons
                 cirlceDiameterNUD, borderNUD, drawStepDelayNUD, transitionLightPenNUD, transitionBlackPenNUD,
                 containerCP, activeBorderCP, inactiveBorderCP, highlightedBorderCP, innerStateCP, transitionLightPenCP, transitionBlackPenCP,
                 prohibitIntersectingPaths, developerMode,
-                container, this, colorPicker, mainTerminal
+                container, this, colorPicker, MainTerminal
             );
 
             container.MouseMove += Container_MouseMove;
@@ -46,12 +54,18 @@ namespace TheoryOfAutomatons
 
         private void Container_MouseLeave(object sender, EventArgs e)
         {
-            ClearCoordinates();
+            if (labelScreenCoords.Parent.Visible)
+            {
+                ClearCoordinates();
+            }
         }
 
         private void Container_MouseMove(object sender, MouseEventArgs e)
         {
-            UpdateCoordinates(e.Location);
+            if (labelScreenCoords.Parent.Visible)
+            {
+                UpdateCoordinates(e.Location);
+            }
         }
 
         private void Container_MouseWheel(object sender, MouseEventArgs e)
@@ -107,15 +121,22 @@ namespace TheoryOfAutomatons
         {
             if (e.Button == MouseButtons.Middle)
             {
+                // containerPanel.SuspendLayout();
+
                 var offset = new Point(
                     mouseDownPosition.X - e.X,
                     mouseDownPosition.Y - e.Y
                 );
 
-                containerPanel.AutoScrollPosition = new Point(
+                Point newAutoScrollPos = new Point(
                     Math.Abs(lastScrollPosition.X) + offset.X,
                     Math.Abs(lastScrollPosition.Y) + offset.Y
                 );
+
+                if (containerPanel.AutoScrollPosition != newAutoScrollPos)
+                    containerPanel.AutoScrollPosition = newAutoScrollPos;
+
+                // containerPanel.ResumeLayout();
             }
         }
 
@@ -130,12 +151,18 @@ namespace TheoryOfAutomatons
 
         private void UpdateCoordinates(Point screenPoint)
         {
-            // Экранные координаты (относительно PictureBox)
-            labelScreenCoords.Text = $"Экранные: {screenPoint.X}, {screenPoint.Y}";
+            if (screenPoint == _lastScreenPoint) return;
+            _lastScreenPoint = screenPoint;
 
-            // Реальные координаты (с учетом масштаба и прокрутки)
-            PointF realPoint = ConvertToRealCoordinates(screenPoint);
-            labelRealCoords.Text = $"Реальные: {realPoint.X:F1}, {realPoint.Y:F1}";
+            if (labelScreenCoords.Parent.Visible)
+            {
+                // Экранные координаты (относительно PictureBox)
+                labelScreenCoords.Text = $"Экранные: {_lastScreenPoint.X}, {_lastScreenPoint.Y}";
+
+                // Реальные координаты (с учетом масштаба и прокрутки)
+                PointF realPoint = ConvertToRealCoordinates(_lastScreenPoint);
+                labelRealCoords.Text = $"Реальные: {realPoint.X:F0}, {realPoint.Y:F0}";
+            }
         }
 
         private void ClearCoordinates()
@@ -230,14 +257,14 @@ namespace TheoryOfAutomatons
                 container.Invalidate();
             }
         }
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var cp = base.CreateParams;
-                cp.ExStyle |= 0x02000000;
-                return cp;
-            }
-        }
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        var cp = base.CreateParams;
+        //        cp.ExStyle |= 0x02000000;
+        //        return cp;
+        //    }
+        //}
     }
 }

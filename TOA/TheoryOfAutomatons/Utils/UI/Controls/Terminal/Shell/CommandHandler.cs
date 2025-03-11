@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using TOA.TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 {
@@ -50,7 +52,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
             var stopwatch = Stopwatch.StartNew();
 
             var match = Regex.Match(input, @"^(\S+)(?:\s+(.*))?$");
-            if (!match.Success) return new CommandResult(false, "Invalid command format", TimeSpan.Zero);
+            if (!match.Success) return new CommandResult(false, "Неверный формат команды", TimeSpan.Zero);
 
             var commandName = match.Groups[1].Value.ToLower();
             var parameters = Regex.Matches(match.Groups[2].Value, @"(""[^""]*""|\S+)")
@@ -59,14 +61,14 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
                                 .ToArray();
 
             if (!_commands.TryGetValue(commandName, out var method))
-                return new CommandResult(false, $"Command '{commandName}' not found", TimeSpan.Zero);
+                return new CommandResult(false, $"Команда \"{commandName}\" не найдена", TimeSpan.Zero);
 
             try
             {
                 var result = method.Invoke(null, new object[] { parameters, terminal });
                 stopwatch.Stop();
 
-                return result as CommandResult ?? new CommandResult(true, "Command executed", stopwatch.Elapsed);
+                return result as CommandResult ?? new CommandResult(true, "Команда выполнена", stopwatch.Elapsed);
             }
             catch (Exception ex)
             {
@@ -85,21 +87,29 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
 
         public static class TerminalCommands
         {
+
             [TerminalCommand("help", "Показывает список доступных команд", "help [command]")]
             public static CommandResult Help(string[] args, Terminal terminal)
             {
-                var sw = Stopwatch.StartNew();
+                if (args.Length > 1)
+                    return new CommandResult(false, "Эта команда может иметь только один аргумент - команду, по которой необходима помощь", TimeSpan.Zero);
+
                 var sb = new StringBuilder();
                 var commands = terminal.CommandHandler.GetCommandNames().Distinct();
 
-                sb.AppendLine("Доступные команды: ");
-                foreach (var cmd in commands)
+                if (args.Length == 0)
                 {
-                    sb.AppendLine($"  {cmd.PadRight(10)} - {GetCommandDescription(cmd, terminal.CommandHandler)}");
+                    sb.AppendLine("Доступные команды: ");
+                    foreach (var cmd in commands)
+                    {
+                        sb.AppendLine($"    {cmd.PadRight(10)} - {GetCommandDescription(cmd, terminal.CommandHandler)}");
+                    }
                 }
-                sw.Stop();
-                return new CommandResult(true, sb.ToString(), sw.Elapsed);
+
+                return new CommandResult(true, sb.ToString(), TimeSpan.Zero);
             }
+
+
 
             [TerminalCommand("clear", "Очищает текст в PowerShell")]
             public static CommandResult Clear(string[] args, Terminal terminal)
@@ -111,7 +121,53 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell
                 terminal.pshTerminal.Clear();
                 sw.Stop();
                 return new CommandResult(true, "", sw.Elapsed);
-            }          
+            }
+
+
+
+            [TerminalCommand("set_input_rule", "Установить правило ввода", "\\set_input_rule [rule_name]")]
+            public static CommandResult SetInputRule(string[] args, Terminal terminal)
+            {
+                if (args.Length == 0)
+                    return new CommandResult(false, "Укажите имя правила ввода", TimeSpan.Zero);
+
+                if (args.Length > 1)
+                    return new CommandResult(false, "Эта команда может иметь только один аргумент - имя правила", TimeSpan.Zero);
+
+                if (InputRulePresets.Rules.TryGetValue(args[0], out var rule))
+                {
+                    terminal.SetInputRule(rule);
+
+                    return new CommandResult
+                    (
+                        true,
+
+                        $"Активирован режим: {rule.Name}\n" +
+                        $"Правила: {rule.Description}\n" +
+                        $"Пример: {rule.Example}",
+
+                        TimeSpan.Zero
+                    );
+                } 
+                else
+                {
+                    return new CommandResult(false, $"Правило ввода \"{args[0]}\" не найдено", TimeSpan.Zero);
+                } 
+
+            }
+
+
+
+            [TerminalCommand("list_rules", "Показать доступные правила")]
+            public static CommandResult ListRules(string[] args, Terminal terminal)
+            {
+                var sb = new StringBuilder("Доступные правила: \n");
+                foreach (var rule in InputRulePresets.Rules)
+                {
+                    sb.AppendLine($"  {rule.Key.PadRight(15)} - {rule.Value.Description}");
+                }
+                return new CommandResult(true, sb.ToString(), TimeSpan.Zero);
+            }
         }
     }
 }

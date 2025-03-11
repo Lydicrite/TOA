@@ -13,6 +13,8 @@ using TheoryOfAutomatons.Utils.Containers;
 using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils.UI.Controls;
+using System.Linq;
+using System.Windows.Automation;
 
 namespace TheoryOfAutomatons.Automaton.Common
 {
@@ -756,6 +758,7 @@ namespace TheoryOfAutomatons.Automaton.Common
 
                 using (Graphics g = Graphics.FromImage(TransitionsCache))
                 {
+                    DrawHelper.SetGraphicsParameters(g);
                     DrawTransitions(g);
                 }
 
@@ -946,7 +949,7 @@ namespace TheoryOfAutomatons.Automaton.Common
                     {
                         ((dynamic)state).IsMoving = true;
                         StateBeingMoved = state;
-                        ((dynamic)StateBeingMoved).DrawMovingFrame(Container.CreateGraphics());
+                        // ((dynamic)StateBeingMoved).DrawMovingFrame(Container.CreateGraphics());
                         break;
                     }
                 }

@@ -20,6 +20,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FontAwesome.Sharp" Version="6.6.0" />
+    <PackageReference Include="FontAwesome.Sharp.Pro" Version="6.6.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
@@ -35,31 +37,31 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Syncfusion.Chart.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Chart.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Compression.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Core.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Diagram.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Diagram.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.DocIO.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Grid.Grouping.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Grid.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.GridExport.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.GridHelperClasses.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Grouping.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Licensing" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Linq.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.OfficeChart.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Pdf.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.PivotAnalysis.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.PivotTable.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.SfInput.WinForms" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Shared.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Shared.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.SpellChecker.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Tools.Base" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.Tools.Windows" Version="28.2.6" />
-    <PackageReference Include="Syncfusion.XlsIO.WinForms" Version="28.2.6" />
+    <PackageReference Include="Syncfusion.Chart.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Chart.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Compression.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Core.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Diagram.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Diagram.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.DocIO.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Grid.Grouping.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Grid.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.GridExport.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.GridHelperClasses.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Grouping.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Licensing" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Linq.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.OfficeChart.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Pdf.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.PivotAnalysis.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.PivotTable.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.SfInput.WinForms" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Shared.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Shared.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.SpellChecker.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Tools.Base" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.Tools.Windows" Version="28.2.9" />
+    <PackageReference Include="Syncfusion.XlsIO.WinForms" Version="28.2.9" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TheoryOfAutomatons\Utils\UI\Controls\DynamicCodeRunner\DynamicCodeSystem\" />

@@ -223,10 +223,10 @@ namespace TheoryOfAutomatons.Utils.Helpers
             int containerHeight = container.Size.Height;
 
             int maxX = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.X);
-            var maxY = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.Y);
+            int maxY = automaton.StatesAlphabet.Max(state => ((dynamic)state).StateCenter.Y);
             int 
-                newContainerWidth = (int)Math.Max((double)(containerWidth + maxX + 2 * automaton.CircleDiameter), (double)containerWidth), 
-                newContainerHeight = (int)Math.Max((double)(containerHeight + maxY + 2 * automaton.CircleDiameter), (double)containerHeight);
+                newContainerWidth = (int)Math.Max((double)(maxX + 2 * automaton.CircleDiameter), (double)containerWidth), 
+                newContainerHeight = (int)Math.Max((double)(maxY + 2 * automaton.CircleDiameter), (double)containerHeight);
 
             container.Size = new Size(newContainerWidth, newContainerHeight);
             form.OriginalSize = container.Size;

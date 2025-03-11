@@ -13,6 +13,7 @@ using TheoryOfAutomatons.Utils.UI.Controls.Terminal.ExecutionIssues;
 using static Syncfusion.Windows.Forms.Tools.Navigation.Bar;
 using System.IO;
 using TheoryOfAutomatons.Utils.UI.Forms.Adders;
+using TOA.TheoryOfAutomatons.Utils.UI.Controls.Terminal.Shell;
 
 namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 {
@@ -30,25 +31,11 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         private CheckBox showWarningsFilter;
         private CheckBox showInfoMessagesFilter;
         private ImageList issueIcons;
-
-        // Команды
-        private bool _isProcessingInput = false;
-        private CommandHandler _commandHandler;
-        private List<string> _commandHistory = new List<string>();
-        private int _historyIndex = -1;
-        private SyntaxHighlighter _highlighter = new SyntaxHighlighter();
-        private StringBuilder _inputBuffer = new StringBuilder();
-        public CommandHandler CommandHandler => _commandHandler;
-
-
-        // Ошибки
-        private readonly BindingList<ExecutionIssue> _executionIssues = new BindingList<ExecutionIssue>();
-        private DataGridView issuesDataGridView;
-        private ExecutionIssueType _visibleIssueTypes = ExecutionIssueType.All;
         private ContextMenuStrip issueContextMenu;
         private ToolStripMenuItem detailsMenuItem;
         private ToolStripMenuItem copyMessageMenuItem;
         private ToolStripMenuItem copyDetailsMenuItem;
+        private DataGridView issuesDataGridView;
         private DataGridViewImageColumn iconColumn;
         private DataGridViewTextBoxColumn typeColumn;
         private DataGridViewTextBoxColumn categoryColumn;
@@ -57,6 +44,23 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         private DataGridViewTextBoxColumn messageColumn;
         private ToolStripMenuItem openLogMenuItem;
 
+        // Команды
+        private bool _isProcessingInput = false;
+        private CommandHandler _commandHandler;
+        private List<string> _commandHistory = new List<string>();
+        private int _historyIndex = -1;
+        private SyntaxHighlighter _highlighter = new SyntaxHighlighter();
+        public CommandHandler CommandHandler => _commandHandler;
+
+
+        // Режимы ввода
+        private InputRule _activeInputRule;
+
+
+        // Ошибки
+        private readonly BindingList<ExecutionIssue> _executionIssues = new BindingList<ExecutionIssue>();
+        private ExecutionIssueType _visibleIssueTypes = ExecutionIssueType.All;
+
         #endregion
 
         public Terminal()
@@ -64,6 +68,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             InitializeComponent();
             InitializeCommandSystem();
             ConfigureIssuePanel();
+            ProcessCommand("\\set_input_rule commands");
         }
 
  
@@ -72,10 +77,16 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 
         private string GetCurrentLine()
         {
-            var lineIndex = pshTerminal.GetLineFromCharIndex(pshTerminal.SelectionStart);
-            return (lineIndex >= 0 && lineIndex < pshTerminal.Lines.Length)
+            int lineIndex = pshTerminal.GetLineFromCharIndex(pshTerminal.SelectionStart);
+            return lineIndex >= 0 && lineIndex < pshTerminal.Lines.Length
                 ? pshTerminal.Lines[lineIndex]
-                : string.Empty;
+                : "";
+        }
+
+        private string GetCurrentInputLine()
+        {
+            var line = GetCurrentLine();
+            return line.Length > 3 ? line.Substring(3) : string.Empty;
         }
 
         private void SetCurrentInput(string text)
@@ -93,7 +104,6 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             pshTerminal.SelectionStart = pshTerminal.TextLength;
             pshTerminal.SelectionColor = Color.Green;
             AppendText(CommandHandler.CommandChar + "> ", Color.Green, false);
-            pshTerminal.ScrollToCaret();
             _isProcessingInput = false;
         }
 
@@ -130,6 +140,37 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             }
         }
 
+
+
+        public void SetInputRule(string ruleName)
+        {
+            if (InputRulePresets.Rules.TryGetValue(ruleName, out var rule))
+            {
+                _activeInputRule = rule;
+            }
+        }
+
+        public void SetInputRule(InputRule rule)
+        {
+            _activeInputRule = rule;
+        }
+
+        private bool ValidateInput(char enteredChar)
+        {
+            if (_activeInputRule == null) return true;
+
+            string newText = GetCurrentInputLine() + enteredChar;
+            return _activeInputRule.ValidateFuture(newText);
+        }
+
+        private bool ValidateTextInsertion(string textToInsert)
+        {
+            if (_activeInputRule == null) return true;
+
+            string newText = GetCurrentInputLine() + textToInsert;
+            return _activeInputRule.ValidateStrong(newText);
+        }
+
         #endregion
 
 
@@ -140,7 +181,6 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         {
             _commandHandler = new CommandHandler();
             _commandHandler.RegisterFromAssembly(Assembly.GetExecutingAssembly());
-            AppendPrompt();
         }
 
         private void ProcessCommand(string input)
@@ -164,18 +204,18 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     {
                         var s = result.ExecutionTimeToString();
                         AppendText(s, Color.Gray, false);
-                        AppendText(Environment.NewLine + result.ToString() + Environment.NewLine, result.Success ? Color.Lime : Color.Red, true);
+                        AppendText(Environment.NewLine + result.ToString() + Environment.NewLine + Environment.NewLine, result.Success ? Color.Lime : Color.Red, true);
                     }
                 } 
                 else
                 {
-                    AppendText($"\n{input} не является командной\n", Color.Green, false);
+                    AppendText($"\n{input} не является командной\n\n", Color.Green, false);
                 }
 
             }
             catch (Exception ex)
             {
-                AppendText($"ERROR: {ex.Message}\n", Color.Red, true);
+                AppendText($"ERROR: {ex.Message}\n\n", Color.Red, true);
             }
             finally
             {
@@ -388,6 +428,14 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
 
         private void pshTerminal_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (char.IsControl(e.KeyChar)) return;
+
+            if (!ValidateInput(e.KeyChar))
+            {
+                e.Handled = true;
+                return;
+            }
+
             if (e.KeyChar == CommandHandler.CommandChar)
             {
                 int currentPos = pshTerminal.SelectionStart;
@@ -396,7 +444,8 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     e.Handled = true; // Блокируем ввод
                 }
             }
-            if (e.KeyChar == ' ')
+
+            if (e.KeyChar == ((char)Keys.Space))
             {
                 int currentPos = pshTerminal.SelectionStart;
                 if (currentPos > 0 && pshTerminal.Text[currentPos - 1] == ' ')
@@ -409,29 +458,100 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
         private void pshTerminal_KeyDown(object sender, KeyEventArgs e)
         {
             int currentLineStart = pshTerminal.GetFirstCharIndexOfCurrentLine();
+            int lastLine = pshTerminal.Lines.Length - 1;
 
-            if (pshTerminal.SelectionStart <= currentLineStart + 3 && (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete))
+            // Обработка Backspace / Delete
+            if (e.KeyCode == Keys.Back || e.KeyCode == Keys.Delete)
             {
-                e.SuppressKeyPress = true;
-                return;
-            }
-            else if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true;
-
-                // Проверяем, находится ли курсор в конце последней строки
+                // Запрещаем редактирование предыдущих строк
                 int currentLineIndex = pshTerminal.GetLineFromCharIndex(pshTerminal.SelectionStart);
-                int lastLineIndex = pshTerminal.Lines.Length - 1;
-                bool isCursorAtEnd = pshTerminal.SelectionStart == pshTerminal.TextLength;
-
-                if (currentLineIndex == lastLineIndex && isCursorAtEnd)
+                if (currentLineIndex != pshTerminal.Lines.Length - 1)
                 {
-                    var input = GetCurrentLine().Substring(3);
-                    if (!string.IsNullOrEmpty(input))
-                        ProcessCommand(input);
-                    AppendPrompt();
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+
+                // Работаем только с последней строкой
+                string currentLine = GetCurrentLine();
+                string inputLine = currentLine.Length > 3 ? currentLine.Substring(3) : "";
+                int cursorPositionInLine = pshTerminal.SelectionStart - pshTerminal.GetFirstCharIndexOfCurrentLine();
+
+                // Корректируем позицию с учетом приглашения "> "
+                int adjustedCursorPos = cursorPositionInLine - 3;
+
+                // Проверка границ для Backspace / Delete
+                bool isValidOperation = true;
+                if (e.KeyCode == Keys.Back)
+                {
+                    isValidOperation = adjustedCursorPos > 0; // Нельзя удалить приглашение
+                }
+                else if (e.KeyCode == Keys.Delete)
+                {
+                    isValidOperation = adjustedCursorPos < inputLine.Length;
+                }
+
+                if (!isValidOperation)
+                {
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+
+                // Симулируем новую строку после удаления
+                string newText = inputLine;
+                if (pshTerminal.SelectionLength > 0)
+                {
+                    int start = Math.Max(adjustedCursorPos, 0);
+                    int length = Math.Min(pshTerminal.SelectionLength, inputLine.Length - start);
+                    newText = inputLine.Remove(start, length);
+                }
+                else
+                {
+                    int deletePos = e.KeyCode == Keys.Back
+                        ? adjustedCursorPos - 1
+                        : adjustedCursorPos;
+
+                    if (deletePos >= 0 && deletePos < inputLine.Length)
+                    {
+                        newText = inputLine.Remove(deletePos, 1);
+                    }
+                }
+
+                // Проверяем соответствие правилу ввода
+                if (!_activeInputRule.ValidationRegex.IsMatch(newText))
+                {
+                    if (newText == "" || newText.StartsWith("\\"))
+                    {
+                        e.SuppressKeyPress = false;
+                    }
+                    else
+                    {
+                        e.SuppressKeyPress = true;
+                    }
                 }
             }
+
+            else if (e.KeyCode == Keys.Enter)
+            {
+                if (_activeInputRule.Type == InputRuleType.Commands)
+                {
+                    e.SuppressKeyPress = true;
+
+                    int currentLineIndex = pshTerminal.GetLineFromCharIndex(pshTerminal.SelectionStart);
+                    int lastLineIndex = pshTerminal.Lines.Length - 1;
+                    bool isCursorAtEnd = pshTerminal.SelectionStart == pshTerminal.TextLength;
+
+                    if (currentLineIndex == lastLineIndex && isCursorAtEnd)
+                    {
+                        var input = GetCurrentInputLine();
+                        if (!string.IsNullOrEmpty(input) && _activeInputRule.ValidateStrong(input))
+                        {
+                            ProcessCommand(input);
+                            AppendPrompt();
+                        }
+                    }
+                }
+            }
+
             else if (e.KeyCode == Keys.Up)
             {
                 if (_historyIndex < _commandHistory.Count - 1)
@@ -440,6 +560,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     SetCurrentInput(CommandHandler.CommandChar + _commandHistory[_historyIndex]);
                 }
             }
+
             else if (e.KeyCode == Keys.Down)
             {
                 if (_historyIndex > 0)
@@ -454,13 +575,20 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                 }
             }
 
-            // Горячие клавиши
-            else if (e.Control && e.KeyCode == Keys.V)
+            // Обработка Ctrl + V
+            if (e.Control && e.KeyCode == Keys.V)
             {
                 e.SuppressKeyPress = true;
-                string clipboardText = Clipboard.GetText().Replace("\n", "").Replace("\r", "");
-                pshTerminal.SelectedText = clipboardText;
+                string clipboardText = Clipboard.GetText();
+
+                if (ValidateTextInsertion(clipboardText))
+                {
+                    pshTerminal.SelectedText = clipboardText;
+                }
+                return;
             }
+
+
             else if (e.Control && e.KeyCode == Keys.L)
             {
                 ProcessCommand("\\clear");
@@ -492,30 +620,20 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
                     }
 
                     _isProcessingInput = false;
-                }                
+                }
             }
 
 
             {
-                var currentLine = GetCurrentLine();
+                var currentLine = GetCurrentInputLine();
 
-                if (currentLine.Length > 3)
+                if (currentLine.StartsWith(CommandHandler.CommandChar.ToString()))
                 {
-                    var commandPart = GetCurrentLine().Substring(3);
-                    if (commandPart.StartsWith(CommandHandler.CommandChar.ToString()))
-                    {
-                        ShowSuggestions(commandPart);
-                    }
-                    else
-                    {
-                        suggestionsPanel.Visible = false;
-                        suggestionsList.Visible = false;
-                    }
+                    ShowSuggestions(currentLine);
                 }
                 else
                 {
                     suggestionsPanel.Visible = false;
-                    suggestionsList.Visible = false;
                 }
             }
         }
@@ -728,34 +846,34 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             pshTerminal = new RichTextBox();
             runtimePage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
             issueMainTLP = new TableLayoutPanel();
-            issuesDataGridView = new DataGridView();
             issueMainFLP = new FlowLayoutPanel();
             showErrorsFilter = new CheckBox();
             showWarningsFilter = new CheckBox();
             showInfoMessagesFilter = new CheckBox();
-            configPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
-            issueIcons = new ImageList(components);
+            issuesDataGridView = new DataGridView();
             iconColumn = new DataGridViewImageColumn();
             typeColumn = new DataGridViewTextBoxColumn();
             categoryColumn = new DataGridViewTextBoxColumn();
             timeColumn = new DataGridViewTextBoxColumn();
             sourceColumn = new DataGridViewTextBoxColumn();
             messageColumn = new DataGridViewTextBoxColumn();
+            configPage = new Syncfusion.Windows.Forms.Tools.TabPageAdv();
+            issueIcons = new ImageList(components);
             ((ISupportInitialize)terminalTab).BeginInit();
             terminalTab.SuspendLayout();
             pshPage.SuspendLayout();
             suggestionsPanel.SuspendLayout();
             runtimePage.SuspendLayout();
             issueMainTLP.SuspendLayout();
-            ((ISupportInitialize)issuesDataGridView).BeginInit();
             issueMainFLP.SuspendLayout();
+            ((ISupportInitialize)issuesDataGridView).BeginInit();
             SuspendLayout();
             // 
             // terminalTab
             // 
             terminalTab.Alignment = TabAlignment.Bottom;
             terminalTab.BackColor = Color.FromArgb(32, 32, 32);
-            terminalTab.BeforeTouchSize = new Size(720, 324);
+            terminalTab.BeforeTouchSize = new Size(623, 345);
             terminalTab.Controls.Add(pshPage);
             terminalTab.Controls.Add(runtimePage);
             terminalTab.Controls.Add(configPage);
@@ -763,7 +881,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             terminalTab.Location = new Point(0, 0);
             terminalTab.Margin = new Padding(8);
             terminalTab.Name = "terminalTab";
-            terminalTab.Size = new Size(720, 324);
+            terminalTab.Size = new Size(623, 345);
             terminalTab.TabIndex = 0;
             terminalTab.ThemeStyle.PrimitiveButtonStyle.DisabledNextPageImage = null;
             // 
@@ -777,7 +895,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             pshPage.Margin = new Padding(4, 3, 4, 3);
             pshPage.Name = "pshPage";
             pshPage.ShowCloseButton = true;
-            pshPage.Size = new Size(717, 295);
+            pshPage.Size = new Size(620, 316);
             pshPage.TabForeColor = Color.FromArgb(224, 224, 224);
             pshPage.TabIndex = 1;
             pshPage.Text = "PowerShell";
@@ -789,10 +907,10 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             suggestionsPanel.BorderStyle = BorderStyle.Fixed3D;
             suggestionsPanel.Controls.Add(suggestionsList);
             suggestionsPanel.Dock = DockStyle.Right;
-            suggestionsPanel.Location = new Point(543, 0);
+            suggestionsPanel.Location = new Point(446, 0);
             suggestionsPanel.Margin = new Padding(4, 3, 4, 3);
             suggestionsPanel.Name = "suggestionsPanel";
-            suggestionsPanel.Size = new Size(174, 295);
+            suggestionsPanel.Size = new Size(174, 316);
             suggestionsPanel.TabIndex = 2;
             suggestionsPanel.Visible = false;
             // 
@@ -805,7 +923,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             suggestionsList.Location = new Point(0, 0);
             suggestionsList.Margin = new Padding(4, 3, 4, 3);
             suggestionsList.Name = "suggestionsList";
-            suggestionsList.Size = new Size(170, 291);
+            suggestionsList.Size = new Size(170, 312);
             suggestionsList.TabIndex = 0;
             suggestionsList.Visible = false;
             suggestionsList.Click += suggestionsList_Click;
@@ -818,7 +936,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             pshTerminal.Location = new Point(0, 0);
             pshTerminal.Margin = new Padding(4, 3, 4, 3);
             pshTerminal.Name = "pshTerminal";
-            pshTerminal.Size = new Size(717, 295);
+            pshTerminal.Size = new Size(620, 316);
             pshTerminal.TabIndex = 0;
             pshTerminal.Text = "";
             pshTerminal.SelectionChanged += pshTerminal_SelectionChanged;
@@ -836,7 +954,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             runtimePage.Margin = new Padding(4, 3, 4, 3);
             runtimePage.Name = "runtimePage";
             runtimePage.ShowCloseButton = true;
-            runtimePage.Size = new Size(717, 295);
+            runtimePage.Size = new Size(620, 316);
             runtimePage.TabForeColor = Color.FromArgb(224, 224, 224);
             runtimePage.TabIndex = 2;
             runtimePage.Text = "Проблемы выполнения";
@@ -844,89 +962,34 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             // 
             // issueMainTLP
             // 
+            issueMainTLP.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             issueMainTLP.ColumnCount = 1;
-            issueMainTLP.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            issueMainTLP.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            issueMainTLP.Controls.Add(issuesDataGridView, 0, 1);
+            issueMainTLP.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             issueMainTLP.Controls.Add(issueMainFLP, 0, 0);
+            issueMainTLP.Controls.Add(issuesDataGridView, 0, 1);
             issueMainTLP.Dock = DockStyle.Fill;
             issueMainTLP.Location = new Point(0, 0);
             issueMainTLP.Margin = new Padding(4, 3, 4, 3);
             issueMainTLP.Name = "issueMainTLP";
             issueMainTLP.RowCount = 2;
-            issueMainTLP.RowStyles.Add(new RowStyle(SizeType.Percent, 14.56693F));
-            issueMainTLP.RowStyles.Add(new RowStyle(SizeType.Percent, 85.43307F));
-            issueMainTLP.Size = new Size(717, 295);
+            issueMainTLP.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            issueMainTLP.RowStyles.Add(new RowStyle());
+            issueMainTLP.Size = new Size(620, 316);
             issueMainTLP.TabIndex = 1;
-            // 
-            // issuesDataGridView
-            // 
-            issuesDataGridView.AllowUserToAddRows = false;
-            issuesDataGridView.AllowUserToDeleteRows = false;
-            issuesDataGridView.AllowUserToResizeRows = false;
-            issuesDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            issuesDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
-            issuesDataGridView.BackgroundColor = Color.FromArgb(32, 32, 32);
-            issuesDataGridView.BorderStyle = BorderStyle.Fixed3D;
-            issuesDataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle1.BackColor = Color.FromArgb(64, 64, 64);
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle1.ForeColor = Color.Gainsboro;
-            dataGridViewCellStyle1.SelectionBackColor = Color.MidnightBlue;
-            dataGridViewCellStyle1.SelectionForeColor = Color.Gainsboro;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
-            issuesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            issuesDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            issuesDataGridView.Columns.AddRange(new DataGridViewColumn[] { iconColumn, typeColumn, categoryColumn, timeColumn, sourceColumn, messageColumn });
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = Color.FromArgb(64, 64, 64);
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle2.ForeColor = Color.Gainsboro;
-            dataGridViewCellStyle2.SelectionBackColor = Color.MidnightBlue;
-            dataGridViewCellStyle2.SelectionForeColor = Color.Gainsboro;
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
-            issuesDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
-            issuesDataGridView.Dock = DockStyle.Fill;
-            issuesDataGridView.EditMode = DataGridViewEditMode.EditProgrammatically;
-            issuesDataGridView.EnableHeadersVisualStyles = false;
-            issuesDataGridView.GridColor = Color.FromArgb(32, 32, 32);
-            issuesDataGridView.Location = new Point(4, 45);
-            issuesDataGridView.Margin = new Padding(4, 3, 4, 3);
-            issuesDataGridView.Name = "issuesDataGridView";
-            issuesDataGridView.ReadOnly = true;
-            issuesDataGridView.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = Color.FromArgb(64, 64, 64);
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle3.ForeColor = Color.Gainsboro;
-            dataGridViewCellStyle3.SelectionBackColor = Color.MidnightBlue;
-            dataGridViewCellStyle3.SelectionForeColor = Color.Gainsboro;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
-            issuesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            issuesDataGridView.RowHeadersVisible = false;
-            issuesDataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
-            dataGridViewCellStyle4.BackColor = Color.FromArgb(64, 64, 64);
-            dataGridViewCellStyle4.ForeColor = Color.Lime;
-            dataGridViewCellStyle4.SelectionBackColor = Color.Blue;
-            dataGridViewCellStyle4.SelectionForeColor = Color.White;
-            issuesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle4;
-            issuesDataGridView.RowTemplate.DefaultCellStyle.BackColor = Color.FromArgb(32, 32, 32);
-            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionBackColor = Color.DimGray;
-            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = Color.WhiteSmoke;
-            issuesDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            issuesDataGridView.Size = new Size(709, 247);
-            issuesDataGridView.TabIndex = 15;
             // 
             // issueMainFLP
             // 
+            issueMainFLP.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             issueMainFLP.Controls.Add(showErrorsFilter);
             issueMainFLP.Controls.Add(showWarningsFilter);
             issueMainFLP.Controls.Add(showInfoMessagesFilter);
             issueMainFLP.Dock = DockStyle.Fill;
             issueMainFLP.Location = new Point(4, 3);
             issueMainFLP.Margin = new Padding(4, 3, 4, 3);
+            issueMainFLP.MaximumSize = new Size(6000, 34);
+            issueMainFLP.MinimumSize = new Size(10, 34);
             issueMainFLP.Name = "issueMainFLP";
-            issueMainFLP.Size = new Size(709, 36);
+            issueMainFLP.Size = new Size(612, 34);
             issueMainFLP.TabIndex = 0;
             // 
             // showErrorsFilter
@@ -991,25 +1054,64 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             showInfoMessagesFilter.UseVisualStyleBackColor = true;
             showInfoMessagesFilter.CheckedChanged += showInfoMessages_CheckedChanged;
             // 
-            // configPage
+            // issuesDataGridView
             // 
-            configPage.Image = null;
-            configPage.ImageSize = new Size(16, 16);
-            configPage.Location = new Point(1, 2);
-            configPage.Margin = new Padding(4, 3, 4, 3);
-            configPage.Name = "configPage";
-            configPage.ShowCloseButton = true;
-            configPage.Size = new Size(717, 295);
-            configPage.TabForeColor = Color.FromArgb(224, 224, 224);
-            configPage.TabIndex = 3;
-            configPage.Text = "Проблемы конфигурации";
-            configPage.ThemesEnabled = false;
-            // 
-            // issueIcons
-            // 
-            issueIcons.ColorDepth = ColorDepth.Depth8Bit;
-            issueIcons.ImageSize = new Size(15, 15);
-            issueIcons.TransparentColor = Color.Transparent;
+            issuesDataGridView.AllowUserToAddRows = false;
+            issuesDataGridView.AllowUserToDeleteRows = false;
+            issuesDataGridView.AllowUserToResizeRows = false;
+            issuesDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            issuesDataGridView.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
+            issuesDataGridView.BackgroundColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.BorderStyle = BorderStyle.Fixed3D;
+            issuesDataGridView.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle1.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle1.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            issuesDataGridView.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            issuesDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            issuesDataGridView.Columns.AddRange(new DataGridViewColumn[] { iconColumn, typeColumn, categoryColumn, timeColumn, sourceColumn, messageColumn });
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle2.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle2.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle2.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            issuesDataGridView.DefaultCellStyle = dataGridViewCellStyle2;
+            issuesDataGridView.Dock = DockStyle.Fill;
+            issuesDataGridView.EditMode = DataGridViewEditMode.EditProgrammatically;
+            issuesDataGridView.EnableHeadersVisualStyles = false;
+            issuesDataGridView.GridColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.Location = new Point(8, 41);
+            issuesDataGridView.Margin = new Padding(8, 1, 8, 45);
+            issuesDataGridView.Name = "issuesDataGridView";
+            issuesDataGridView.ReadOnly = true;
+            issuesDataGridView.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = Color.Gainsboro;
+            dataGridViewCellStyle3.SelectionBackColor = Color.MidnightBlue;
+            dataGridViewCellStyle3.SelectionForeColor = Color.Gainsboro;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.True;
+            issuesDataGridView.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            issuesDataGridView.RowHeadersVisible = false;
+            issuesDataGridView.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
+            dataGridViewCellStyle4.BackColor = Color.FromArgb(64, 64, 64);
+            dataGridViewCellStyle4.ForeColor = Color.Lime;
+            dataGridViewCellStyle4.SelectionBackColor = Color.Blue;
+            dataGridViewCellStyle4.SelectionForeColor = Color.White;
+            issuesDataGridView.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            issuesDataGridView.RowTemplate.DefaultCellStyle.BackColor = Color.FromArgb(32, 32, 32);
+            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionBackColor = Color.DimGray;
+            issuesDataGridView.RowTemplate.DefaultCellStyle.SelectionForeColor = Color.WhiteSmoke;
+            issuesDataGridView.ScrollBars = ScrollBars.Vertical;
+            issuesDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            issuesDataGridView.Size = new Size(604, 257);
+            issuesDataGridView.TabIndex = 15;
             // 
             // iconColumn
             // 
@@ -1019,7 +1121,7 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             iconColumn.Name = "iconColumn";
             iconColumn.ReadOnly = true;
             iconColumn.SortMode = DataGridViewColumnSortMode.Automatic;
-            iconColumn.Width = 5;
+            iconColumn.Width = 18;
             // 
             // typeColumn
             // 
@@ -1058,6 +1160,26 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             messageColumn.Name = "messageColumn";
             messageColumn.ReadOnly = true;
             // 
+            // configPage
+            // 
+            configPage.Image = null;
+            configPage.ImageSize = new Size(16, 16);
+            configPage.Location = new Point(1, 2);
+            configPage.Margin = new Padding(4, 3, 4, 3);
+            configPage.Name = "configPage";
+            configPage.ShowCloseButton = true;
+            configPage.Size = new Size(620, 316);
+            configPage.TabForeColor = Color.FromArgb(224, 224, 224);
+            configPage.TabIndex = 3;
+            configPage.Text = "Проблемы конфигурации";
+            configPage.ThemesEnabled = false;
+            // 
+            // issueIcons
+            // 
+            issueIcons.ColorDepth = ColorDepth.Depth8Bit;
+            issueIcons.ImageSize = new Size(15, 15);
+            issueIcons.TransparentColor = Color.Transparent;
+            // 
             // Terminal
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1065,16 +1187,16 @@ namespace TheoryOfAutomatons.Utils.UI.Controls.Terminal
             Controls.Add(terminalTab);
             Margin = new Padding(15);
             Name = "Terminal";
-            Size = new Size(720, 324);
+            Size = new Size(623, 345);
             ((ISupportInitialize)terminalTab).EndInit();
             terminalTab.ResumeLayout(false);
             pshPage.ResumeLayout(false);
             suggestionsPanel.ResumeLayout(false);
             runtimePage.ResumeLayout(false);
             issueMainTLP.ResumeLayout(false);
-            ((ISupportInitialize)issuesDataGridView).EndInit();
             issueMainFLP.ResumeLayout(false);
             issueMainFLP.PerformLayout();
+            ((ISupportInitialize)issuesDataGridView).EndInit();
             ResumeLayout(false);
 
         }

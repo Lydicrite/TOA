@@ -13,13 +13,16 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
         public AddStateForm()
         {
             InitializeComponent();
+
+            btnOk.Click += BtnOK_Click;
+            btnCancel.Click += BtnCancel_Click;
         }
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
             try
             {
-                StateDescription = txtDescr.Text;
+                StateDescription = txtDescription.Text;
                 this.DialogResult = DialogResult.OK;
             }
             catch (Exception ex)
@@ -33,6 +36,11 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
             this.DialogResult = DialogResult.Cancel;
         }
 
+        private Button btnCancel;
+        private Button btnOk;
+        private TextBox txtDescription;
+        private Label lblDescription;
+
 
 
 
@@ -42,10 +50,6 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private Label lblDescr;
-        private TextBox txtDescr;
-        private Button btnOK;
-        private Button btnCancel;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -66,52 +70,72 @@ namespace TheoryOfAutomatons.Utils.UI.Forms.Adders
         /// </summary>
         private void InitializeComponent()
         {
-            lblDescr = new Label();
-            txtDescr = new TextBox();
-            btnOK = new Button();
             btnCancel = new Button();
+            btnOk = new Button();
+            txtDescription = new TextBox();
+            lblDescription = new Label();
             SuspendLayout();
-            // 
-            // lblDescr
-            // 
-            lblDescr.Location = new Point(0, 0);
-            lblDescr.Name = "lblDescr";
-            lblDescr.Size = new Size(100, 23);
-            lblDescr.TabIndex = 0;
-            // 
-            // txtDescr
-            // 
-            txtDescr.Location = new Point(0, 0);
-            txtDescr.Name = "txtDescr";
-            txtDescr.Size = new Size(100, 23);
-            txtDescr.TabIndex = 1;
-            // 
-            // btnOK
-            // 
-            btnOK.Location = new Point(0, 0);
-            btnOK.Name = "btnOK";
-            btnOK.Size = new Size(75, 23);
-            btnOK.TabIndex = 2;
-            btnOK.Click += BtnOK_Click;
             // 
             // btnCancel
             // 
-            btnCancel.Location = new Point(0, 0);
+            btnCancel.BackColor = Color.FromArgb(46, 46, 46);
+            btnCancel.FlatAppearance.BorderColor = Color.FromArgb(64, 64, 64);
+            btnCancel.FlatAppearance.MouseDownBackColor = Color.Gray;
+            btnCancel.FlatAppearance.MouseOverBackColor = Color.DimGray;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.ForeColor = Color.Gainsboro;
+            btnCancel.Location = new Point(197, 85);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new Size(75, 23);
-            btnCancel.TabIndex = 3;
-            btnCancel.Click += BtnCancel_Click;
+            btnCancel.TabIndex = 11;
+            btnCancel.Text = "Отмена";
+            btnCancel.UseVisualStyleBackColor = false;
+            // 
+            // btnOk
+            // 
+            btnOk.BackColor = Color.FromArgb(46, 46, 46);
+            btnOk.FlatAppearance.BorderColor = Color.FromArgb(64, 64, 64);
+            btnOk.FlatAppearance.MouseDownBackColor = Color.Gray;
+            btnOk.FlatAppearance.MouseOverBackColor = Color.DimGray;
+            btnOk.FlatStyle = FlatStyle.Flat;
+            btnOk.ForeColor = Color.Gainsboro;
+            btnOk.Location = new Point(12, 85);
+            btnOk.Name = "btnOk";
+            btnOk.Size = new Size(75, 23);
+            btnOk.TabIndex = 10;
+            btnOk.Text = "Добавить";
+            btnOk.UseVisualStyleBackColor = false;
+            // 
+            // txtDescription
+            // 
+            txtDescription.BackColor = Color.FromArgb(46, 46, 46);
+            txtDescription.BorderStyle = BorderStyle.FixedSingle;
+            txtDescription.ForeColor = Color.Gainsboro;
+            txtDescription.Location = new Point(81, 12);
+            txtDescription.Name = "txtDescription";
+            txtDescription.Size = new Size(191, 23);
+            txtDescription.TabIndex = 9;
+            // 
+            // lblDescription
+            // 
+            lblDescription.AutoSize = true;
+            lblDescription.ForeColor = Color.Gainsboro;
+            lblDescription.Location = new Point(12, 15);
+            lblDescription.Name = "lblDescription";
+            lblDescription.Size = new Size(65, 15);
+            lblDescription.TabIndex = 8;
+            lblDescription.Text = "Описание:";
             // 
             // AddStateForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(32, 32, 32);
-            ClientSize = new Size(284, 161);
-            Controls.Add(lblDescr);
-            Controls.Add(txtDescr);
-            Controls.Add(btnOK);
+            ClientSize = new Size(284, 114);
             Controls.Add(btnCancel);
+            Controls.Add(btnOk);
+            Controls.Add(txtDescription);
+            Controls.Add(lblDescription);
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;

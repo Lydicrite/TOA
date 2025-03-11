@@ -45,8 +45,6 @@ namespace TOATests
 
         #endregion
 
-
-
         #region Тестовые методы
 
         [TestMethod]
@@ -73,6 +71,8 @@ namespace TOATests
 
         }
 
+
+
         [TestMethod]
         public void ComplexNestedExpression()
         {
@@ -96,6 +96,8 @@ namespace TOATests
             Assert.IsTrue(fastResult, "Компиляция");
         }
 
+
+
         [TestMethod]
         public void MixedConstantsEvaluation()
         {
@@ -118,6 +120,8 @@ namespace TOATests
             Assert.IsTrue(result, "Интерпретация");
             Assert.IsTrue(fastResult, "Компиляция");
         }
+
+
 
         [TestMethod]
         public void VariableOrderIndependence()

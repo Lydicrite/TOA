@@ -105,7 +105,7 @@ namespace TheoryOfAutomatons
             groupBox9 = new GroupBox();
             labelScreenCoords = new Label();
             labelRealCoords = new Label();
-            mainTerminal = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
+            MainTerminal = new TheoryOfAutomatons.Utils.UI.Controls.Terminal.Terminal();
             mainGB = new GroupBox();
             colorPicker = new ColorDialog();
             mainToolStrip.SuspendLayout();
@@ -247,7 +247,7 @@ namespace TheoryOfAutomatons
             // mainHorizontalSplitContainer.Panel2
             // 
             mainHorizontalSplitContainer.Panel2.BackColor = Color.FromArgb(26, 26, 26);
-            mainHorizontalSplitContainer.Panel2.Controls.Add(mainTerminal);
+            mainHorizontalSplitContainer.Panel2.Controls.Add(MainTerminal);
             mainHorizontalSplitContainer.Size = new Size(834, 877);
             mainHorizontalSplitContainer.SplitterDistance = 643;
             mainHorizontalSplitContainer.TabIndex = 0;
@@ -995,7 +995,7 @@ namespace TheoryOfAutomatons
             groupBox10.Controls.Add(zoomTrackBar);
             groupBox10.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold);
             groupBox10.ForeColor = Color.LightGray;
-            groupBox10.Location = new Point(159, 2);
+            groupBox10.Location = new Point(3, 1);
             groupBox10.Name = "groupBox10";
             groupBox10.Size = new Size(310, 56);
             groupBox10.TabIndex = 4;
@@ -1009,9 +1009,9 @@ namespace TheoryOfAutomatons
             clearZoom.FlatStyle = FlatStyle.Flat;
             clearZoom.Font = new System.Drawing.Font("Arial Narrow", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 204);
             clearZoom.ForeColor = Color.Gainsboro;
-            clearZoom.Location = new Point(212, 10);
+            clearZoom.Location = new Point(212, 17);
             clearZoom.Name = "clearZoom";
-            clearZoom.Size = new Size(92, 40);
+            clearZoom.Size = new Size(92, 29);
             clearZoom.TabIndex = 5;
             clearZoom.Text = "Сброс масштаба";
             clearZoom.UseVisualStyleBackColor = false;
@@ -1042,14 +1042,16 @@ namespace TheoryOfAutomatons
             // 
             groupBox9.Controls.Add(labelScreenCoords);
             groupBox9.Controls.Add(labelRealCoords);
+            groupBox9.Enabled = false;
             groupBox9.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold);
             groupBox9.ForeColor = Color.LightGray;
-            groupBox9.Location = new Point(3, 2);
+            groupBox9.Location = new Point(319, 1);
             groupBox9.Name = "groupBox9";
             groupBox9.Size = new Size(150, 56);
             groupBox9.TabIndex = 3;
             groupBox9.TabStop = false;
             groupBox9.Text = "Координаты";
+            groupBox9.Visible = false;
             // 
             // labelScreenCoords
             // 
@@ -1075,14 +1077,14 @@ namespace TheoryOfAutomatons
             labelRealCoords.TabIndex = 24;
             labelRealCoords.Text = "Реальные: (X; Y)";
             // 
-            // mainTerminal
+            // MainTerminal
             // 
-            mainTerminal.Dock = DockStyle.Fill;
-            mainTerminal.Location = new Point(0, 0);
-            mainTerminal.Margin = new Padding(13);
-            mainTerminal.Name = "mainTerminal";
-            mainTerminal.Size = new Size(834, 230);
-            mainTerminal.TabIndex = 0;
+            MainTerminal.Dock = DockStyle.Fill;
+            MainTerminal.Location = new Point(0, 0);
+            MainTerminal.Margin = new Padding(13);
+            MainTerminal.Name = "MainTerminal";
+            MainTerminal.Size = new Size(834, 230);
+            MainTerminal.TabIndex = 0;
             // 
             // mainGB
             // 
@@ -1225,7 +1227,7 @@ namespace TheoryOfAutomatons
         private NumericUpDown transitionBlackPenNUD;
         private Label label10;
         private Label label11;
-        private Utils.UI.Controls.Terminal.Terminal mainTerminal;
+        private Utils.UI.Controls.Terminal.Terminal MainTerminal;
         private ColorDialog colorPicker;
         private GroupBox groupBox8;
         private PictureBox containerCP;
