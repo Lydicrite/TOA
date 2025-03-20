@@ -15,6 +15,8 @@ using Syncfusion.DocIO.DLS;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.UI.Controls.Terminal;
+using TOA.TheoryOfAutomatons.Automaton.Common;
+using TOA.TheoryOfAutomatons.Automaton;
 
 namespace TheoryOfAutomatons.Automaton
 {
@@ -22,8 +24,7 @@ namespace TheoryOfAutomatons.Automaton
     {
         #region Поля
 
-        private DFMealyAutomaton DFMealyAutomaton = null;
-        private DFMooreAutomaton DFMooreAutomaton = null;
+        private IDFAutomaton DFAutomaton;     
 
         private ToolStripButton SaveToFileTSB;
         private ToolStripButton LoadFromFileTSB;
@@ -171,20 +172,12 @@ namespace TheoryOfAutomatons.Automaton
                 saveFileDialog.Filter = "JSON files (*.json)|*.json";
                 saveFileDialog.Title = "Сохранение Автомата в JSON-файл";
 
-                if (DFMealyAutomaton != null)
+                if (DFAutomaton != null)
                 {
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         string selectedFileName = saveFileDialog.FileName;
-                        DFMealyAutomaton.Save(selectedFileName);
-                    }
-                }
-                else if (DFMooreAutomaton != null)
-                {
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        string selectedFileName = saveFileDialog.FileName;
-                        DFMooreAutomaton.Save(selectedFileName);
+                        DFAutomaton.Save(selectedFileName);
                     }
                 }
             }
@@ -204,23 +197,15 @@ namespace TheoryOfAutomatons.Automaton
                     var automatonData = JsonConvert.DeserializeObject<dynamic>(json);
                     int type = (int)automatonData.TypeIndex;
 
-                    DFMealyAutomaton?.Dispose();
-                    DFMealyAutomaton = null;
-                    DFMooreAutomaton?.Dispose();
-                    DFMooreAutomaton = null;
+                    DFAutomaton?.Dispose();
+                    DFAutomaton = null;
 
-                    if (type == 0)
-                    {
-                        DFMealyAutomaton = new DFMealyAutomaton(Container, this);
-                        DFMealyAutomaton.Load(file, Container);
-                        DFMealyAutomaton.Redraw();
-                    }
-                    else if (type == 1)
-                    {
-                        DFMooreAutomaton = new DFMooreAutomaton(Container, this);
-                        DFMooreAutomaton.Load(file, Container);
-                        DFMooreAutomaton.Redraw();
-                    }
+                    DFAutomaton = AutomatonFactory.CreateAutomaton
+                    (
+                        AutomatonFactory.FromInt(type),
+                        Container,
+                        this
+                    );
 
                     Check();
                 }
@@ -234,16 +219,8 @@ namespace TheoryOfAutomatons.Automaton
                 ((Control)c).Enabled = false;
             }
 
-            if (DFMealyAutomaton != null)
-            {
-                DFMealyAutomaton.Dispose();
-            }
-            DFMealyAutomaton = null;
-            if (DFMooreAutomaton != null)
-            {
-                DFMooreAutomaton.Dispose();
-            }
-            DFMooreAutomaton = null;
+            DFAutomaton?.Dispose();
+            DFAutomaton = null;
 
             DFATypeSelectorCB.SelectedIndex = -1;
             DFATypeSelectorCB.Refresh();
@@ -291,10 +268,15 @@ namespace TheoryOfAutomatons.Automaton
 
         private void DFATypeSelectorCB_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (DFMealyAutomaton == null && DFATypeSelectorCB.SelectedIndex == 0)
-                DFMealyAutomaton = new DFMealyAutomaton(Container, this);
-            else if (DFMooreAutomaton == null && DFATypeSelectorCB.SelectedIndex == 1)
-                DFMooreAutomaton = new DFMooreAutomaton(Container, this);
+            DFAutomaton?.Dispose();
+            DFAutomaton = null;
+
+            DFAutomaton = AutomatonFactory.CreateAutomaton
+            (
+                AutomatonFactory.FromInt(DFATypeSelectorCB.SelectedIndex),
+                Container,
+                this
+            );
 
             Check();
         }
@@ -304,20 +286,12 @@ namespace TheoryOfAutomatons.Automaton
             char c = (char)e.AddedItem.Value;
             string s = e.AddedItem.Description;
 
-            if (DFMealyAutomaton != null)
+            if (DFAutomaton != null)
             {
-                if (!DFMealyAutomaton.InputAlphabet.Contains(c))
+                if (!DFAutomaton.InputAlphabet.Contains(c))
                 {
-                    DFMealyAutomaton.InputAlphabet.Add(c);
-                    DFMealyAutomaton.InputsDescription.Add(s);
-                }
-            }
-            else if (DFMooreAutomaton != null)
-            {
-                if (!DFMooreAutomaton.InputAlphabet.Contains(c))
-                {
-                    DFMooreAutomaton.InputAlphabet.Add(c);
-                    DFMooreAutomaton.InputsDescription.Add(s);
+                    DFAutomaton.InputAlphabet.Add(c);
+                    DFAutomaton.InputsDescription.Add(s);
                 }
             }
 
@@ -329,20 +303,12 @@ namespace TheoryOfAutomatons.Automaton
             char c = (char)e.RemovedItem.Value;
             string s = e.RemovedItem.Description;
 
-            if (DFMealyAutomaton != null)
+            if (DFAutomaton != null)
             {
-                if (DFMealyAutomaton.InputAlphabet.Contains(c))
+                if (DFAutomaton.InputAlphabet.Contains(c))
                 {
-                    DFMealyAutomaton.InputAlphabet.Remove(c);
-                    DFMealyAutomaton.InputsDescription.Remove(s);
-                }
-            }
-            else if (DFMooreAutomaton != null)
-            {
-                if (DFMooreAutomaton.InputAlphabet.Contains(c))
-                {
-                    DFMooreAutomaton.InputAlphabet.Remove(c);
-                    DFMooreAutomaton.InputsDescription.Remove(s);
+                    DFAutomaton.InputAlphabet.Remove(c);
+                    DFAutomaton.InputsDescription.Remove(s);
                 }
             }
 
@@ -354,20 +320,12 @@ namespace TheoryOfAutomatons.Automaton
             char c = (char)e.AddedItem.Value;
             string s = e.AddedItem.Description;
 
-            if (DFMealyAutomaton != null)
+            if (DFAutomaton != null)
             {
-                if (!DFMealyAutomaton.OutputAlphabet.Contains(c))
+                if (!DFAutomaton.OutputAlphabet.Contains(c))
                 {
-                    DFMealyAutomaton.OutputAlphabet.Add(c);
-                    DFMealyAutomaton.OutputsDescription.Add(s);
-                }
-            }
-            else if (DFMooreAutomaton != null)
-            {
-                if (!DFMooreAutomaton.OutputAlphabet.Contains(c))
-                {
-                    DFMooreAutomaton.OutputAlphabet.Add(c);
-                    DFMooreAutomaton.OutputsDescription.Add(s);
+                    DFAutomaton.OutputAlphabet.Add(c);
+                    DFAutomaton.OutputsDescription.Add(s);
                 }
             }
 
@@ -379,20 +337,12 @@ namespace TheoryOfAutomatons.Automaton
             char c = (char)e.RemovedItem.Value;
             string s = e.RemovedItem.Description;
 
-            if (DFMealyAutomaton != null)
+            if (DFAutomaton != null)
             {
-                if (DFMealyAutomaton.OutputAlphabet.Contains(c))
+                if (DFAutomaton.OutputAlphabet.Contains(c))
                 {
-                    DFMealyAutomaton.OutputAlphabet.Remove(c);
-                    DFMealyAutomaton.OutputsDescription.Remove(s);
-                }
-            }
-            else if (DFMooreAutomaton != null)
-            {
-                if (DFMooreAutomaton.OutputAlphabet.Contains(c))
-                {
-                    DFMooreAutomaton.OutputAlphabet.Remove(c);
-                    DFMooreAutomaton.OutputsDescription.Remove(s);
+                    DFAutomaton.OutputAlphabet.Remove(c);
+                    DFAutomaton.OutputsDescription.Remove(s);
                 }
             }
 
@@ -407,27 +357,14 @@ namespace TheoryOfAutomatons.Automaton
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
-                    if (DFMealyAutomaton != null)
+                    if (DFAutomaton != null)
                     {
-                        if (DFMealyAutomaton.StatesAlphabet.Find(s => s.Index == DFMealyAutomaton.StatesAlphabet.Count()) == null)
+                        if (DFAutomaton.StatesAlphabet.Find(s => s.Index == DFAutomaton.StatesAlphabet.Count()) == null)
                         {
                             Point p = FindFreeInitialPoint();
                             if (p != Point.Empty)
                             {
-                                DFMealyAutomaton.StatesAlphabet.Add(new MealyAutomatonState(DFMealyAutomaton, DFMealyAutomaton.StatesAlphabet.Count(), form.StateDescription.ToString(), p));
-                                Check();
-                            }
-                        }
-                    }
-
-                    else if (DFMooreAutomaton != null)
-                    {
-                        if (DFMooreAutomaton.StatesAlphabet.Find(s => s.Index == DFMooreAutomaton.StatesAlphabet.Count()) == null)
-                        {
-                            Point p = FindFreeInitialPoint();
-                            if (p != Point.Empty)
-                            {
-                                DFMooreAutomaton.StatesAlphabet.Add(new MooreAutomatonState(DFMooreAutomaton, DFMooreAutomaton.StatesAlphabet.Count(), form.StateDescription.ToString(), p));
+                                DFAutomaton.StatesAlphabet.Add(new MealyAutomatonState(DFMealyAutomaton, DFMealyAutomaton.StatesAlphabet.Count(), form.StateDescription.ToString(), p));
                                 Check();
                             }
                         }
@@ -435,6 +372,11 @@ namespace TheoryOfAutomatons.Automaton
                 }
             }
         }
+
+
+
+        /// TODO
+        #region Обработка последовательностей  
 
         private void InputSequenceTB_TextChanged(object sender, EventArgs e)
         {
@@ -454,10 +396,8 @@ namespace TheoryOfAutomatons.Automaton
                 ((Control)c).Enabled = false;
             }
 
-            if (DFMealyAutomaton != null)
-                MessageBox.Show(await DFMealyAutomaton.ProcessInputSequence(InputSequenceTB.Text));
-            else if (DFMooreAutomaton != null)
-                MessageBox.Show(await DFMooreAutomaton.ProcessInputSequence(InputSequenceTB.Text));
+            if (DFAutomaton != null)
+                MessageBox.Show(await DFAutomaton.ProcessInputSequence(InputSequenceTB.Text));
 
             foreach (var c in Form.Controls)
             {
@@ -466,15 +406,15 @@ namespace TheoryOfAutomatons.Automaton
             Check();
         }
 
+        #endregion
+
 
 
         private void CircleDiameterNUD_ValueChanged(object sender, EventArgs e)
         {
             int cD = (int)CircleDiameterNUD.Value;
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetStateDiameter(cD);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetStateDiameter(cD);
+            if (DFAutomaton != null)
+                DFAutomaton.SetStateDiameter(cD);
 
             Check();
         }
@@ -482,10 +422,8 @@ namespace TheoryOfAutomatons.Automaton
         private void BorderNUD_ValueChanged(object sender, EventArgs e)
         {
             int b = (int)BorderNUD.Value;
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetStateBorder(b);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetStateBorder(b);
+            if (DFAutomaton != null)
+                DFAutomaton.SetStateBorder(b);
 
             Check();
         }
@@ -494,91 +432,85 @@ namespace TheoryOfAutomatons.Automaton
         {
             int timeMS = Convert.ToInt32(Convert.ToSingle(DrawStepDelayNUD.Value) * 1000);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetDrawStepDelay(timeMS);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetDrawStepDelay(timeMS);
+            if (DFAutomaton != null)
+                DFAutomaton.SetDrawStepDelay(timeMS);
 
+            Check();
         }
 
         private void TransitionsLPNUD_ValueChanged(object sender, EventArgs e)
         {
             float width = Convert.ToSingle(TransitionsLPNUD.Value);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetTransitionLightPen(TransitionsLPCP.BackColor, width);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetTransitionLightPen(TransitionsLPCP.BackColor, width);
+            if (DFAutomaton != null)
+                DFAutomaton.SetTransitionLightPen(TransitionsLPCP.BackColor, width);
+            
+            Check();
         }
 
         private void TransitionsBPNUD_ValueChanged(object sender, EventArgs e)
         {
             float width = Convert.ToSingle(TransitionsBPNUD.Value);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetTransitionBlackPen(TransitionsBPCP.BackColor, width);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetTransitionBlackPen(TransitionsBPCP.BackColor, width);
+            if (DFAutomaton != null)
+                DFAutomaton.SetTransitionBlackPen(TransitionsBPCP.BackColor, width);
+           
+            Check();
         }
 
         private void ContainerCP_Click(object sender, EventArgs e)
         {
             Color c = DrawHelper.ShowColorDialog(Form, ContainerCP.BackColor, true);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetContainerBackColor(c);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetContainerBackColor(c);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetContainerBackColor(c);
+            
             ContainerCP.BackColor = c;
+            Check();
         }
 
         private void ActiveBorderCP_Click(object sender, EventArgs e)
         {
             Color c = DrawHelper.ShowColorDialog(Form, ActiveBorderCP.BackColor, true);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetActiveBorderColor(c);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetActiveBorderColor(c);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetActiveBorderColor(c);
+            
             ActiveBorderCP.BackColor = c;
+            Check();
         }
 
         private void InactiveBorderCP_Click(object sender, EventArgs e)
         {
             Color c = DrawHelper.ShowColorDialog(Form, InactiveBorderCP.BackColor, true);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetInactiveBorderColor(c);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetInactiveBorderColor(c);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetInactiveBorderColor(c);
+           
             InactiveBorderCP.BackColor = c;
+            Check();
         }
 
         private void HighlightedBorderCP_Click(object sender, EventArgs e)
         {
             Color c = DrawHelper.ShowColorDialog(Form, HighlightedBorderCP.BackColor, true);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetHighlightedBorderColor(c);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetHighlightedBorderColor(c);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetHighlightedBorderColor(c);
+            
             HighlightedBorderCP.BackColor = c;
+            Check();
         }
 
         private void InnerStateCP_Click(object sender, EventArgs e)
         {
             Color c = DrawHelper.ShowColorDialog(Form, InnerStateCP.BackColor, true);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetInnerStateColor(c);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetInnerStateColor(c);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetInnerStateColor(c);
+           
             InnerStateCP.BackColor = c;
+            Check();
         }
 
         private void TransitionsLPCP_Click(object sender, EventArgs e)
@@ -586,12 +518,11 @@ namespace TheoryOfAutomatons.Automaton
             Color c = DrawHelper.ShowColorDialog(Form, TransitionsLPCP.BackColor, true);
             float width = Convert.ToSingle(TransitionsLPNUD.Value);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetTransitionLightPen(c, width);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetTransitionLightPen(c, width);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetTransitionLightPen(c, width);
+            
             TransitionsLPCP.BackColor = c;
+            Check();
         }
 
         private void TransitionsBPCP_Click(object sender, EventArgs e)
@@ -599,12 +530,11 @@ namespace TheoryOfAutomatons.Automaton
             Color c = DrawHelper.ShowColorDialog(Form, TransitionsBPCP.BackColor, true);
             float width = Convert.ToSingle(TransitionsBPNUD.Value);
 
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetTransitionBlackPen(c, width);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetTransitionBlackPen(c, width);
-
+            if (DFAutomaton != null)
+                DFAutomaton.SetTransitionBlackPen(c, width);
+          
             TransitionsBPCP.BackColor = c;
+            Check();
         }
 
 
@@ -612,10 +542,8 @@ namespace TheoryOfAutomatons.Automaton
         private void PreventPathsInersections_CheckedChanged(object sender, EventArgs e)
         {
             bool m = PreventPathsInersectionsChB.Checked;
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetIntersectionsMode(m);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetIntersectionsMode(m);
+            if (DFAutomaton != null)
+                DFAutomaton.SetIntersectionsMode(m);
 
             Check();
         }
@@ -623,10 +551,8 @@ namespace TheoryOfAutomatons.Automaton
         private void DeveloperModeChB_CheckedChanged(object sender, EventArgs e)
         {
             bool m = DeveloperModeChB.Checked;
-            if (DFMealyAutomaton != null)
-                DFMealyAutomaton.SetDevMode(m);
-            else if (DFMooreAutomaton != null)
-                DFMooreAutomaton.SetDevMode(m);
+            if (DFAutomaton != null)
+                DFAutomaton.SetDevMode(m);
 
             Check();
         }
@@ -641,12 +567,12 @@ namespace TheoryOfAutomatons.Automaton
 
         private void CheckReadyToSaveDFA()
         {
-            SaveToFileTSB.Enabled = DFMealyAutomaton != null || DFMooreAutomaton != null;
+            SaveToFileTSB.Enabled = DFAutomaton != null;
         }
 
         private void CheckReadyToChangeDFAType()
         {
-            DFATypeSelectorCB.Enabled = DFMealyAutomaton == null && DFMooreAutomaton == null;
+            DFATypeSelectorCB.Enabled = DFAutomaton == null;
         }
 
         private void CheckReadyToAddIA()
@@ -661,27 +587,23 @@ namespace TheoryOfAutomatons.Automaton
 
         private void CheckReadyToSave()
         {
-            if (DFMealyAutomaton != null)
-                SaveToFileTSB.Enabled = DFMealyAutomaton.StatesAlphabet.Count >= 2;
-            else if (DFMooreAutomaton != null)
-                SaveToFileTSB.Enabled = DFMooreAutomaton.StatesAlphabet.Count >= 2;
+            if (DFAutomaton != null)
+                SaveToFileTSB.Enabled = DFAutomaton.StatesAlphabet.Count >= 2;
         }
 
         private void CheckReadyToAddStates()
         {
             bool a = InputAlphabetTLB.GetData().Count >= 2 && OutputAlphabetTLB.GetData().Count >= 2;
             bool b = DFATypeSelectorCB.SelectedIndex != -1;
-            bool c = DFMealyAutomaton != null || DFMooreAutomaton != null;
+            bool c = DFAutomaton != null;
             AddStateB.Enabled = a && b && c;
         }
 
         private void CheckReadyToInputAS()
         {
             bool a = false;
-            if (DFMealyAutomaton != null)
-                a = DFMealyAutomaton.StatesAlphabet.Count >= 2;
-            else if (DFMooreAutomaton != null)
-                a = DFMooreAutomaton.StatesAlphabet.Count >= 2;
+            if (DFAutomaton != null)
+                a = DFAutomaton.StatesAlphabet.Count >= 2;
 
             InputSequenceTB.Enabled = a;
             GetRandomSequenceB.Enabled = a;
@@ -690,29 +612,21 @@ namespace TheoryOfAutomatons.Automaton
         private void CheckReadyToAnalyze()
         {
             bool a = false, b = false, c = false;
-            if (DFMealyAutomaton != null)
+            if (DFAutomaton != null)
             {
-                a = DFMealyAutomaton.StatesAlphabet.Count >= 2;
-                b = InputSequenceTB.Text.Length > 0 && InputSequenceTB.Text.All(ch => DFMealyAutomaton.InputAlphabet.Contains(ch));
-                c = DFMealyAutomaton != null && DFMealyAutomaton.IsReady();
+                a = DFAutomaton.StatesAlphabet.Count >= 2;
+                b = InputSequenceTB.Text.Length > 0 && InputSequenceTB.Text.All(ch => DFAutomaton.InputAlphabet.Contains(ch));
+                c = DFAutomaton != null && DFAutomaton.IsReady();
             }
-            else if (DFMooreAutomaton != null)
-            {
-                a = DFMooreAutomaton.StatesAlphabet.Count >= 2;
-                b = InputSequenceTB.Text.Length > 0 && InputSequenceTB.Text.All(ch => DFMooreAutomaton.InputAlphabet.Contains(ch));
-                c = DFMooreAutomaton != null && DFMooreAutomaton.IsReady();
-            }
-
+           
             AnalyzeSequenceB.Enabled = a && b && c;
         }
 
         private void CheckReadyToChangeVisParams()
         {
             bool a = false;
-            if (DFMealyAutomaton != null)
-                a = DFMealyAutomaton.StatesAlphabet.Count >= 1;
-            else if (DFMooreAutomaton != null)
-                a = DFMooreAutomaton.StatesAlphabet.Count >= 1;
+            if (DFAutomaton != null)
+                a = DFAutomaton.StatesAlphabet.Count >= 1;
 
             CircleDiameterNUD.Enabled = a;
             BorderNUD.Enabled = a;

@@ -4,14 +4,18 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheoryOfAutomatons.Automaton.Common;
+using TOA.TheoryOfAutomatons.Automaton;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 {
     /// <summary>
     /// Реализует наследуемый класс состояния Автомата Мура.
     /// </summary>
-    internal class MooreAutomatonState : AutomatonState<DFMooreAutomaton, MooreSelfTransition>
+    internal class MooreAutomatonState : AutomatonState<MooreSelfTransition>
     {
+        public override AutomatonType Type => AutomatonType.Moore;
+
         /// <summary>
         /// Выход этого состояния.
         /// </summary>
@@ -132,7 +136,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         /// </summary>
         /// <param name="input">Входной символ, по которому совершается переход.</param>
         /// <param name="state">Состояние, в которое совершается переход.</param>
-        public override void AddTransition(char input, AutomatonState<DFMooreAutomaton, MooreSelfTransition> state)
+        public override void AddTransition(char input, IAutomatonState state)
         {
             MooreAutomatonState mooreState = state as MooreAutomatonState;
             Transitions.Add(input, mooreState);
@@ -167,7 +171,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         /// Удаляет существующий переход.
         /// </summary>
         /// <param name="input">Входной символ, по которому осуществляется поиск удаляемого перехода.</param>
-        protected override void RemoveTransition(char input)
+        public override void RemoveTransition(char input)
         {
             Transitions.Remove(input);
             Automaton.TransitionFunction.Remove(Tuple.Create(input, this));
@@ -218,7 +222,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         /// Получает текст, который будет отображаться во внутренней области состояния.
         /// </summary>
         /// <returns>Строка, текст которой будет отображаться во внутренней области состояния.</returns>
-        protected override string GetDisplayText()
+        public override string GetDisplayText()
         {
             return $"{Name}/{Output}";
         }

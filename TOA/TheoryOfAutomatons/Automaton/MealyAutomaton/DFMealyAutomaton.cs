@@ -12,11 +12,13 @@ using System.Windows.Forms;
 using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Utils.UI.Controls;
+using TOA.TheoryOfAutomatons.Automaton;
 
 namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 {
     internal class DFMealyAutomaton : DFAutomaton<MealyAutomatonState>
     {
+        public override AutomatonType Type => AutomatonType.Mealy;
         private Dictionary<Tuple<char, MealyAutomatonState>, char> outputFunction;
 
         public DFMealyAutomaton(PictureBox container, AutomatonCreator aC) : base(container, aC)
@@ -50,8 +52,6 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         {
             this.Dispose();
         }
-
-
 
 
 
@@ -120,8 +120,6 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 
 
 
-
-
         #region Визуализация
 
         public override void DeleteState(MealyAutomatonState state)
@@ -164,6 +162,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         }
 
         #region Отрисовка путей
+
         public override void DrawTransitions(Graphics g)
         {
             base.DrawTransitions(g);
@@ -191,11 +190,10 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 }
             }
         }
-        #endregion
 
         #endregion
 
-
+        #endregion
 
 
 
@@ -221,7 +219,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 InactiveTransitionColor,
                 ActiveTransitionColor,
 
-                TypeIndex,
+                Type,
                 InputAlphabet,
                 InputsDescription,
                 OutputAlphabet,

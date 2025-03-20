@@ -15,6 +15,8 @@ using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils.UI.Controls;
 using System.Linq;
 using System.Windows.Automation;
+using TOA.TheoryOfAutomatons.Automaton.Common;
+using TOA.TheoryOfAutomatons.Automaton;
 
 namespace TheoryOfAutomatons.Automaton.Common
 {
@@ -22,15 +24,15 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// Реализует абстрактный класс Конечного Автомата, содержащий общие поля, члены, методы и функции.
     /// </summary>
     /// <typeparam name="TState">Тип состояния Автомата</typeparam>
-    internal abstract class DFAutomaton<TState> : IDisposable
+    internal abstract class DFAutomaton<TState> : IDFAutomaton
         where TState : class
     {
         #region Параметры для работы
 
         /// <summary>
-        /// Определяет тип Автомата: 0 - Мили, 1 - Мура.
+        /// Определяет тип Автомата.
         /// </summary>
-        public int TypeIndex { get; protected set; }
+        public abstract AutomatonType Type { get; }
         /// <summary>
         /// Входной алфавит АА.
         /// </summary>
@@ -86,7 +88,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Связанный с данным АА Объект контроллера <see cref="AutomatonCreator"/>. 
         /// </summary>
-        protected AutomatonCreator AC;
+        public AutomatonCreator AC { get; protected set; }
         /// <summary>
         /// Список, содержащий описания для входных символов АА.
         /// </summary>
@@ -106,32 +108,26 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Карандаш для отрисовки переходов в неактивном состоянии.
         /// </summary>
         public Pen TransitionBlackPen { get; private set; }
-
         /// <summary>
         /// Карандаш для отрисовки переходов в активном состоянии.
         /// </summary>
         public Pen TransitionLightPen { get; private set; }
-
         /// <summary>
         /// Объект <see cref="System.Windows.Forms.ToolTip"/> для отображения всплывающих подсказок.
         /// </summary>
-        protected readonly ToolTip ToolTip;
-
+        public ToolTip ToolTip { get; protected set; }
         /// <summary>
         /// Объект <see cref="System.Windows.Forms.Timer"/> для задержек отображения всплывающих подсказок.
         /// </summary>
-        protected readonly System.Windows.Forms.Timer HoverTimer;
-
+        public System.Windows.Forms.Timer HoverTimer { get; protected set; }
         /// <summary>
         /// Последняя позиция курсора.
         /// </summary>
-        protected Point LastMousePos;
-
+        public Point LastMousePos { get; protected set; }
         /// <summary>
         /// Состояние АА, над которым находится курсор.
         /// </summary>
         protected TState HoveredState;
-
         /// <summary>
         /// Состояние АА, которое в данный момент находится в режиме перемещения.
         /// </summary>
@@ -147,27 +143,22 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Список, использующийся для отрисовки переходов между состояниями АА.
         /// </summary>
         public List<AutomatonTransition<TState>> Transitions;
-
         /// <summary>
         /// Булева карта для верного размещения состояний АА.
         /// </summary>
-        public bool[,] StatesSpace;
-
+        public bool[,] StatesSpace { get; protected set; }
         /// <summary>
         /// Булева карта для верной отрисовки переходов АА.
         /// </summary>
-        public bool[,] TransitionsSpace;
-
+        public bool[,] TransitionsSpace { get; protected set; }
         /// <summary>
         /// Кэш-изображение, используемое для отрисовки переходов АА.
         /// </summary>
-        protected Bitmap TransitionsCache;
-
+        public Bitmap TransitionsCache { get; protected set; }
         /// <summary>
         /// Определяет, нужно ли обновить переходы.
         /// </summary>
-        protected bool TransitionsNeedUpdate = true;
-
+        public bool TransitionsNeedUpdate { get; protected set; } = true;
         /// <summary>
         /// Объект для грамотной перерисовки переходов.
         /// </summary>
@@ -183,74 +174,61 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Диаметр круга, который ограничивает область состояния АА.
         /// </summary>
         public int CircleDiameter { get; protected set; } = 50;
-
         /// <summary>
         /// Ширина границы области состояния АА.
         /// </summary>
         public int BorderWidth { get; protected set; } = 5;
-
         /// <summary>
         /// Ширина карандаша для активного карандаша.
         /// </summary>
         public float TransitionBlackPenWidth { get; protected set; } = 3.0f;
-
         /// <summary>
         /// Ширина карандаша для неактивного карандаша.
         /// </summary>
         public float TransitionLightPenWidth { get; protected set; } = 3.0f;
-
         /// <summary>
         /// Задержка отрисовки каждого шага работы АА в миллисекундах.
         /// </summary>
         public int DrawStepDelay { get; private set; } = 750;
-
         /// <summary>
         /// Цвет заливки рабочей области.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color ContainerBackColor { get; private set; } = Color.FromArgb(96, 96, 96);
-
         /// <summary>
         /// Цвет границы активного состояния.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color ActiveBorderColor { get; private set; } = Color.LimeGreen;
-
         /// <summary>
         /// Цвет границы неактивного состояния.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color InactiveBorderColor { get; private set; } = Color.Black;
-
         /// <summary>
         /// Цвет границы выбранного состояния.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color HighlightedBorderColor { get; private set; } = Color.DarkGray;
-
         /// <summary>
         /// Цвет заливки внутреннего состояния.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color InnerStateColor { get; private set; } = Color.LightGray;
-
         /// <summary>
         /// Цвет активного перехода.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color ActiveTransitionColor { get; private set; } = Color.LimeGreen;
-
         /// <summary>
         /// Цвет неактивного перехода.
         /// </summary>
         [JsonConverter(typeof(ColorJsonConverter))]
         public Color InactiveTransitionColor { get; private set; } = Color.Black;
-
         /// <summary>
         /// Нужно ли запретить пересечения переходов при их отрисовке.
         /// </summary>
         public bool ProhibitIntersectingTransitions { get; protected set; } = true;
-
         /// <summary>
         /// Включает или отключает режим разработчика.
         /// </summary>
@@ -553,7 +531,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Проверяет, готов ли АА к обработке входной последовательности.
         /// </summary>
         /// <returns> <see langword="true"/> , если АА не имеет обрыва связей; иначе <see langword="false"/>.</returns>
-        public bool IsReady()
+        public virtual bool IsReady()
         {
             foreach (var state in StatesAlphabet)
             {
@@ -611,6 +589,10 @@ namespace TheoryOfAutomatons.Automaton.Common
             AC.Check();
         }
 
+        /// <summary>
+        /// Удаляет состояние.
+        /// </summary>
+        /// <param name="state">Состояние для удаления.</param>
         public abstract void DeleteState(TState state);
 
         #region Отрисовка путей

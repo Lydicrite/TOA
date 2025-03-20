@@ -11,11 +11,13 @@ using System.IO;
 using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Utils.UI.Controls;
+using TOA.TheoryOfAutomatons.Automaton;
 
 namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 {
     internal class DFMooreAutomaton : DFAutomaton<MooreAutomatonState>
     {
+        public override AutomatonType Type => AutomatonType.Moore;
         private Dictionary<MooreAutomatonState, char> outputFunction;
 
         public DFMooreAutomaton(PictureBox container, AutomatonCreator aC) : base(container, aC)
@@ -49,8 +51,6 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         {
             Dispose();
         }
-
-
 
 
 
@@ -119,8 +119,6 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 
 
 
-
-
         #region Визуализация
 
         public override void DeleteState(MooreAutomatonState state)
@@ -162,6 +160,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         }
 
         #region Отрисовка путей
+
         public override void DrawTransitions(Graphics g)
         {
             base.DrawTransitions(g);
@@ -189,11 +188,10 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 }
             }
         }
-        #endregion
 
         #endregion
 
-
+        #endregion
 
 
 
@@ -218,7 +216,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 InactiveTransitionColor,
                 ActiveTransitionColor,
 
-                TypeIndex,
+                Type,
 
                 InputAlphabet,
                 InputsDescription,

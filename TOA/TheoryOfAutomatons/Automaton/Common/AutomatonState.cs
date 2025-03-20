@@ -5,6 +5,8 @@ using System.Drawing;
 using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils.Helpers;
+using TOA.TheoryOfAutomatons.Automaton;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.Common
 {
@@ -13,60 +15,58 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// </summary>
     /// <typeparam name="TAutomaton">Тип Автомата</typeparam>
     /// <typeparam name="TSelfTransition">Тип самоперехода</typeparam>
-    internal abstract class AutomatonState<TAutomaton, TSelfTransition>
-        where TAutomaton : class
-        where TSelfTransition : class
+    internal abstract class AutomatonState<TSelfTransition> : IAutomatonState where TSelfTransition : class
     {
-        // Общие параметры для работы и визуализации
+        #region Параметры
+
+        /// <summary>
+        /// Определяет тип Автомата.
+        /// </summary>
+        public abstract AutomatonType Type { get; }
         /// <summary>
         /// Индекс состояния.
         /// </summary>
         public int Index { get; set; }
-
         /// <summary>
         /// Имя состояния
         /// </summary>
         public string Name { get; protected set; }
-
         /// <summary>
         /// Определённый пользователем текст - смысл того, что представляет собой это состояние.
         /// </summary>
         public string UserDefinedText { get; protected set; }
-
         /// <summary>
         /// Автомат, которому принадлежит это состояние.
         /// </summary>
-        public TAutomaton Automaton { get; protected set; }
-
+        public IDFAutomaton Automaton { get; protected set; }
         /// <summary>
         /// Перемещается ли в текущий момент это состояние.
         /// </summary>
         public bool IsMoving { get; set; }
-
         /// <summary>
         /// Является ли состояние цикличным (все ли переходы являются самопереходами).
         /// </summary>
         public bool IsCyclic { get; set; }
-
         /// <summary>
         /// Является ли состояние входным.
         /// </summary>
         public bool IsInput { get; set; }
-
         /// <summary>
         /// Центр области состояния.
         /// </summary>
         public Point StateCenter { get; protected set; }
-
         /// <summary>
         /// Все возможные точки для начала отрисовки переходов из этого состояния.
         /// </summary>
         public List<Point> TransitionStartPoints { get; protected set; }
-
         /// <summary>
         /// Самопереход состояния.
         /// </summary>
         public TSelfTransition SelfTransition { get; protected set; }
+
+        #endregion
+
+
 
         /// <summary>
         /// Представляет базовый абстрактный класс состояния Автомата.
@@ -76,22 +76,11 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="userDefinedText">Смысл того, что представляет собой это состояние.</param>
         /// <param name="initialPosition">Начальная позиция центра состояния.</param>
         /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата, типа самоперехода или неподдерживаемого их сочетания.</exception>
-        protected AutomatonState(TAutomaton automaton, int index, string userDefinedText, Point initialPosition)
+        protected AutomatonState(IDFAutomaton automaton, int index, string userDefinedText, Point initialPosition)
         {
-            // Проверка на допустимые классы для Автомата
-            if (!(typeof(TAutomaton) == typeof(DFMealyAutomaton) || typeof(TAutomaton) == typeof(DFMooreAutomaton)))
-                throw new NotSupportedException("Неподдерживаемый тип Автомата.");
-
             // Проверка на допустимые классы для Автомата
             if (!(typeof(TSelfTransition) == typeof(MealySelfTransition) || typeof(TSelfTransition) == typeof(MooreSelfTransition)))
                 throw new NotSupportedException("Неподдерживаемый тип самоперехода.");
-
-            // Проверка на совместимость класса Автомата и класса самоперехода
-            if
-            (!((typeof(TAutomaton) == typeof(DFMealyAutomaton) && typeof(TSelfTransition) == typeof(MealySelfTransition)) ||
-              (typeof(TAutomaton) == typeof(DFMooreAutomaton) && typeof(TSelfTransition) == typeof(MooreSelfTransition)))
-            )
-                throw new NotSupportedException("Неподдерживаемое сочетание типов Автомата и самоперехода.");
 
             Automaton = automaton;
             Name = $"S{index}";
@@ -109,8 +98,6 @@ namespace TheoryOfAutomatons.Automaton.Common
 
 
 
-
-
         #region Отрисовки
 
         /// <summary>
@@ -125,8 +112,8 @@ namespace TheoryOfAutomatons.Automaton.Common
             DrawHelper.SetGraphicsParameters(g);
 
             // Получение размеров круга и толщины границы
-            int circleDiameter = AutomatonStatesHelper.GetCircleDiameter(Automaton);
-            int boundaryThickness = AutomatonStatesHelper.GetCircleBound(Automaton);
+            int circleDiameter = Automaton.CircleDiameter;
+            int boundaryThickness = Automaton.BorderWidth;
 
             // Определение центра состояния
             Point stateCenter = StateCenter;
@@ -228,11 +215,11 @@ namespace TheoryOfAutomatons.Automaton.Common
         {
             if (IsInput)
             {
-                return isInnerHighlighted ? new SolidBrush(((dynamic)Automaton).ActiveBorderColor) : new SolidBrush(((dynamic)Automaton).ActiveBorderColor);
+                return isInnerHighlighted ? new SolidBrush(Automaton.ActiveBorderColor) : new SolidBrush(Automaton.ActiveBorderColor);
             }
             else
             {
-                return isInnerHighlighted ? new SolidBrush(((dynamic)Automaton).HighlightedBorderColor) : new SolidBrush(((dynamic)Automaton).InactiveBorderColor);
+                return isInnerHighlighted ? new SolidBrush(Automaton.HighlightedBorderColor) : new SolidBrush(Automaton.InactiveBorderColor);
             }
         }
 
@@ -246,18 +233,18 @@ namespace TheoryOfAutomatons.Automaton.Common
 
             DrawHelper.SetGraphicsParameters(g);
 
-            int circleDiameter = AutomatonStatesHelper.GetCircleDiameter(Automaton);
+            int cD = Automaton.CircleDiameter;
 
             // Рисуем круг
             using (Pen p = new Pen(Brushes.DeepSkyBlue, 5))
-                g.DrawEllipse(p, StateCenter.X - circleDiameter / 2 - 15, StateCenter.Y - circleDiameter / 2 - 15,
-                    circleDiameter + 30, circleDiameter + 30);
+                g.DrawEllipse(p, StateCenter.X - cD / 2 - 15, StateCenter.Y - cD / 2 - 15,
+                    cD + 30, cD + 30);
 
             using (Font font = new Font("Arial", 9, FontStyle.Bold))
             {
                 string label = "Перемещение...";
                 SizeF labelSize = g.MeasureString(label, font);
-                g.DrawString(label, font, Brushes.DeepSkyBlue, StateCenter.X - labelSize.Width / 2, StateCenter.Y - circleDiameter / 2 - 30 - labelSize.Height / 2);
+                g.DrawString(label, font, Brushes.DeepSkyBlue, StateCenter.X - labelSize.Width / 2, StateCenter.Y - cD / 2 - 30 - labelSize.Height / 2);
             }
         }
 
@@ -266,7 +253,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         public void CreateTransitionStartPoints()
         {
-            TransitionStartPoints = GeometryHelper.GetAbroadPoints(StateCenter, AutomatonStatesHelper.GetCircleDiameter(Automaton) / 2, 32, 15);
+            TransitionStartPoints = GeometryHelper.GetAbroadPoints(StateCenter, Automaton.CircleDiameter / 2, 32, 15);
         }
 
         /// <summary>
@@ -279,7 +266,7 @@ namespace TheoryOfAutomatons.Automaton.Common
             double dx = point.X - StateCenter.X;
             double dy = point.Y - StateCenter.Y;
             double distance = Math.Sqrt(dx * dx + dy * dy);
-            return distance <= AutomatonStatesHelper.GetCircleDiameter(Automaton) / 2 - 6;
+            return distance <= Automaton.CircleDiameter / 2 - 6;
         }
 
         /// <summary>
@@ -289,7 +276,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <returns>True, если переданная точка находится во внешней области состояния; иначе - false.</returns>
         public bool IsInBoundaryArea(Point point)
         {
-            int circleDiameter = AutomatonStatesHelper.GetCircleDiameter(Automaton);
+            int circleDiameter = Automaton.CircleDiameter;
 
             double dx = point.X - StateCenter.X;
             double dy = point.Y - StateCenter.Y;
@@ -305,13 +292,13 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="newPosition">Новая центральная точка.</param>
         public void SetPosition(Point newPosition)
         {
-            int containerWidth = AutomatonStatesHelper.Width(Automaton);
-            int containerHeight = AutomatonStatesHelper.Height(Automaton);
+            int containerWidth = Automaton.Container.Width;
+            int containerHeight = Automaton.Container.Height;
 
             Point newPos = newPosition;
 
             // Ограничиваем новую позицию границами контейнера
-            int halfDiameter = AutomatonStatesHelper.GetCircleDiameter(Automaton) / 2;
+            int halfDiameter = Automaton.CircleDiameter / 2;
             newPos.X = Math.Max(halfDiameter + 50, Math.Min(containerWidth - halfDiameter - 50, newPosition.X));
             newPos.Y = Math.Max(halfDiameter + 50, Math.Min(containerHeight - halfDiameter - 50, newPosition.Y));
 
@@ -320,8 +307,6 @@ namespace TheoryOfAutomatons.Automaton.Common
         }
 
         #endregion
-
-
 
 
 
@@ -338,17 +323,15 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="input">Входной символ, по которому совершается переход.</param>
         /// <param name="state">Состояние, в которое совершается переход.</param>
-        public abstract void AddTransition(char input, AutomatonState<TAutomaton, TSelfTransition> state);
+        public abstract void AddTransition(char input, IAutomatonState state);
 
         /// <summary>
         /// Удаляет существующий переход.
         /// </summary>
         /// <param name="input">Входной символ, по которому осуществляется поиск удаляемого перехода.</param>
-        protected abstract void RemoveTransition(char input);
+        public abstract void RemoveTransition(char input);
 
         #endregion
-
-
 
 
 
@@ -356,122 +339,6 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Получает текст, который будет отображаться во внутренней области состояния.
         /// </summary>
         /// <returns>Строка, текст которой будет отображаться во внутренней области состояния.</returns>
-        protected abstract string GetDisplayText();
-    }
-
-
-
-    /// <summary>
-    /// Статический класс, предоставляющий различные утилиты для работы с состояниями автомата.
-    /// </summary>
-    internal static class AutomatonStatesHelper
-    {
-        /// <summary>
-        /// Получает диаметр круга для отрисовки состояния Автомата.
-        /// </summary>
-        /// <typeparam name="TAutomaton">Тип Автомата.</typeparam>
-        /// <param name="automaton">Автомат.</param>
-        /// <returns>Диаметр круга для отрисовки состояния Автомата.</returns>
-        /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата.</exception>
-        public static int GetCircleDiameter<TAutomaton>(TAutomaton automaton)
-        {
-            if (typeof(TAutomaton) == typeof(DFMealyAutomaton))
-            {
-                return (automaton as DFMealyAutomaton).CircleDiameter;
-            }
-            else if (typeof(TAutomaton) == typeof(DFMooreAutomaton))
-            {
-                return (automaton as DFMooreAutomaton).CircleDiameter;
-            }
-            else
-            {
-                throw new NotSupportedException("Неподдерживаемый тип Автомата.");
-            }
-        }
-
-        /// <summary>
-        /// Получает ширину границы круга для отрисовки состояния Автомата.
-        /// </summary>
-        /// <typeparam name="TAutomaton">Тип Автомата.</typeparam>
-        /// <param name="automaton">Автомат.</param>
-        /// <returns>Ширина границы круга для отрисовки состояния Автомата.</returns>
-        /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата.</exception>
-        public static int GetCircleBound<TAutomaton>(TAutomaton automaton)
-        {
-            if (typeof(TAutomaton) == typeof(DFMealyAutomaton))
-            {
-                return (automaton as DFMealyAutomaton).BorderWidth;
-            }
-            else if (typeof(TAutomaton) == typeof(DFMooreAutomaton))
-            {
-                return (automaton as DFMooreAutomaton).BorderWidth;
-            }
-            else
-            {
-                throw new NotSupportedException("Unsupported Automaton type.");
-            }
-        }
-
-        /// <summary>
-        /// Получает ширину поля для отрисовки состояния Автомата.
-        /// </summary>
-        /// <typeparam name="TAutomaton">Тип Автомата.</typeparam>
-        /// <param name="automaton">Автомат.</param>
-        /// <returns>Ширина поля отрисовки состояния Автомата.</returns>
-        /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата.</exception>
-        public static int Width<TAutomaton>(TAutomaton automaton)
-        {
-            if (typeof(TAutomaton) == typeof(DFMealyAutomaton))
-            {
-                return (automaton as DFMealyAutomaton).Container.Width;
-            }
-            else if (typeof(TAutomaton) == typeof(DFMooreAutomaton))
-            {
-                return (automaton as DFMooreAutomaton).Container.Width;
-            }
-            else
-            {
-                throw new NotSupportedException("Unsupported Automaton type.");
-            }
-        }
-
-        /// <summary>
-        /// Получает высоту поля для отрисовки состояния Автомата.
-        /// </summary>
-        /// <typeparam name="TAutomaton">Тип Автомата.</typeparam>
-        /// <param name="automaton">Автомат.</param>
-        /// <returns>Высота поля отрисовки состояния Автомата.</returns>
-        /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата.</exception>
-        public static int Height<TAutomaton>(TAutomaton automaton)
-        {
-            if (typeof(TAutomaton) == typeof(DFMealyAutomaton))
-            {
-                return (automaton as DFMealyAutomaton).Container.Height;
-            }
-            else if (typeof(TAutomaton) == typeof(DFMooreAutomaton))
-            {
-                return (automaton as DFMooreAutomaton).Container.Height;
-            }
-            else
-            {
-                throw new NotSupportedException("Unsupported Automaton type.");
-            }
-        }
-
-        public static void OnTransitionsChanged<TAutomaton>(TAutomaton automaton) where TAutomaton : class
-        {
-            if (typeof(TAutomaton) == typeof(DFMealyAutomaton))
-            {
-                (automaton as DFMealyAutomaton).OnTransitionsChanged();
-            }
-            else if (typeof(TAutomaton) == typeof(DFMooreAutomaton))
-            {
-                (automaton as DFMooreAutomaton).OnTransitionsChanged();
-            }
-            else
-            {
-                throw new NotSupportedException("Unsupported Automaton type.");
-            }
-        }
+        public abstract string GetDisplayText();
     }
 }
