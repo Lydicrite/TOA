@@ -8,14 +8,18 @@ using TOAConsole.LSA.LSAutomaton;
 
 namespace TOAConsole.LSA.Elements.Vertexes
 {
+    /// <summary>
+    /// Представляет собой конечную вершину ЛСА - "Yк".
+    /// </summary>
     internal class EndVertex : LSABaseElement
     {
-        public EndVertex()
+        public EndVertex(int pos)
         {
             Id = "Yк";
+            Position = pos;
         }
 
-        public override string GetOutput() => " ------- Конец алгоритма ------- ";
-        public override ILSAElement GetNext(Automaton automaton) => null;
+        public override string GetLongDescription() => "\n ------- Конец алгоритма ------- ";
+        public override ILSAElement? GetNext(Automaton automaton) => null;
     }
 }

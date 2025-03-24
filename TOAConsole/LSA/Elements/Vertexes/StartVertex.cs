@@ -8,14 +8,18 @@ using TOAConsole.LSA.LSAutomaton;
 
 namespace TOAConsole.LSA.Elements.Vertexes
 {
+    /// <summary>
+    /// Представляет собой начальную вершину ЛСА - "Yн".
+    /// </summary>
     internal class StartVertex : LSABaseElement
     {
-        public StartVertex()
+        public StartVertex(int pos)
         {
             Id = "Yн";
+            Position = pos;
         }
 
-        public override string GetOutput() => " ------- Начало алгоритма ------- ";
-        public override ILSAElement GetNext(Automaton automaton) => Next;
+        public override string GetLongDescription() => "\n ------- Начало алгоритма ------- ";
+        public override ILSAElement? GetNext(Automaton automaton) => Next;
     }
 }
