@@ -232,20 +232,38 @@ namespace TOAConsole.LSA.LSAutomaton
 
             foreach (var condition in allCycles)
             {
-                loopsDescr += $"\nУсловия: {condition.Key}";
+                loopsDescr += $"\nУсловия: \"{condition.Key}\", ";
                 foreach (var cycle in condition.Value)
-                    loopsDescr += $"\n\tЦикл: {string.Join(" → ", cycle.Value)}";
+                    loopsDescr += $"\n\tцикл: {string.Join(" → ", cycle.Value)}";
             }
             loopsDescr += $"\n}}";
 
             return loopsDescr;
-        } 
+        }
+
+        /// <summary>
+        /// Получает краткие результаты работы алгоритма для всех возможных комбинаций значений условных вершин.
+        /// </summary>
+        /// <returns>Строка, содержащая отформатированную информацию о результатах работы алгоритма для всех возможных комбинаций значений условных вершин.</returns>
+        public string GetResults()
+        {
+            var allResults = GenerateResultsDictionary();
+            var resultsDescr = $"Результаты работы алгоритма для всех возможных комбинаций значений условных вершин: [{allResults.Count()}] \n{{";
+
+            foreach (var result in allResults)
+            {
+                resultsDescr += $"\nУсловия: \"{result.Key}\", \n\tход работы алгоритма: {result.Value}";
+            }
+            resultsDescr += $"\n}}";
+
+            return resultsDescr;
+        }
 
         /// <summary>
         /// Создаёт и возвращает словарь с ключами в виде входных значений условных вершин и значениями в виде строки из пройденных вершин.
         /// </summary>
         /// <returns>Словарь, созданный по описанным правилам.</returns>
-        public Dictionary<string, string> GenerateFinalsTable()
+        public Dictionary<string, string> GenerateResultsDictionary()
         {
             var conditionals = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
             int n = conditionals.Count;

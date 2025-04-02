@@ -22,14 +22,12 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         public static Automaton Parse(string input)
         {
             var errors = new List<ParsingError>();
+            var parsedPositions = new Dictionary<int, bool>();
 
-            input = Regex.Replace(input, @"\s*([()|])\s*", " $1 ");
-            var tokenPattern = @"(Yн|Yк|w↑\d+|↑\d+|↓\d+|X\d+|Y\d+|\(|\)|\|)";
-            var tokens = Regex.Matches(input, tokenPattern)
-                        .Cast<Match>()
-                        .Select(m => m.Value.Trim())
-                        .Where(t => !string.IsNullOrWhiteSpace(t))
-                        .ToList();
+            input = PreprocessInput(input);
+            var tokens = Tokenize(input, ref errors);
+            for (int i = 0; i < tokens.Count(); i++)
+                parsedPositions.Add(i, false);
 
             var automaton = new Automaton(tokens);
 
@@ -43,8 +41,9 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
                 automaton.AddElement(start);
                 ILSAElement? previousElement = start;
 
-                ParseElements(automaton, ref position, ref previousElement, ref errors);
-                
+                ParseElements(automaton, ref position, ref parsedPositions, ref previousElement, ref errors);
+
+                ValidateJumpPoints(automaton, ref errors);
                 ValidateStartEndUniqueness(automaton, ref errors);
                 ValidateJumpOperators(automaton, ref errors);
                 ValidateConditionalVertices(automaton, ref errors);
@@ -59,7 +58,42 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
 
 
 
-        #region Вспомогательные методы парсинга
+        #region Предподготовка
+
+        private static string PreprocessInput(string input)
+        {
+            // Удаляем скобки и сепараторы
+            input = Regex.Replace(input, @"[()|]", " ");
+
+            // Нормализуем регистр
+            input = Regex.Replace(input, @"\b([yx])(\d+)\b", m =>
+                m.Groups[1].Value.ToUpper() + m.Groups[2].Value);
+
+            input = Regex.Replace(input, @"\b(w↑\d+)\b", m => m.Value.ToLower());
+
+            return Regex.Replace(input, @"\s+", " ").Trim();
+        }
+
+        private static List<string> Tokenize(string input, ref List<ParsingError> errors)
+        {
+            var tokenPattern = @"(Yн|Yк|w↑\d+|↑\d+|↓\d+|X\d+|Y\d+)";
+            var matches = Regex.Matches(input, tokenPattern, RegexOptions.IgnoreCase);
+
+            if (matches.Count == 0)
+                AddError(errors, "Некорректный формат ЛСА", 0);
+
+            return matches.Cast<Match>()
+                .Select(m => m.Value)
+                .ToList();
+        }
+
+        #endregion
+
+
+
+
+
+        #region Методы парсинга элементов
 
         /// <summary>
         /// Создаёт и связывает между собой все элементы ЛСА в соответствии с устройством токенов, представляющих их.
@@ -67,32 +101,31 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="position">Ссылка на текущую позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="previousElement">Ссылка на предыдущий элемент ЛСА (возможно значение <see cref="null"/>).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
-        private static void ParseElements(Automaton automaton, ref int position, ref ILSAElement? previousElement, ref List<ParsingError> errors)
+        private static void ParseElements(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref ILSAElement? previousElement, ref List<ParsingError> errors)
         {
             while (position < automaton.Tokens.Count)
             {
                 var token = automaton.Tokens[position];
                 if (token == "Yк")
                 {
-                    var end = new EndVertex(position);
-                    automaton.AddElement(end);
+                    var end = HandleEndVertex(automaton, position - 1, ref parsedPositions, ref errors);
                     LinkPrevious(previousElement, end, ref errors);
                     position++;
                     break;
                 }
 
-                var element = ParseElement(automaton, ref position, ref errors);
+                var element = ParseElement(automaton, ref position, ref parsedPositions, ref errors);
                 if (element != null)
                 {
                     LinkPrevious(previousElement, element, ref errors);
                     previousElement = element;
 
-                    // Добавлено: Рекурсивная обработка цепочки элементов
-                    while (position < automaton.Tokens.Count && !new[] { ")", "|", "Yк" }.Contains(automaton.Tokens[position]))
+                    while (position < automaton.Tokens.Count)
                     {
-                        var nextElement = ParseElement(automaton, ref position, ref errors);
+                        var nextElement = ParseElement(automaton, ref position, ref parsedPositions, ref errors);
                         if (nextElement != null)
                         {
                             LinkPrevious(element, nextElement, ref errors);
@@ -109,10 +142,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="position">Ссылка на текущую позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новый элемент ЛСА (возможно значение <see cref="null"/>).</returns>
         /// <exception cref="FormatException"></exception>
-        private static ILSAElement? ParseElement(Automaton automaton, ref int position, ref List<ParsingError> errors)
+        private static ILSAElement? ParseElement(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             if (position >= automaton.Tokens.Count) return null;
 
@@ -124,10 +158,10 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
                     return null;
 
                 case "Yк":
-                    return HandleEndVertex(automaton, position - 1, ref errors);
+                    return HandleEndVertex(automaton, position - 1, ref parsedPositions, ref errors);
 
                 case var x when x.StartsWith("X"):
-                    return ParseConditionalVertex(automaton, ref position, int.Parse(x[1..]), ref errors);
+                    return ParseConditionalVertex(automaton, ref position, ref parsedPositions, int.Parse(x[1..]), ref errors);
 
                 case var y when y.StartsWith("Y"):
                     if (y == "Yн")
@@ -136,22 +170,15 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
                         return null;
                     }
 
-                    var opVertex = CreateOperatorVertex(automaton, position - 1, int.Parse(y[1..]), ref errors);
+                    var opVertex = CreateOperatorVertex(automaton, position - 1, ref parsedPositions, int.Parse(y[1..]), ref errors);
                     return opVertex;
 
                 case var jp when jp.StartsWith("↓"):
-                    return CreateJumpPoint(automaton, position - 1, int.Parse(jp[1..]), ref errors);
+                    return CreateJumpPoint(automaton, position - 1, ref parsedPositions, int.Parse(jp[1..]), ref errors);
 
                 case var jo when jo.StartsWith("↑") || jo.StartsWith("w↑"):
                     var isUnconditional = jo.StartsWith("w↑");
-                    return CreateJumpOperator(automaton, position - 1, int.Parse(jo[(isUnconditional ? 2 : 1)..]), isUnconditional, ref errors);
-
-                case "(":
-                    return ParseSubAlgorithm(automaton, ref position, ref errors);
-
-                case ")":
-                case "|":
-                    return null;
+                    return CreateJumpOperator(automaton, position - 1, ref parsedPositions, int.Parse(jo[(isUnconditional ? 2 : 1)..]), isUnconditional, ref errors);
 
                 default:
                     AddError(errors, $"Неизвестный токен: \"{token}\"", position);
@@ -159,43 +186,70 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
             }
         }
 
+        #endregion
+
+
+
+
+
+        #region Парсинг условной вершины
+
         /// <summary>
         /// Создаёт и возвращает условную вершину на основе токена, стоящего на позиции <paramref name="position"/> в списке токенов объекта <paramref name="automaton"/>.
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="position">Ссылка на текущую позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="index">Индекс этой условной вершины.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новая условная вершина с индексом <paramref name="index"/>.</returns>
         /// <exception cref="FormatException"></exception>
-        private static ConditionalVertex ParseConditionalVertex(Automaton automaton, ref int position, int index, ref List<ParsingError> errors)
+        private static ConditionalVertex ParseConditionalVertex(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, int index, ref List<ParsingError> errors)
         {
-            var vertex = new ConditionalVertex(index, position);
+            var vertex = new ConditionalVertex(index, position - 1);
             automaton.AddElement(vertex);
 
-            if (position < automaton.Tokens.Count && automaton.Tokens[position] == "(")
+            // Парсим LBS (условный оператор ↑j)
+            vertex.LBS = ParseJumpOperatorForCondition(automaton, ref position, ref parsedPositions, ref errors);
+            if (vertex.LBS == null)
             {
-                position++;
-                vertex.LBS = ParseSubAlgorithm(automaton, ref position, ref errors);
-                if (position >= automaton.Tokens.Count || automaton.Tokens[position++] != "|")
-                    AddError(errors, $"Ожидается | после LBS \"X{index}\"", position - 1);
-
-                vertex.RBS = ParseSubAlgorithm(automaton, ref position, ref errors);
-                if (position >= automaton.Tokens.Count || automaton.Tokens[position++] != ")")
-                    AddError(errors, $"Ожидается ) после RBS \"X{index}\"", position - 1);
+                AddError(errors, $"Ожидается условный оператор перехода ↑j для \"X{index}\"", position);
+                return vertex;
             }
-            else
-            {
-                vertex.LBS = ParseElement(automaton, ref position, ref errors);
-                if (vertex.LBS == null)
-                    AddError(errors, $"Ожидается LBS для \"X{index}\"", position - 1);
 
-                vertex.RBS = ParseElement(automaton, ref position, ref errors);
-                if (vertex.RBS == null)
-                    AddError(errors, $"Ожидается RBS для \"X{index}\"", position - 1);
-            }
+            // Парсим RBS (субалгоритм)
+            int initialPosition = position;
+            vertex.RBS = ParseSubAlgorithm(automaton, ref position, ref parsedPositions, ref errors);
+
+            if (vertex.RBS == null)
+                AddError(errors, $"Ожидается субалгоритм для \"X{index}\"", initialPosition);
 
             return vertex;
+        }
+
+        /// <summary>
+        /// Парсит оператор условного перехода (↑j) для Xi.LBS.
+        /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
+        /// <param name="position">Ссылка на текущую позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
+        /// <param name="errors">Ссылка на список ошибок парсера.</param>
+        /// <returns>Оператор условного перехода, являющийся левым потомком Xi.</returns>
+        /// </summary>
+        private static JumpOperator ParseJumpOperatorForCondition(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        {
+            if (position >= automaton.Tokens.Count) return null;
+
+            var token = automaton.Tokens[position];
+            if (!token.StartsWith("↑"))
+            {
+                AddError(errors, $"Ожидается условный оператор перехода, получен: {token}", position);
+                return null;
+            }
+
+            var jo = CreateJumpOperator(automaton, position, ref parsedPositions, int.Parse(token[1..]), false, ref errors);
+            parsedPositions[position] = true;
+            position++;
+            return jo;
         }
 
         /// <summary>
@@ -203,37 +257,83 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="position">Ссылка на текущую позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новый элемент ЛСА (возможно значение <see cref="null"/>), являющийся потомком или началом одной из двух ветвей условной вершины.</returns>
-        /// <exception cref="FormatException"></exception>
-        private static ILSAElement? ParseSubAlgorithm(Automaton automaton, ref int position, ref List<ParsingError> errors)
+        private static ILSAElement ParseSubAlgorithm(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
-            if (position >= automaton.Tokens.Count)
+            int startPos = position;
+            ILSAElement firstElement = null;
+            ILSAElement currentElement = null;
+            bool exitFlag = false;
+
+            while (position < automaton.Tokens.Count && !exitFlag)
             {
-                AddError(errors, "Неожиданный конец данных в субалгоритме", position);
+                var currentToken = automaton.Tokens[position];
+
+                // Явные выходы: ↓ или внешний Yк
+                if (currentToken.StartsWith("↓") || (currentToken == "Yк" && currentElement != null))
+                {
+                    currentElement.Next = ParseElement(automaton, ref position, ref parsedPositions, ref errors);
+                    parsedPositions[position] = true;
+                    break;
+                }
+
+                if (parsedPositions.TryGetValue(position, out var isParsed) && isParsed)
+                    break;
+
+                var element = ParseElement(automaton, ref position, ref parsedPositions, ref errors);
+                if (element == null) break;
+                parsedPositions[position - 1] = true;
+
+                // Обработка Yк как допустимого завершения субалгоритма
+                if (element is EndVertex)
+                {
+                    if (firstElement == null) firstElement = element;
+                    if (currentElement is LSABaseElement baseElement)
+                        baseElement.Next = element;
+                    exitFlag = true;
+                    continue;
+                }
+
+                // Обработка безусловного перехода
+                if (element is JumpOperator { IsUnconditional: true })
+                {
+                    if (firstElement == null) firstElement = element;
+                    if (currentElement is LSABaseElement baseElement)
+                        baseElement.Next = element;
+                    exitFlag = true;
+                    continue;
+                }
+
+                // Стандартное связывание элементов
+                if (firstElement == null)
+                {
+                    firstElement = element;
+                    currentElement = element;
+                }
+                else if (currentElement is LSABaseElement baseElement)
+                {
+                    baseElement.Next = element;
+                    currentElement = element;
+                }
+            }
+
+            // Обработка случая, когда Yк - единственный элемент
+            if (firstElement is EndVertex)
+                return firstElement;
+
+            if (firstElement == null) {
+                AddError(errors, "Субалгоритм не может быть пустым", startPos);
                 return null;
             }
 
-            var startElement = ParseElement(automaton, ref position, ref errors);
-            var current = startElement;
-
-            while (position < automaton.Tokens.Count && !new[] { ")", "|" }.Contains(automaton.Tokens[position]))
-            {
-                var next = ParseElement(automaton, ref position, ref errors);
-                if (current is LSABaseElement baseCurrent)
-                {
-                    if (baseCurrent.Next != null)
-                    {
-                        AddError(errors, $"Элемент \"{baseCurrent.Id}\" уже имеет следующий элемент", position - 1);
-                        return null;
-                    }
-                    baseCurrent.Next = next;
-                }
-                current = next;
-            }
-
-            return startElement;
+            return firstElement;
         }
+
+        #endregion
+
+
 
 
 
@@ -244,10 +344,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="pos">Текущая позицию в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная конечная вершина ЛСА.</returns>
         /// <exception cref="FormatException"></exception>
-        private static ILSAElement? HandleEndVertex(Automaton automaton, int pos, ref List<ParsingError> errors)
+        private static ILSAElement? HandleEndVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             if (automaton.Elements.OfType<EndVertex>().Any())
             {
@@ -257,6 +358,7 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
 
             var end = new EndVertex(pos);
             automaton.AddElement(end);
+            parsedPositions[pos] = true;
             return end;
         }
 
@@ -271,7 +373,7 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         {
             if (previous is LSABaseElement prevBase)
             {
-                if (prevBase.Next != null)
+                if (prevBase.Next != null && prevBase.Next != current)
                 {
                     AddError(errors, $"Ошибка связки: элемент \"{prevBase.Id}\" уже имеет следующий элемент (потомка), его позиция: {prevBase.Next.Position}", prevBase.Next.Position);
                     return;
@@ -285,13 +387,15 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="pos">Текущая позиция в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="index">Индекс этой операторной вершины.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная операторная вершина с индексом <paramref name="index"/>.</returns>
-        private static OperatorVertex CreateOperatorVertex(Automaton automaton, int pos, int index, ref List<ParsingError> errors)
+        private static OperatorVertex CreateOperatorVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, int index, ref List<ParsingError> errors)
         {
             var vertex = new OperatorVertex(index, pos);
             automaton.AddElement(vertex);
+            parsedPositions[pos] = true;
             return vertex;
         }
 
@@ -300,13 +404,15 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="pos">Текущая позиция в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="index">Индекс этой точки перехода.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная точка перехода с индексом <paramref name="index"/>.</returns>
-        private static JumpPoint CreateJumpPoint(Automaton automaton, int pos, int index, ref List<ParsingError> errors)
+        private static JumpPoint CreateJumpPoint(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, int index, ref List<ParsingError> errors)
         {
             var jp = new JumpPoint(index, pos);
             automaton.AddElement(jp);
+            parsedPositions[pos] = true;
             return jp;
         }
 
@@ -315,14 +421,16 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// </summary>
         /// <param name="automaton">Объект <see cref="Automaton"/>, содержащий заполненный список токенов.</param>
         /// <param name="pos">Текущая позиция в списке токенов для прохода по нему.</param>
+        /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="index">Индекс этоого оператора перехода.</param>
         /// <param name="isUnconditional">Определяет, является ли переход по данному оператору безусловным.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенный оператор перехода с индексом <paramref name="index"/>.</returns>
-        private static JumpOperator CreateJumpOperator(Automaton automaton, int pos, int index, bool isUnconditional, ref List<ParsingError> errors)
+        private static JumpOperator CreateJumpOperator(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, int index, bool isUnconditional, ref List<ParsingError> errors)
         {
             var jo = new JumpOperator(index, pos, isUnconditional);
             automaton.AddElement(jo);
+            parsedPositions[pos] = true;
 
             if (pos - 1 < automaton.Elements.Count() && automaton.Elements[pos - 1] is OperatorVertex ov)
                 LinkPrevious(ov, jo, ref errors);
@@ -331,7 +439,7 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
 
         #endregion
 
-        #endregion
+
 
 
 
@@ -361,9 +469,9 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
             if (startCount != 1)
                 AddError
                 (
-                    errors, 
+                    errors,
                         $"ЛСА должна содержать ровно одну \"Yн\", найдено: {startCount} на позициях: " +
-                        $"{{ " + string.Join(", ", startVertexes.Select(v => v.Position)) + $" }}", 
+                        $"{{ " + string.Join(", ", startVertexes.Select(v => v.Position)) + $" }}",
                     0
                 );
 
@@ -391,6 +499,22 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
             {
                 if (!automaton.JumpPoints.ContainsKey(jo.JumpIndex))
                     AddError(errors, $"Точка перехода \"↓{jo.JumpIndex}\" для оператора \"{jo.Id}\" не найдена", jo.Position);
+            }
+        }
+
+        /// <summary>
+        /// Проверяет, для всех ли точек перехода определены следующие элементы.
+        /// <br>Этот метод существует как костыль для парсера.</br>
+        /// </summary>
+        /// <param name="automaton">Объект <see cref="Automaton"/> для проверки.</param>
+        /// <param name="errors">Ссылка на список ошибок парсера.</param> 
+        /// <exception cref="InvalidOperationException"></exception>
+        private static void ValidateJumpPoints(Automaton automaton, ref List<ParsingError> errors)
+        {
+            foreach (var jp in automaton.Elements.OfType<JumpPoint>())
+            {
+                if (jp.Next == null)
+                    jp.Next = automaton.Elements[jp.Position + 1];
             }
         }
 
