@@ -1,24 +1,37 @@
-﻿using Syncfusion.Windows.Forms.Tools;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.ParserSystem
+namespace TOAConsole.LogicalExpressionParser
 {
+    internal interface ILEVisitor
+    {
+        void Visit(LENode node);
+    }
+
     internal abstract class LENode
     {
+        public abstract void Accept(ILEVisitor visitor);
         public abstract bool Evaluate(bool[] inputs);
         public abstract void CollectVariables(HashSet<string> variables);
-        public abstract string ToStringTree();
+        public abstract override string ToString();
 
         #region Кэширование
 
         private Expression _cachedExpression;
         protected ParameterExpression _cachedParam;
+
+        public virtual void ResetCache()
+        {
+            _cachedExpression = null;
+            _cachedParam = null;
+        }
+
         public Expression GetCachedExpression(ParameterExpression param)
         {
             if (_cachedExpression == null || !ReferenceEquals(_cachedParam, param))
@@ -28,6 +41,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             }
             return _cachedExpression;
         }
+
         protected abstract Expression BuildExpression(ParameterExpression param);
         public abstract Expression ToExpression(ParameterExpression param);
 
@@ -36,11 +50,14 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
 
 
-    internal class ConstantNode : LENode
+    internal sealed class ConstantNode : LENode
     {
         private readonly bool _value;
 
-        public ConstantNode(bool value) => _value = value;
+        public ConstantNode(bool value) 
+        {
+            _value = value; 
+        }
 
         public override bool Evaluate(bool[] _) => _value;
 
@@ -52,19 +69,32 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         protected override Expression BuildExpression(ParameterExpression _)
             => Expression.Constant(_value);
 
-        public override string ToStringTree() => _value.ToString().ToLower();
+        public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => _value.ToString().ToLower();
     }
 
 
 
-    internal class VariableNode : LENode
+    internal sealed class VariableNode : LENode
     {
-        public int Index { get; private set; }
-        public string Name { get; private set; }
+        private int _index;
+        public string Name { get; }
+
+        public int Index
+        {
+            get => _index;
+            set
+            {
+                if (_index != value)
+                {
+                    _index = value;
+                    ResetCache();
+                }
+            }
+        }
 
         public VariableNode(string name) => Name = name;
-
-        public void SetIndex(int index) => Index = index;
 
         public override bool Evaluate(bool[] inputs) => inputs[Index];
 
@@ -76,36 +106,45 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
         protected override Expression BuildExpression(ParameterExpression param)
             => Expression.ArrayAccess(param, Expression.Constant(Index));
 
-        public override string ToStringTree() => Name;
+        public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => Name;
     }
 
 
 
-    internal class UnaryNode : LENode
+    internal sealed class UnaryNode : LENode
     {
         public LENode Operand { get; private set; }
         public string Operator { get; private set; }
 
         public UnaryNode(string op, LENode operand)
         {
-            Operator = op;
-            Operand = operand;
+            Operator = op ?? throw new ArgumentNullException(nameof(op));
+            Operand = operand ?? throw new ArgumentNullException(nameof(operand));
         }
 
-        public override bool Evaluate(bool[] inputs) { 
+        public override void ResetCache()
+        {
+            base.ResetCache();
+            Operand.ResetCache();
+        }
+
+        public override bool Evaluate(bool[] inputs)
+        {
             switch (Operator)
             {
-                case "!": 
+                case "!":
                     return !Operand.Evaluate(inputs);
-                default: 
+                default:
                     throw new NotSupportedException($"Унарный оператор '{Operator}' не поддерживается!");
-            };
+            }
+            ;
         }
 
         public override void CollectVariables(HashSet<string> variables) => Operand.CollectVariables(variables);
 
-        public override Expression ToExpression(ParameterExpression param)
-            => GetCachedExpression(param);
+        public override Expression ToExpression(ParameterExpression param) => GetCachedExpression(param);
 
         protected override Expression BuildExpression(ParameterExpression param)
         {
@@ -118,12 +157,14 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             }
         }
 
-        public override string ToStringTree() => $"{Operator}({Operand.ToStringTree()})";
+        public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => $"{Operator}({Operand.ToString()})";
     }
 
 
 
-    internal class BinaryNode : LENode
+    internal sealed class BinaryNode : LENode
     {
         public LENode Left { get; private set; }
         public LENode Right { get; private set; }
@@ -131,31 +172,40 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
 
         public BinaryNode(string op, LENode left, LENode right)
         {
-            Operator = op;
-            Left = left;
-            Right = right;
+            Operator = op ?? throw new ArgumentNullException(nameof(op));
+            Left = left ?? throw new ArgumentNullException(nameof(left));
+            Right = right ?? throw new ArgumentNullException(nameof(right));
         }
 
-        public override bool Evaluate(bool[] inputs) {
+        public override void ResetCache()
+        {
+            base.ResetCache();
+            Left.ResetCache();
+            Right.ResetCache();
+        }
+
+        public override bool Evaluate(bool[] inputs)
+        {
             switch (Operator)
             {
-                case "&": 
+                case "&":
                     return Left.Evaluate(inputs) && Right.Evaluate(inputs);
-                case "|": 
+                case "|":
                     return Left.Evaluate(inputs) || Right.Evaluate(inputs);
-                case "^": 
+                case "^":
                     return Left.Evaluate(inputs) ^ Right.Evaluate(inputs);
-                case "=>": 
+                case "=>":
                     return !Left.Evaluate(inputs) || Right.Evaluate(inputs);
-                case "<=>": 
+                case "<=>":
                     return Left.Evaluate(inputs) == Right.Evaluate(inputs);
                 case "!&":
                     return !(Left.Evaluate(inputs) && Right.Evaluate(inputs));
                 case "!|":
                     return !(Left.Evaluate(inputs) || Right.Evaluate(inputs));
-                default: 
+                default:
                     throw new NotSupportedException($"Бинарный оператор '{Operator}' не поддерживается!");
-            };
+            }
+            ;
         }
 
         public override void CollectVariables(HashSet<string> variables)
@@ -163,8 +213,7 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             Left.CollectVariables(variables);
             Right.CollectVariables(variables);
         }
-        public override Expression ToExpression(ParameterExpression param)
-                => GetCachedExpression(param);
+        public override Expression ToExpression(ParameterExpression param) => GetCachedExpression(param);
 
         protected override Expression BuildExpression(ParameterExpression param)
         {
@@ -189,7 +238,8 @@ namespace TOA.TheoryOfAutomatons.Utils.UI.Controls.LogicalExpressionParser.Parse
             }
         }
 
-        public override string ToStringTree() =>
-            $"({Left.ToStringTree()} {Operator} {Right.ToStringTree()})";
+        public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
+
+        public override string ToString() => $"({Left.ToString()} {Operator} {Right.ToString()})";
     }
 }

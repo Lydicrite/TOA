@@ -20,7 +20,7 @@ namespace TOAConsole.LSA.Elements.Vertexes
         /// <summary>
         /// Логическое значение этой условной вершины
         /// </summary>
-        public bool Value { get; set; }
+        public bool? Value { get; set; }
         /// <summary>
         /// Левый потомок этой вершины.
         /// <br>Возвращается методом GetNext(), если значение <see cref="Value"/> равно <c>false</c>.</br>
@@ -39,10 +39,14 @@ namespace TOAConsole.LSA.Elements.Vertexes
             Id = $"X{index}";
         }
 
-        public override string GetLongDescription() =>
-            $"\nПройдена условная вершина {Index}: \"{Id}\"" +
-            $"\n\tЗначение условия: {(Value ? 1 : 0)}" +
-            $"\n\tПозиция в списке токенов: {Position}";
-        public override ILSAElement? GetNext(Automaton automaton) => Value ? RBS : LBS;
+        public override string GetLongDescription() {
+            string condValue = Value.HasValue ? $"{(Value.Value ? 1 : 0)}" : "не установлено";
+
+            return 
+                $"\nПройдена условная вершина {Index}: \"{Id}\"" +
+                $"\n\tЗначение условия: {condValue}" +
+                $"\n\tПозиция в списке токенов: {Position}";
+        }
+        public override ILSAElement? GetNext(Automaton automaton) => Value.HasValue ? (Value.Value ? RBS : LBS) : null;
     }
 }

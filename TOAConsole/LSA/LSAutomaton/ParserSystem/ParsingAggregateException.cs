@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOAConsole.LSA.LSAutomaton.Parser
+namespace TOAConsole.LSA.LSAutomaton.ParserSystem
 {
     internal class ParsingError
     {

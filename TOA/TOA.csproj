@@ -63,7 +63,4 @@
     <PackageReference Include="Syncfusion.Tools.Windows" Version="28.2.9" />
     <PackageReference Include="Syncfusion.XlsIO.WinForms" Version="28.2.9" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TheoryOfAutomatons\Utils\UI\Controls\DynamicCodeRunner\DynamicCodeSystem\" />
-  </ItemGroup>
 </Project>

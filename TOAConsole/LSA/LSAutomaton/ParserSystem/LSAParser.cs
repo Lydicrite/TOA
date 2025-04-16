@@ -9,7 +9,7 @@ using TOAConsole.LSA.Elements.Jumps;
 using TOAConsole.LSA.Elements.Vertexes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace TOAConsole.LSA.LSAutomaton.Parser
+namespace TOAConsole.LSA.LSAutomaton.ParserSystem
 {
     internal static class LSAParser
     {
@@ -29,7 +29,7 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
             for (int i = 0; i < tokens.Count(); i++)
                 parsedPositions.Add(i, false);
 
-            var automaton = new Automaton(tokens);
+            var automaton = new Automaton(tokens, input);
 
             try
             {
@@ -104,7 +104,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="previousElement">Ссылка на предыдущий элемент ЛСА (возможно значение <see cref="null"/>).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
-        private static void ParseElements(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref ILSAElement? previousElement, ref List<ParsingError> errors)
+        private static void ParseElements 
+        (
+            Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, 
+            ref ILSAElement? previousElement, ref List<ParsingError> errors
+        )
         {
             while (position < automaton.Tokens.Count)
             {
@@ -204,7 +208,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новая условная вершина с индексом <paramref name="index"/>.</returns>
         /// <exception cref="FormatException"></exception>
-        private static ConditionalVertex ParseConditionalVertex(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, int index, ref List<ParsingError> errors)
+        private static ConditionalVertex ParseConditionalVertex
+        (
+            Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, 
+            int index, ref List<ParsingError> errors
+        )
         {
             var vertex = new ConditionalVertex(index, position - 1);
             automaton.AddElement(vertex);
@@ -235,7 +243,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Оператор условного перехода, являющийся левым потомком Xi.</returns>
         /// </summary>
-        private static JumpOperator ParseJumpOperatorForCondition(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        private static JumpOperator ParseJumpOperatorForCondition
+        (
+            Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, 
+            ref List<ParsingError> errors
+        )
         {
             if (position >= automaton.Tokens.Count) return null;
 
@@ -391,7 +403,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// <param name="index">Индекс этой операторной вершины.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная операторная вершина с индексом <paramref name="index"/>.</returns>
-        private static OperatorVertex CreateOperatorVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, int index, ref List<ParsingError> errors)
+        private static OperatorVertex CreateOperatorVertex
+        (
+            Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, 
+            int index, ref List<ParsingError> errors
+        )
         {
             var vertex = new OperatorVertex(index, pos);
             automaton.AddElement(vertex);
@@ -426,7 +442,11 @@ namespace TOAConsole.LSA.LSAutomaton.Parser
         /// <param name="isUnconditional">Определяет, является ли переход по данному оператору безусловным.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенный оператор перехода с индексом <paramref name="index"/>.</returns>
-        private static JumpOperator CreateJumpOperator(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, int index, bool isUnconditional, ref List<ParsingError> errors)
+        private static JumpOperator CreateJumpOperator
+        (
+            Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, 
+            int index, bool isUnconditional, ref List<ParsingError> errors
+        )
         {
             var jo = new JumpOperator(index, pos, isUnconditional);
             automaton.AddElement(jo);
