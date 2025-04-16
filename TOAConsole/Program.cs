@@ -9,7 +9,7 @@ public class Program
         try
         {
             /*
-             * 
+            
             TestParser("1", "Yн X0 ↑1 Y0 w↑2 ↓1 Y1 ↓2 Yк", "1");                                                                // Корректно
             TestParser("1", "Yн X0 ( ↑1 | Y0 w↑2 ) ↓1 Y1 ↓2 Yк", "1");                                                          // Корректно
             TestParser("2", "Yн ↓1 Y0 X0 ↑1 Y1 Yк", "1");                                                                       // Корректно

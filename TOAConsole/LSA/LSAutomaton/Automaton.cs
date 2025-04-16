@@ -356,7 +356,7 @@ namespace TOAConsole.LSA.LSAutomaton
             while (inputs == string.Empty || !Regex.IsMatch(inputs, $"^[01]{{{expectedLength}}}$"))
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write($"►► Некорректный ввод. Введите строку из {{expectedLength}} '0' или '1' без пробелов: ");
+                Console.Write($"►► Некорректный ввод. Введите строку из {expectedLength} '0' или '1' без пробелов: ");
                 Console.ResetColor();
                 inputs = Console.ReadLine()?.Trim();
             }

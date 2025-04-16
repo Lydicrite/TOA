@@ -461,8 +461,6 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
                 Console.Write("\n►► Нажмите любую клавишу...\n");
                 Console.ResetColor();
                 Console.ReadKey(true);
-                ClearLastLine();
-                Console.WriteLine();
             }
         }
 

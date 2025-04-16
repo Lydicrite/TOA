@@ -36,6 +36,9 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
                 if (tokens.FirstOrDefault() != "Yн")
                     AddError(errors, "ЛСА должна начинаться с Yн", 0);
 
+                if (!tokens.Contains("Yк"))
+                    AddError(errors, "ЛСА должна содержать Yк", 0);
+
                 int position = 1;
                 var start = new StartVertex(position);
                 automaton.AddElement(start);
@@ -533,7 +536,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         {
             foreach (var jp in automaton.Elements.OfType<JumpPoint>())
             {
-                if (jp.Next == null)
+                if (jp.Next == null && automaton.Elements.Count > jp.Position + 1)
                     jp.Next = automaton.Elements[jp.Position + 1];
             }
         }
