@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Jumps
+namespace TOAConsole.LogicalAA.Elements.Jumps
 {
     /// <summary>
     /// Представляет собой точку перехода ЛСА - "↓i", где i = [0, ..., n].
     /// </summary>
-    internal class JumpPoint : LSABaseElement
+    internal class JumpPoint : LAABaseElement
     {
         /// <summary>
         /// Индекс этой точки перехода.
@@ -25,9 +25,10 @@ namespace TOAConsole.LSA.Elements.Jumps
             Id = $"↓{index}";
         }
 
-        public override string GetLongDescription() => 
+        public override string Description =>
             $"\nПройдена точка перехода {JumpIndex}: \"{Id}\"" +
             $"\n\tПозиция в списке токенов: {Position}";
-        public override ILSAElement? GetNext(Automaton automaton) => Next;
+
+        public override ILAAElement? GetNext(Automaton.Automaton automaton) => Next;
     }
 }

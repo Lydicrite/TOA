@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheoryOfAutomatons.Automaton.Common;
+using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Utils.Helpers;
 
 namespace TOA.TheoryOfAutomatons.Automaton.Common
@@ -36,15 +37,15 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Перемещается ли в текущий момент это состояние.
         /// </summary>
-        bool IsMoving { get; }
+        bool IsMoving { get; set; }
         /// <summary>
         /// Является ли состояние цикличным (все ли переходы являются самопереходами).
         /// </summary>
-        bool IsCyclic { get; }
+        bool IsCyclic { get; set; }
         /// <summary>
         /// Является ли состояние входным.
         /// </summary>
-        bool IsInput { get; }
+        bool IsInput { get; set; }
         /// <summary>
         /// Центр области состояния.
         /// </summary>
@@ -53,6 +54,22 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// Все возможные точки для начала отрисовки переходов из этого состояния.
         /// </summary>
         List<Point> TransitionStartPoints { get; }
+        /// <summary>
+        /// Самопереход состояния.
+        /// </summary>
+        IAutomatonTransition SelfTransition { get; }
+        /// <summary>
+        /// Функция переходов этого состояния.
+        /// </summary>
+        Dictionary<char, IAutomatonState> Transitions { get; }
+        /// <summary>
+        /// Функция выходов этого состояния.
+        /// </summary>
+        Dictionary<char, char> Outputs { get; }
+        /// <summary>
+        /// Выход этого состояния.
+        /// </summary>
+        char Output { get; set; }
 
         #endregion
 

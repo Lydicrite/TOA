@@ -18,16 +18,16 @@ namespace TOAConsole.LogicalExpressionParser
         private readonly Dictionary<string, string> _operatorAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             // Бинарные операторы
-            { "&", "&" }, { "AND", "&" }, { "∧", "&" },
-            { "|", "|" }, { "OR", "|" }, { "∨", "|" },
+            { "&", "&" }, { "AND", "&" }, { "˄", "&" }, { "∧", "&" },
+            { "|", "|" }, { "OR", "|" }, { "˅", "|" }, { "∨", "|" },
             { "^", "^" }, { "XOR", "^" }, { "⊕", "^" },
             { "=>", "=>" }, { "IMPLIES", "=>" }, { "→", "=>" }, { "->", "=>" },
             { "<=>", "<=>" }, { "IFF", "<=>" }, { "≡", "<=>" }, { "⇔", "<=>" },
-            { "!&", "!&" }, { "NAND", "!&" },
-            { "!|", "!|" }, { "NOR", "!|" },
+            { "!&", "!&" }, { "NAND", "!&" }, { "/", "!&" }, { "⊼", "!&" },
+            { "!|", "!|" }, { "NOR", "!|" }, {"↓", "!|"}, {"⊽", "!|"},
             
             // Унарные операторы
-            { "!", "!" }, { "NOT", "!" }, { "~", "!" }, { "¬", "!" }
+            { "!", "~" }, { "NOT", "~" }, { "~", "~" }, { "¬", "~" }
         };
         private static readonly HashSet<string> _reservedKeywords = new HashSet<string> { "true", "false" };
         private const int MaxCacheSize = 1024;
@@ -46,12 +46,12 @@ namespace TOAConsole.LogicalExpressionParser
         {
             _operatorPrecedence = new Dictionary<string, int>
             {
-                { "!", 5 }, { "&", 4 }, { "!&", 4 }, { "^", 3 }, { "|", 2 }, { "!|", 2 }, { "=>", 1 }, { "<=>", 0 }
+                { "~", 5 }, { "&", 4 }, { "!&", 4 }, { "^", 3 }, { "|", 2 }, { "!|", 2 }, { "=>", 1 }, { "<=>", 0 }
             };
 
             _unaryOperators = new Dictionary<string, Func<LENode, LENode>>
             {
-                { "!", operand => new UnaryNode("!", operand) }
+                { "~", operand => new UnaryNode("~", operand) }
             };
 
             _binaryOperators = new Dictionary<string, Func<LENode, LENode, LENode>>
@@ -284,7 +284,7 @@ namespace TOAConsole.LogicalExpressionParser
             _binaryOperators.ContainsKey(nextToken) || nextToken == ")";
 
         private bool IsValidAfterUnaryOperator(string nextToken) =>
-            nextToken == "(" || IsVariableOrConstant(nextToken);
+            nextToken == "(" || IsVariableOrConstant(nextToken) || nextToken == "~";
 
         private bool IsValidBinaryOperatorContext(string left, string right) =>
             (IsVariableOrConstant(left) || left == ")" || _unaryOperators.ContainsKey(left)) && 

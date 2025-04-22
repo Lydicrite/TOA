@@ -5,6 +5,7 @@ using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils;
 using TheoryOfAutomatons.Utils.Helpers;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.Common
 {
@@ -12,17 +13,17 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// Абстрактный класс, представляющий переход автомата.
     /// </summary>
     /// <typeparam name="TState">Тип состояния автомата.</typeparam>
-    internal abstract class AutomatonTransition<TState> where TState : class
+    internal abstract class AutomatonTransition : IAutomatonTransition
     {
         /// <summary>
         /// Состояние, из которого происходит переход.
         /// </summary>
-        public TState From { get; protected set; }
+        public IAutomatonState From { get; protected set; }
 
         /// <summary>
         /// Состояние, в которое происходит переход.
         /// </summary>
-        public TState To { get; protected set; }
+        public IAutomatonState To { get; protected set; }
 
         /// <summary>
         /// Аннотация, связанная с переходом.
@@ -34,7 +35,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="from">Начальное состояние перехода.</param>
         /// <param name="to">Конечное состояние перехода.</param>
-        protected AutomatonTransition(TState from, TState to)
+        protected AutomatonTransition(IAutomatonState from, IAutomatonState to)
         {
             From = from;
             To = to;
@@ -65,7 +66,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="to">Конечное состояние.</param>
         /// <param name="inputSymbol">Входной символ, связанный с переходом.</param>
         /// <returns>Созданный переход.</returns>
-        public static AutomatonTransition<TState> CreateTransition(TState from, TState to, char inputSymbol)
+        public static AutomatonTransition CreateTransition(IAutomatonState from, IAutomatonState to, char inputSymbol)
         {
             if (from == to)
             {
@@ -84,15 +85,15 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="to">Конечное состояние.</param>
         /// <param name="inputSymbol">Входной символ.</param>
         /// <returns>Созданный переход между состояниями.</returns>
-        protected static AutomatonTransition<TState> CreateFromToTransition(TState from, TState to, char inputSymbol)
+        protected static AutomatonTransition CreateFromToTransition(IAutomatonState from, IAutomatonState to, char inputSymbol)
         {
             if (typeof(TState) == typeof(MealyAutomatonState))
             {
-                return new MealyFromToTransition(from as MealyAutomatonState, to as MealyAutomatonState, inputSymbol) as AutomatonTransition<TState>;
+                return new MealyFromToTransition(from as MealyAutomatonState, to as MealyAutomatonState, inputSymbol) as AutomatonTransition;
             }
             else if (typeof(TState) == typeof(MooreAutomatonState))
             {
-                return new MooreFromToTransition(from as MooreAutomatonState, to as MooreAutomatonState, inputSymbol) as AutomatonTransition<TState>;
+                return new MooreFromToTransition(from as MooreAutomatonState, to as MooreAutomatonState, inputSymbol) as AutomatonTransition;
             }
             else
             {
@@ -105,15 +106,15 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="state">Состояние, для которого нужно создать самопереход.</param>
         /// <returns>Созданный самопереход.</returns>
-        protected static AutomatonTransition<TState> CreateSelfTransition(TState state)
+        protected static AutomatonTransition CreateSelfTransition(IAutomatonState state)
         {
             if (typeof(TState) == typeof(MealyAutomatonState))
             {
-                return new MealySelfTransition(state as MealyAutomatonState) as AutomatonTransition<TState>;
+                return new MealySelfTransition(state as MealyAutomatonState) as AutomatonTransition;
             }
             else if (typeof(TState) == typeof(MooreAutomatonState))
             {
-                return new MooreSelfTransition(state as MooreAutomatonState) as AutomatonTransition<TState>;
+                return new MooreSelfTransition(state as MooreAutomatonState) as AutomatonTransition;
             }
             else
             {
@@ -161,8 +162,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="getTransitionStartPoints">Функция, которая возвращает список начальных точек перехода для указанного состояния.</param>
         /// <exception cref="ArgumentNullException">Выбрасывается, если передан null переход.</exception>
         /// <exception cref="InvalidOperationException">Выбрасывается, если не были инициализированы начальные или конечные точки перехода.</exception>
-        public static void DetermineStartAndEnd<TState>(AutomatonTransition<TState> transition, bool[,] map, Func<TState, List<Point>> getTransitionStartPoints)
-            where TState : class
+        public static void DetermineStartAndEnd(AutomatonTransition transition, bool[,] map, Func<IAutomatonState, List<Point>> getTransitionStartPoints) 
         {
             if (transition == null)
                 throw new ArgumentNullException(nameof(transition));
@@ -290,7 +290,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="start">Начальная точка.</param>
         /// <param name="end">Конечная точка.</param>
         /// <exception cref="NotSupportedException">Выбрасывается, если тип перехода не поддерживается.</exception>
-        public static void SetStartAndEnd<TState>(this AutomatonTransition<TState> transition, Point start, Point end) where TState : class
+        public static void SetStartAndEnd(this AutomatonTransition transition, Point start, Point end)
         {
             if (transition is MealyFromToTransition fromToMealy)
             {

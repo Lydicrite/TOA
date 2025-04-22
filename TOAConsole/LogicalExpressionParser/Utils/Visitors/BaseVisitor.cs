@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOAConsole.LogicalExpressionParser.Utils
+namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
 {
     internal abstract class BaseVisitor : ILEVisitor
     {

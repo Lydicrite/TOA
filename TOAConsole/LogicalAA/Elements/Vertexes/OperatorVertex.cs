@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Vertexes
+namespace TOAConsole.LogicalAA.Elements.Vertexes
 {
     /// <summary>
     /// Представляет собой операторную вершину ЛСА - "Yi", где i = [0, ..., n].
     /// </summary>
-    internal class OperatorVertex : LSABaseElement
+    internal class OperatorVertex : LAABaseElement
     {
         /// <summary>
         /// Индекс этой операторной вершины.
@@ -25,9 +25,10 @@ namespace TOAConsole.LSA.Elements.Vertexes
             Id = $"Y{index}";
         }
 
-        public override string GetLongDescription() => 
+        public override string Description =>
             $"\nПройдена операторная вершина {Index}: \"{Id}\"" +
             $"\nПозиция в списке токенов: {Position}";
-        public override ILSAElement? GetNext(Automaton automaton) => Next;
+
+        public override ILAAElement? GetNext(Automaton.Automaton automaton) => Next;
     }
 }

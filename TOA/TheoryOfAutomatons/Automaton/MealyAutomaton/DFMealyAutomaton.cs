@@ -13,10 +13,11 @@ using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Utils.UI.Controls;
 using TOA.TheoryOfAutomatons.Automaton;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 {
-    internal class DFMealyAutomaton : DFAutomaton<MealyAutomatonState>
+    internal class DFMealyAutomaton : DFAutomaton
     {
         public override AutomatonType Type => AutomatonType.Mealy;
         private Dictionary<Tuple<char, MealyAutomatonState>, char> outputFunction;
@@ -122,7 +123,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 
         #region Визуализация
 
-        public override void DeleteState(MealyAutomatonState state)
+        public override void DeleteState(IAutomatonState state)
         {
             StatesAlphabet.Remove(state);
 
@@ -169,7 +170,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 
             DrawHelper.SetGraphicsParameters(g);
 
-            AutomatonTransition<MealyAutomatonState> tr = null;
+            IAutomatonTransition tr = null;
             if (CurrentOutputSymbol != '\0')
             {
                 tr = Transitions.Find(t => t.From == CurrentState && t.To == TransitionFunction[Tuple.Create(CurrentInputSymbol, CurrentState)]);
@@ -310,7 +311,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 state.IsCyclic = (bool)stateData.IsCyclic;
                 state.IsInput = (bool)stateData.IsInput;
                 state.Outputs = new Dictionary<char, char>(this.InputAlphabet.Count);
-                state.Transitions = new Dictionary<char, MealyAutomatonState>(this.InputAlphabet.Count());
+                state.Transitions = new Dictionary<char, IAutomatonState>(this.InputAlphabet.Count());
 
                 this.AddState(state);
             }
@@ -325,7 +326,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 {
                     char inputChar = (char)kvp.Name[0];
                     int index = (int)(kvp.Value);
-                    MealyAutomatonState aS = this.StatesAlphabet.Find(s => s.Index == index);
+                    MealyAutomatonState aS = this.StatesAlphabet.Find(s => s.Index == index) as MealyAutomatonState;
                     this.StatesAlphabet[i].AddTransition(inputChar, aS);
                 }
 

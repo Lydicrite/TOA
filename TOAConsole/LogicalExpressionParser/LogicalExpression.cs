@@ -7,16 +7,51 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TOAConsole.LogicalExpressionParser.Utils;
+using TOAConsole.LogicalExpressionParser.Utils.Visitors;
 
 namespace TOAConsole.LogicalExpressionParser
 {
     internal class LogicalExpression
     {
+        private int? _cachedHashCode;
         private LENode _root;
         private ImmutableArray<string> _variables = ImmutableArray<string>.Empty;
         private Dictionary<string, int> _variableIndices;
         private Func<bool[], bool> _compiledDelegate;
         private bool _isDirty = true;
+
+        public IEnumerable<string> GetVariables() => _variables.AsEnumerable();
+        public IReadOnlyList<string> Variables { get { return _variables.AsReadOnly(); } }
+        public bool[][] BooleanValues
+        {
+            get
+            {
+                var variables = _variables.ToArray();
+                int varCount = variables.Length;
+                if (varCount == 0)
+                    throw new InvalidOperationException("Нет переменных для генерации таблицы истинности.");
+
+                int combinations = 1 << varCount;
+                bool[][] table = new bool[combinations][];
+
+                for (int i = 0; i < combinations; i++)
+                {
+                    bool[] inputs = new bool[varCount];
+                    for (int j = 0; j < varCount; j++)
+                    {
+                        inputs[j] = (i & (1 << (varCount - 1 - j))) != 0;
+                    }
+
+                    bool result = Evaluate(inputs);
+                    bool[] row = new bool[varCount + 1];
+                    Array.Copy(inputs, row, varCount);
+                    row[varCount] = result;
+                    table[i] = row;
+                }
+
+                return table;
+            }
+        }
 
         public LogicalExpression(LENode root)
         {
@@ -41,6 +76,146 @@ namespace TOAConsole.LogicalExpressionParser
             ResetCache();
             UpdateVariableInfo();
         }
+
+
+
+
+
+        #region Нормализация
+
+        public LogicalExpression Expand()
+        {
+            var simplifier = new NormalizerVisitor();
+            var expander = new ExpanderVisitor();
+
+            LENode currentRoot = _root;
+            LENode previousRoot;
+
+            // Сначала нормализуем
+            do
+            {
+                previousRoot = currentRoot;
+                currentRoot = simplifier.Normalize(previousRoot);
+            } while (!currentRoot.Equals(previousRoot));
+
+            // Затем раскрываем скобки
+            do
+            {
+                previousRoot = currentRoot;
+                currentRoot = expander.Expand(currentRoot);
+                currentRoot = simplifier.Normalize(currentRoot); // Упрощаем промежуточные результаты
+            } while (!currentRoot.Equals(previousRoot));
+
+            return new LogicalExpression(currentRoot)
+            {
+                _variables = this._variables,
+                _variableIndices = new Dictionary<string, int>(this._variableIndices)
+            };
+        }
+
+        public LogicalExpression Normalize()
+        {
+            var simplifier = new NormalizerVisitor();
+            LENode currentRoot = _root;
+            LENode previousRoot;
+            do
+            {
+                previousRoot = currentRoot;
+                currentRoot = simplifier.Normalize(previousRoot);
+            } while (!currentRoot.Equals(previousRoot));
+
+            var newExpr = new LogicalExpression(currentRoot)
+            {
+                _variables = this._variables,
+                _variableIndices = new Dictionary<string, int>(this._variableIndices)
+            };
+            newExpr.UpdateVariableInfo();
+            return newExpr;
+        }
+
+        #endregion
+
+
+
+
+
+        public override string ToString() => _root.ToString();
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            if (obj is not LogicalExpression other)
+                return false;
+
+            try
+            {
+                // Получаем объединённый список переменных
+                var thisVariables = _variables.OrderBy(v => v).ToArray();
+                var otherVariables = other._variables.OrderBy(v => v).ToArray();
+                var allVariables = thisVariables.Union(otherVariables).OrderBy(v => v).ToArray();
+
+                int varCount = allVariables.Length;
+                int totalCombinations = (int)Math.Pow(2, varCount);
+
+                for (int i = 0; i < totalCombinations; i++)
+                {
+                    // Создаём словарь значений для текущей комбинации
+                    var values = new Dictionary<string, bool>();
+                    for (int j = 0; j < varCount; j++)
+                    {
+                        bool value = (i & (1 << (varCount - 1 - j))) != 0;
+                        values[allVariables[j]] = value;
+                    }
+
+                    // Готовим входные данные для текущего выражения
+                    bool[] thisInputs = thisVariables.Any()
+                        ? thisVariables.Select(v => values[v]).ToArray()
+                        : Array.Empty<bool>();
+                    bool thisResult = this.Evaluate(thisInputs);
+
+                    // Готовим входные данные для другого выражения
+                    bool[] otherInputs = otherVariables.Any()
+                        ? otherVariables.Select(v => values[v]).ToArray()
+                        : Array.Empty<bool>();
+                    bool otherResult = other.Evaluate(otherInputs);
+
+                    if (thisResult != otherResult)
+                        return false;
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public override int GetHashCode()
+        {
+            if (_cachedHashCode.HasValue)
+                return _cachedHashCode.Value;
+
+            try
+            {
+                int hash = 0;
+                foreach (var row in BooleanValues)
+                {
+                    foreach (var value in row)
+                    {
+                        hash = hash * 31 + value.GetHashCode();
+                    }
+                }
+                _cachedHashCode = hash;
+                return hash;
+            }
+            catch
+            {
+                return base.GetHashCode();
+            }
+        }
+
+
 
         private void ResetCache()
         {
@@ -78,15 +253,12 @@ namespace TOAConsole.LogicalExpressionParser
             visitor.Visit(_root);
         }
 
-        public override string ToString() => _root.ToString();
-
         private void ValidateInputs(bool[] inputs)
         {
             if (inputs.Length != _variables.Count())
                 throw new ArgumentException($"Ожидалось {_variables.Count()} переменных: {string.Join(", ", _variables)}" +
                                                              $"\nПолучено {inputs.Length}: {string.Join(", ", inputs)}");
         }
-
 
 
 

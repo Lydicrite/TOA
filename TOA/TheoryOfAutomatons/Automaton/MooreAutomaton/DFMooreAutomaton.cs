@@ -12,10 +12,11 @@ using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
 using TheoryOfAutomatons.Utils.UI.Controls;
 using TOA.TheoryOfAutomatons.Automaton;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 {
-    internal class DFMooreAutomaton : DFAutomaton<MooreAutomatonState>
+    internal class DFMooreAutomaton : DFAutomaton
     {
         public override AutomatonType Type => AutomatonType.Moore;
         private Dictionary<MooreAutomatonState, char> outputFunction;
@@ -121,7 +122,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 
         #region Визуализация
 
-        public override void DeleteState(MooreAutomatonState state)
+        public override void DeleteState(IAutomatonState state)
         {
             StatesAlphabet.Remove(state);
 
@@ -167,7 +168,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 
             DrawHelper.SetGraphicsParameters(g);
 
-            AutomatonTransition<MooreAutomatonState> tr = null;
+            IAutomatonTransition tr = null;
             if (CurrentInputSymbol != '\0')
             {
                 tr = Transitions.Find(t => t.From == CurrentState && t.To == TransitionFunction[Tuple.Create(CurrentInputSymbol, CurrentState)]);
@@ -315,7 +316,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 state.IsCyclic = (bool)stateData.IsCyclic;
                 state.IsInput = (bool)stateData.IsInput;
                 state.Output = (char)stateData.Output;
-                state.Transitions = new Dictionary<char, MooreAutomatonState>(this.InputAlphabet.Count());
+                state.Transitions = new Dictionary<char, IAutomatonState>(this.InputAlphabet.Count());
 
                 this.AddState(state);
             }
@@ -330,7 +331,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 {
                     char inputChar = (char)kvp.Name[0];
                     int index = (int)(kvp.Value);
-                    MooreAutomatonState aS = this.StatesAlphabet.Find(s => s.Index == index);
+                    MooreAutomatonState aS = this.StatesAlphabet.Find(s => s.Index == index) as MooreAutomatonState;
                     this.StatesAlphabet[i].AddTransition(inputChar, aS);
                 }
 

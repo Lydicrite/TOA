@@ -5,17 +5,21 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.Elements.Jumps;
-using TOAConsole.LSA.Elements.Vertexes;
+using TOAConsole.LogicalAA.Automaton.Utils.MAS;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Elements.Jumps;
+using TOAConsole.LogicalAA.Elements.Vertexes;
 
-namespace TOAConsole.LSA.LSAutomaton
+namespace TOAConsole.LogicalAA.Automaton
 {
     /// <summary>
     /// Представляет собой класс автомата, работающего по принципу ЛСА (логической схемы алгоритма).
     /// </summary>
     internal class Automaton
     {
+        /// <summary>
+        /// Логическая схема, описывающая этот автомат.
+        /// </summary>
         public string LogicalScheme { get; private set; } = string.Empty;
         /// <summary>
         /// Список токенов автомата.
@@ -25,15 +29,33 @@ namespace TOAConsole.LSA.LSAutomaton
         /// <summary>
         /// Словарь, содержащий точки переходов с ключом по их <see cref="JumpPoint.JumpIndex"/>.
         /// </summary>
-        public Dictionary<int, ILSAElement> JumpPoints { get; private set; } = new();
+        public Dictionary<int, ILAAElement> JumpPoints { get; private set; } = new();
         /// <summary>
         /// Список, содержащий все элементы ЛСА.
         /// </summary>
-        public List<ILSAElement> Elements { get; private set; } = new();
+        public List<ILAAElement> Elements { get; private set; } = new();
         /// <summary>
         /// Текущий "активный" элемент автомата.
         /// </summary>
-        public ILSAElement? CurrentElement { get; private set; }
+        public ILAAElement? CurrentElement { get; private set; }
+        /// <summary>
+        /// Матричная схема, описывающая этот автомат.
+        /// </summary>
+        public MatrixSchema MatrixSchema 
+        {
+            get 
+            {
+                if (Elements.Count == 0 || LogicalScheme == string.Empty)
+                    throw new NotImplementedException("Автомат не имеет заданной структуры");
+
+                ResetConditions();
+                return MASBuilder.GenerateMAS(this);
+            }
+            set 
+            {
+                MatrixSchema = value;
+            }
+        }
 
         public Automaton(List<string> tokens, string logicalScheme)
         {
@@ -51,7 +73,7 @@ namespace TOAConsole.LSA.LSAutomaton
         /// Добавляет новый элемент в список элементов автомата.
         /// </summary>
         /// <param name="element">Элемент для добавления.</param>
-        public void AddElement(ILSAElement element)
+        public void AddElement(ILAAElement element)
         {
             Elements.Add(element);
             if (element is JumpPoint jp)
@@ -77,6 +99,9 @@ namespace TOAConsole.LSA.LSAutomaton
         public void SetConditionsFromBinary(string binaryValues)
         {
             var conditionalVertices = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
+
+            if (binaryValues == "[любой исход]" || (binaryValues == string.Empty && conditionalVertices.Count() == 0))
+                return;
 
             if (!Regex.IsMatch(binaryValues, @"^[01]+$"))
                 throw new ArgumentException("Строка должна содержать только 0 и 1");
@@ -138,12 +163,12 @@ namespace TOAConsole.LSA.LSAutomaton
         {
             var outputs = new List<string?>();
             CurrentElement = Elements.OfType<StartVertex>().FirstOrDefault();
-            var visited = new HashSet<ILSAElement>();
+            var visited = new HashSet<ILAAElement>();
 
             while (CurrentElement != null && CurrentElement is not EndVertex)
             {
                 if (verbose)
-                    outputs.Add(CurrentElement.GetLongDescription());
+                    outputs.Add(CurrentElement.Description);
                 else
                     outputs.Add(CurrentElement.Id);
 
@@ -161,7 +186,7 @@ namespace TOAConsole.LSA.LSAutomaton
             if (CurrentElement is EndVertex)
             {
                 if (verbose)
-                    outputs.Add(CurrentElement.GetLongDescription());
+                    outputs.Add(CurrentElement.Description);
                 else
                     outputs.Add(CurrentElement.Id);
             }
@@ -191,8 +216,12 @@ namespace TOAConsole.LSA.LSAutomaton
         /// <returns>Словарь, содержащий словарь с ключом в виде значений условных вершин и значениями в виде описания циклов.</returns>
         public Dictionary<string, Dictionary<string, List<string>>> FindAllPossibleLoops()
         {
+            ResetConditions();
             var allCycles = new Dictionary<string, Dictionary<string, List<string>>>();
             var conditionals = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
+            if (conditionals.Count() == 0)
+                return allCycles;
+
             int n = conditionals.Count;
 
             for (int i = 0; i < Math.Pow(2, n); i++)
@@ -201,6 +230,7 @@ namespace TOAConsole.LSA.LSAutomaton
                 var cycles = DetectLoopsForConditions(binary);
                 if (cycles.Count > 0)
                     allCycles[binary] = cycles;
+                ResetConditions();
             }
 
             return allCycles;
@@ -272,14 +302,14 @@ namespace TOAConsole.LSA.LSAutomaton
             Console.ResetColor();
 
             CurrentElement = Elements.OfType<StartVertex>().FirstOrDefault();
-            var visited = new HashSet<ILSAElement>();
+            var visited = new HashSet<ILAAElement>();
             var inputs = string.Empty;
 
             while (CurrentElement != null && CurrentElement is not EndVertex)
             {
                 if (CurrentElement is ConditionalVertex cv && !cv.Value.HasValue)
                 {
-                    Console.Write(CurrentElement.GetLongDescription() + "\n");
+                    Console.Write(CurrentElement.Description + "\n");
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.Write($"\n►► Введите логическое значение для \"{cv.Id}\" ('0' или '1'): ");
                     Console.ResetColor();
@@ -299,7 +329,7 @@ namespace TOAConsole.LSA.LSAutomaton
                 }
                 else
                 {
-                    Console.Write(CurrentElement.GetLongDescription() + "\n");
+                    Console.Write(CurrentElement.Description + "\n");
                 }
 
                 if (visited.Contains(CurrentElement))
@@ -313,11 +343,12 @@ namespace TOAConsole.LSA.LSAutomaton
             }
 
             if (CurrentElement is EndVertex)
-                Console.Write(CurrentElement.GetLongDescription() + "\n");
+                Console.Write(CurrentElement.Description + "\n");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M1 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
+            ResetConditions();
         }
 
         /// <summary>
@@ -346,7 +377,7 @@ namespace TOAConsole.LSA.LSAutomaton
             CurrentElement = Elements.OfType<StartVertex>().FirstOrDefault();
             var conditionalVertices = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
             int expectedLength = conditionalVertices.Count;
-            var visited = new HashSet<ILSAElement>();
+            var visited = new HashSet<ILAAElement>();
             var inputs = string.Empty;
 
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -373,7 +404,7 @@ namespace TOAConsole.LSA.LSAutomaton
             Console.ResetColor();
             while (CurrentElement != null && CurrentElement is not EndVertex)
             {
-                Console.Write(CurrentElement.GetLongDescription() + "\n");
+                Console.Write(CurrentElement.Description + "\n");
 
                 if (visited.Contains(CurrentElement))
                 {
@@ -386,13 +417,18 @@ namespace TOAConsole.LSA.LSAutomaton
             }
 
             if (CurrentElement is EndVertex)
-                Console.Write(CurrentElement.GetLongDescription() + "\n");
+                Console.Write(CurrentElement.Description + "\n");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M2 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
+            ResetConditions();
         }
 
+        /// <summary>
+        /// Запускает третий режим взаимодействия пользователя с автоматом.
+        /// <br>Автомат выводит краткие результаты моделирования работы для всех комбинаций логических условий.</br>
+        /// </summary>
         public void RunToGetAllResults()
         {
             ResetConditions();
@@ -412,6 +448,7 @@ namespace TOAConsole.LSA.LSAutomaton
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M3 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
+            ResetConditions();
         }
 
         #endregion
@@ -433,6 +470,11 @@ namespace TOAConsole.LSA.LSAutomaton
             return $"\n► Токены ЛСА: [{Tokens.Count}] {{ {string.Join(" ", Tokens)} }} ◄\n";
         }
 
+        /// <summary>
+        /// Передаёт форматированную строку, содержащую циклы для конкретной комбинации условий.
+        /// </summary>
+        /// <param name="binaryValues">Строка, состоящая из n символов '0' и '1', где n равно количеству условных вершин в автомате.</param>
+        /// <returns>Строка, содержащая циклы для конкретной комбинации условий.</returns>
         public string GetLoopsForConditions(string binaryValues)
         {
             var allLoops = DetectLoopsForConditions(binaryValues);
@@ -453,6 +495,9 @@ namespace TOAConsole.LSA.LSAutomaton
         /// <returns>Строка, содержащая отформатированную информацию о циклах.</returns>
         public string GetAllLoops()
         {
+            if (Elements.OfType<ConditionalVertex>().Count() == 0)
+                return $"\n► Циклов не может быть, так как нет условных вершин ◄\n";
+
             var allLoops = FindAllPossibleLoops();
             var loopsDescr = $"\n► Найденные циклы: [{allLoops.Count}] \n{{";
 
@@ -491,35 +536,53 @@ namespace TOAConsole.LSA.LSAutomaton
         /// <returns>Словарь, созданный по описанным правилам.</returns>
         public Dictionary<string, string> GenerateResultsDictionary()
         {
+            ResetConditions();
             var conditionals = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
             int n = conditionals.Count;
             var table = new Dictionary<string, string>();
-
+            
             for (int i = 0; i < Math.Pow(2, n); i++)
             {
-                string binary = Convert.ToString(i, 2).PadLeft(n, '0');
-                SetConditionsFromBinary(binary);
+                string binary = (conditionals.Count() != 0) ? Convert.ToString(i, 2).PadLeft(n, '0') : "[любой исход]";
+                if (conditionals.Count() != 0)
+                    SetConditionsFromBinary(binary);
                 var runOut = Run(verbose: false);
                 var path = runOut.Select(s => ExtractId(s)).ToList();
                 table[binary] = string.Join(" → ", path);
+                ResetConditions();
             }
 
             return table;
         }
 
+        /// <summary>
+        /// Возвращает форматированную строку, содержащую МСА этого автомата.
+        /// </summary>
+        /// <returns></returns>
+        public string GetMatrixSchema()
+        {
+            return $"\n► МСА этого автомата:\n{MatrixSchema.ToString()}◄\n";
+        }
+
+        /// <summary>
+        /// Печатает в консоль всю необходимую информацию об алгоритме.
+        /// </summary>
         public void PrintAlgorithmInfo()
         {
+            ResetConditions();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"\n\n\n►► Дополнительная информация об алгоритме \"{LogicalScheme}\" ◄◄\n");
+            Console.Write($"\n\n\n►► Информация об алгоритме \"{LogicalScheme}\" ◄◄\n");
             Console.ResetColor();
 
             Console.WriteLine($"{GetTokens()}");
             Console.WriteLine($"{GetAllLoops()}");
             Console.WriteLine($"{GetResults()}");
+            Console.WriteLine($"{GetMatrixSchema()}");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"►► Вывод дополнительной информации об алгоритме \"{LogicalScheme}\" завершён ◄◄\n");
+            Console.Write($"►► Вывод информации об алгоритме \"{LogicalScheme}\" завершён ◄◄\n");
             Console.ResetColor();
+            ResetConditions();
         }
 
         #endregion

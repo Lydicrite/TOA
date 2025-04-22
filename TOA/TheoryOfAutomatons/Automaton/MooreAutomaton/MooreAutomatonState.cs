@@ -12,18 +12,9 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
     /// <summary>
     /// Реализует наследуемый класс состояния Автомата Мура.
     /// </summary>
-    internal class MooreAutomatonState : AutomatonState<MooreSelfTransition>
+    internal class MooreAutomatonState : AutomatonState
     {
         public override AutomatonType Type => AutomatonType.Moore;
-
-        /// <summary>
-        /// Выход этого состояния.
-        /// </summary>
-        public char Output { get; set; }
-        /// <summary>
-        /// Функция переходов этого состояния.
-        /// </summary>
-        public Dictionary<char, MooreAutomatonState> Transitions { get; set; }
 
         /// <summary>
         /// Представляет состояние Автомата Мура.
@@ -36,7 +27,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
             : base(automaton, index, userDefinedText, initialPosition)
         {
             Output = '\0';
-            Transitions = new Dictionary<char, MooreAutomatonState>(automaton.InputAlphabet.Count);
+            Transitions = new Dictionary<char, IAutomatonState>(automaton.InputAlphabet.Count);
             SelfTransition = new MooreSelfTransition(this);
             automaton.Transitions.Add(SelfTransition);
         }
@@ -151,7 +142,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
             Automaton.TransitionFunction.Add(Tuple.Create(input, this), mooreState);
 
             if (state != this)
-                Automaton.Transitions.Add(AutomatonTransition<MooreAutomatonState>.CreateTransition(this, mooreState, input));
+                Automaton.Transitions.Add(AutomatonTransition.CreateTransition(this, mooreState, input));
             else
             {
                 Automaton.Transitions.Remove(SelfTransition);

@@ -24,8 +24,7 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// Реализует абстрактный класс Конечного Автомата, содержащий общие поля, члены, методы и функции.
     /// </summary>
     /// <typeparam name="TState">Тип состояния Автомата</typeparam>
-    internal abstract class DFAutomaton<TState> : IDFAutomaton
-        where TState : class
+    internal abstract class DFAutomaton : IDFAutomaton
     {
         #region Параметры для работы
 
@@ -44,12 +43,12 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Алфавит состояний АА.
         /// </summary>
-        public List<TState> StatesAlphabet { get; protected set; }
+        public List<IAutomatonState> StatesAlphabet { get; protected set; }
         /// <summary>
         /// Функция переходов АА (фактически - инструкция для функции переходов)<br/>
         /// Ставит в соответствие паре (вход, состояние) соответствующее новое состояние из <see cref="StatesAlphabet"/>.
         /// </summary>
-        public Dictionary<Tuple<char, TState>, TState> TransitionFunction { get; protected set; }
+        public Dictionary<Tuple<char, IAutomatonState>, IAutomatonState> TransitionFunction { get; protected set; }
         /// <summary>
         /// Функция выходов АА (фактически - инструкция для функции выходов). <br/>
         /// Ставит в соответствие паре (текущий вход, текущее состояние) соответствующее выходное значение из <see cref="OutputAlphabet"/>.
@@ -66,10 +65,10 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Текущее состояние АА.
         /// </summary>
-        protected TState CurrentState;
+        protected IAutomatonState CurrentState;
 
         #endregion
-
+        
 
 
         #region Параметры для графического отображения АА
@@ -102,7 +101,7 @@ namespace TheoryOfAutomatons.Automaton.Common
 
 
 
-        #region Для отрисовки состояний
+        #region Отрисовка состояний
 
         /// <summary>
         /// Карандаш для отрисовки переходов в неактивном состоянии.
@@ -127,11 +126,11 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Состояние АА, над которым находится курсор.
         /// </summary>
-        protected TState HoveredState;
+        protected IAutomatonState HoveredState;
         /// <summary>
         /// Состояние АА, которое в данный момент находится в режиме перемещения.
         /// </summary>
-        protected TState StateBeingMoved;
+        protected IAutomatonState StateBeingMoved;
 
         #endregion
 
@@ -142,7 +141,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Список, использующийся для отрисовки переходов между состояниями АА.
         /// </summary>
-        public List<AutomatonTransition<TState>> Transitions;
+        public List<IAutomatonTransition> Transitions { get; protected set; }
         /// <summary>
         /// Булева карта для верного размещения состояний АА.
         /// </summary>
@@ -233,7 +232,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Включает или отключает режим разработчика.
         /// </summary>
         public bool DeveloperMode { get; protected set; } = false;
-
+        
         #endregion
 
         #endregion
@@ -247,11 +246,6 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="aC"><see cref="AutomatonCreator"/> для управления АА.</param>
         protected DFAutomaton(PictureBox container, AutomatonCreator aC)
         {
-            // Проверка на допустимые классы для состояния Автомата
-            if (!(typeof(TState) == typeof(MealyAutomatonState) || typeof(TState) == typeof(MooreAutomatonState)))
-                throw new NotSupportedException("Неподдерживаемый тип состояния Автомата.");
-
-
             TransitionBlackPen = CreatePen(Brushes.Black, TransitionBlackPenWidth);
             TransitionLightPen = CreatePen(Brushes.LimeGreen, TransitionLightPenWidth);
 
@@ -260,9 +254,9 @@ namespace TheoryOfAutomatons.Automaton.Common
 
             InputAlphabet = new List<char>();
             OutputAlphabet = new List<char>();
-            StatesAlphabet = new List<TState>();
-            TransitionFunction = new Dictionary<Tuple<char, TState>, TState>();
-            Transitions = new List<AutomatonTransition<TState>>();
+            StatesAlphabet = new List<IAutomatonState>();
+            TransitionFunction = new Dictionary<Tuple<char, IAutomatonState>, IAutomatonState>();
+            Transitions = new List<IAutomatonTransition>();
             // OutputFunction реализуется отдельно для каждого типа автомата
 
             Container.CreateGraphics();
@@ -548,7 +542,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="state">Состояние для проверки.</param>
         /// <returns></returns>
-        private bool HasAllTransitions(TState state)
+        private bool HasAllTransitions(IAutomatonState state)
         {
             if (((dynamic)state).Transitions.Count != InputAlphabet.Count)
             {
@@ -576,7 +570,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Добавляет новое состояние.
         /// </summary>
         /// <param name="state">Новое состояние.</param>
-        public void AddState(TState state)
+        public void AddState(IAutomatonState state)
         {
             StatesAlphabet.Add(state);
 
@@ -593,7 +587,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// Удаляет состояние.
         /// </summary>
         /// <param name="state">Состояние для удаления.</param>
-        public abstract void DeleteState(TState state);
+        public abstract void DeleteState(IAutomatonState state);
 
         #region Отрисовка путей
 
@@ -983,7 +977,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="state">Состояние Автомата, для которого нужно сформировать описание.</param>
         /// <returns></returns>
-        private string GetStateIODescription(TState state)
+        private string GetStateIODescription(IAutomatonState state)
         {
             string result = string.Empty;
 

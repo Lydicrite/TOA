@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.Elements.Jumps;
-using TOAConsole.LSA.Elements.Vertexes;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Elements.Jumps;
+using TOAConsole.LogicalAA.Elements.Vertexes;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace TOAConsole.LSA.LSAutomaton.ParserSystem
+namespace TOAConsole.LogicalAA.Automaton.ParserSystem
 {
-    internal static class LSAParser
+    internal static class LASParser
     {
         /// <summary>
         /// Преобразует входную строку <paramref name="input"/> в объект <see cref="Automaton"/>.
@@ -42,7 +42,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
                 int position = 1;
                 var start = new StartVertex(position);
                 automaton.AddElement(start);
-                ILSAElement? previousElement = start;
+                ILAAElement? previousElement = start;
 
                 ParseElements(automaton, ref position, ref parsedPositions, ref previousElement, ref errors);
 
@@ -63,6 +63,11 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
 
         #region Предподготовка
 
+        /// <summary>
+        /// Выполняет подготовку строки к парсингу, нормализуя регистр и удаляя те символы, что не отвечают за создание элементов автомата.
+        /// </summary>
+        /// <param name="input">Строка, содержащая ЛСА.</param>
+        /// <returns>Строка, содержащая ЛСА, отредактированная нужным образом.</returns>
         private static string PreprocessInput(string input)
         {
             // Удаляем скобки и сепараторы
@@ -77,6 +82,12 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
             return Regex.Replace(input, @"\s+", " ").Trim();
         }
 
+        /// <summary>
+        /// Выполняет токенизацию для строки с ЛСА.
+        /// </summary>
+        /// <param name="input">Строка, содержащая ЛСА, отредактированная нужным образом.</param>
+        /// <param name="errors">Ссылка на список ошибок парсера.</param>
+        /// <returns>Список токенов ЛСА, используемых для создания элементов автомата.</returns>
         private static List<string> Tokenize(string input, ref List<ParsingError> errors)
         {
             var tokenPattern = @"(Yн|Yк|w↑\d+|↑\d+|↓\d+|X\d+|Y\d+)";
@@ -110,7 +121,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         private static void ParseElements 
         (
             Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, 
-            ref ILSAElement? previousElement, ref List<ParsingError> errors
+            ref ILAAElement? previousElement, ref List<ParsingError> errors
         )
         {
             while (position < automaton.Tokens.Count)
@@ -153,7 +164,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новый элемент ЛСА (возможно значение <see cref="null"/>).</returns>
         /// <exception cref="FormatException"></exception>
-        private static ILSAElement? ParseElement(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        private static ILAAElement? ParseElement(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             if (position >= automaton.Tokens.Count) return null;
 
@@ -275,11 +286,11 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         /// <param name="parsedPositions">Словарь, определяющий состояние элементов на позициях (пропарсены или нет).</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Новый элемент ЛСА (возможно значение <see cref="null"/>), являющийся потомком или началом одной из двух ветвей условной вершины.</returns>
-        private static ILSAElement ParseSubAlgorithm(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        private static ILAAElement ParseSubAlgorithm(Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             int startPos = position;
-            ILSAElement firstElement = null;
-            ILSAElement currentElement = null;
+            ILAAElement firstElement = null;
+            ILAAElement currentElement = null;
             bool exitFlag = false;
 
             while (position < automaton.Tokens.Count && !exitFlag)
@@ -305,7 +316,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
                 if (element is EndVertex)
                 {
                     if (firstElement == null) firstElement = element;
-                    if (currentElement is LSABaseElement baseElement)
+                    if (currentElement is LAABaseElement baseElement)
                         baseElement.Next = element;
                     exitFlag = true;
                     continue;
@@ -315,7 +326,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
                 if (element is JumpOperator { IsUnconditional: true })
                 {
                     if (firstElement == null) firstElement = element;
-                    if (currentElement is LSABaseElement baseElement)
+                    if (currentElement is LAABaseElement baseElement)
                         baseElement.Next = element;
                     exitFlag = true;
                     continue;
@@ -327,7 +338,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
                     firstElement = element;
                     currentElement = element;
                 }
-                else if (currentElement is LSABaseElement baseElement)
+                else if (currentElement is LAABaseElement baseElement)
                 {
                     baseElement.Next = element;
                     currentElement = element;
@@ -363,7 +374,7 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная конечная вершина ЛСА.</returns>
         /// <exception cref="FormatException"></exception>
-        private static ILSAElement? HandleEndVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        private static ILAAElement? HandleEndVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             if (automaton.Elements.OfType<EndVertex>().Any())
             {
@@ -384,9 +395,9 @@ namespace TOAConsole.LSA.LSAutomaton.ParserSystem
         /// <param name="current">Текущий элемент ЛСА.</param>
         /// <param name="errors">Ссылка на список ошибок парсера.</param> 
         /// <exception cref="FormatException"></exception>
-        private static void LinkPrevious(ILSAElement? previous, ILSAElement current, ref List<ParsingError> errors)
+        private static void LinkPrevious(ILAAElement? previous, ILAAElement current, ref List<ParsingError> errors)
         {
-            if (previous is LSABaseElement prevBase)
+            if (previous is LAABaseElement prevBase)
             {
                 if (prevBase.Next != null && prevBase.Next != current)
                 {

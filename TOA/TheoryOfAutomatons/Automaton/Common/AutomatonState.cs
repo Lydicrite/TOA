@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-
+using System.Runtime.CompilerServices;
 using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils.Helpers;
@@ -15,7 +15,7 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// </summary>
     /// <typeparam name="TAutomaton">Тип Автомата</typeparam>
     /// <typeparam name="TSelfTransition">Тип самоперехода</typeparam>
-    internal abstract class AutomatonState<TSelfTransition> : IAutomatonState where TSelfTransition : class
+    internal abstract class AutomatonState: IAutomatonState
     {
         #region Параметры
 
@@ -62,8 +62,19 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Самопереход состояния.
         /// </summary>
-        public TSelfTransition SelfTransition { get; protected set; }
-
+        public IAutomatonTransition SelfTransition { get; protected set; }
+        /// <summary>
+        /// Функция переходов этого состояния.
+        /// </summary>
+        public Dictionary<char, IAutomatonState> Transitions { get; set; }
+        /// <summary>
+        /// Функция выходов этого состояния.
+        /// </summary>
+        public Dictionary<char, char> Outputs { get; set; }
+        /// <summary>
+        /// Выход этого состояния.
+        /// </summary>
+        public char Output { get; set; }
         #endregion
 
 
@@ -76,12 +87,8 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <param name="userDefinedText">Смысл того, что представляет собой это состояние.</param>
         /// <param name="initialPosition">Начальная позиция центра состояния.</param>
         /// <exception cref="NotSupportedException">Выбрасывается в случае неподдерживаемого типа Автомата, типа самоперехода или неподдерживаемого их сочетания.</exception>
-        protected AutomatonState(IDFAutomaton automaton, int index, string userDefinedText, Point initialPosition)
+        public AutomatonState(IDFAutomaton automaton, int index, string userDefinedText, Point initialPosition)
         {
-            // Проверка на допустимые классы для Автомата
-            if (!(typeof(TSelfTransition) == typeof(MealySelfTransition) || typeof(TSelfTransition) == typeof(MooreSelfTransition)))
-                throw new NotSupportedException("Неподдерживаемый тип самоперехода.");
-
             Automaton = automaton;
             Name = $"S{index}";
             Index = index;

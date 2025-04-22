@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Vertexes
+namespace TOAConsole.LogicalAA.Elements.Vertexes
 {
     /// <summary>
     /// Представляет собой условную вершину ЛСА - "Xi", где i = [0, ..., n].
     /// </summary>
-    internal class ConditionalVertex : LSABaseElement
+    internal class ConditionalVertex : LAABaseElement
     {
         /// <summary>
         /// Индекс этой условной вершины.
@@ -25,12 +25,12 @@ namespace TOAConsole.LSA.Elements.Vertexes
         /// Левый потомок этой вершины.
         /// <br>Возвращается методом GetNext(), если значение <see cref="Value"/> равно <c>false</c>.</br>
         /// </summary>
-        public ILSAElement? LBS { get; set; }
+        public ILAAElement? LBS { get; set; }
         /// <summary>
         /// Правый потомок этой вершины.
         /// <br>Возвращается методом GetNext(), если значение <see cref="Value"/> равно <c>true</c>.</br>
         /// </summary>
-        public ILSAElement? RBS { get; set; }
+        public ILAAElement? RBS { get; set; }
 
         public ConditionalVertex(int index, int pos)
         {
@@ -39,14 +39,19 @@ namespace TOAConsole.LSA.Elements.Vertexes
             Id = $"X{index}";
         }
 
-        public override string GetLongDescription() {
-            string condValue = Value.HasValue ? $"{(Value.Value ? 1 : 0)}" : "не установлено";
+        public override string Description
+        {
+            get
+            {
+                string condValue = Value.HasValue ? $"{(Value.Value ? 1 : 0)}" : "не установлено";
 
-            return 
-                $"\nПройдена условная вершина {Index}: \"{Id}\"" +
-                $"\n\tЗначение условия: {condValue}" +
-                $"\n\tПозиция в списке токенов: {Position}";
+                return
+                    $"\nПройдена условная вершина {Index}: \"{Id}\"" +
+                    $"\n\tЗначение условия: {condValue}" +
+                    $"\n\tПозиция в списке токенов: {Position}";
+            }
         }
-        public override ILSAElement? GetNext(Automaton automaton) => Value.HasValue ? (Value.Value ? RBS : LBS) : null;
+
+        public override ILAAElement? GetNext(Automaton.Automaton automaton) => Value.HasValue ? (Value.Value ? RBS : LBS) : null;
     }
 }

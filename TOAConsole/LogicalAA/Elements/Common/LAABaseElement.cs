@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Common
+namespace TOAConsole.LogicalAA.Elements.Common
 {
     /// <summary>
     /// Интерфейс, содержащий общие и базовые свойства для всех элементов ЛСА.
     /// </summary>
-    internal interface ILSAElement
+    internal interface ILAAElement
     {
         /// <summary>
         /// Позиция элемента в списке токенов.
@@ -23,33 +23,34 @@ namespace TOAConsole.LSA.Elements.Common
         /// <summary>
         /// Потомок этого элемента (возможно null)
         /// </summary>
-        ILSAElement? Next { get; set; }
+        ILAAElement? Next { get; set; }
 
         /// <summary>
         /// Возвращает подробное описание элемента.
         /// </summary>
         /// <returns></returns>
-        string GetLongDescription();
+        string Description { get; }
+
         /// <summary>
         /// Получает потомка для этого элемента.
         /// <br>Где нужно, использует <paramref name="automaton"/> для поиска потомка.</br>
         /// </summary>
         /// <param name="automaton">Объект, реализующий ЛСА.</param>
         /// <returns></returns>
-        ILSAElement? GetNext(Automaton automaton);
+        ILAAElement? GetNext(Automaton.Automaton automaton);
     }
 
     /// <summary>
     /// Класс, предоставляющий возможности реализации для общих и базовых свойств всех элементов ЛСА.
     /// </summary>
-    internal abstract class LSABaseElement : ILSAElement
+    internal abstract class LAABaseElement : ILAAElement
     {
         public int Position { get; protected set; }
         public string? Id { get; protected set; }
-        public ILSAElement? Next { get; set; }
+        public ILAAElement? Next { get; set; }
 
-        public abstract string GetLongDescription();
+        public abstract string Description { get; }
 
-        public abstract ILSAElement? GetNext(Automaton automaton);
+        public abstract ILAAElement? GetNext(Automaton.Automaton automaton);
     }
 }

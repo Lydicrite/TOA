@@ -10,7 +10,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
     /// <summary>
     /// Класс, представляющий переход между различными состояниями Автомата Мили.
     /// </summary>
-    internal class MealyFromToTransition : AutomatonTransition<MealyAutomatonState>
+    internal class MealyFromToTransition : AutomatonTransition
     {
         /// <summary>
         /// Начальная точка перехода.
@@ -118,7 +118,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
     /// <summary>
     /// Класс, представляющий самопереход состояния Автомата Мили.
     /// </summary>
-    internal class MealySelfTransition : AutomatonTransition<MealyAutomatonState>
+    internal class MealySelfTransition : AutomatonTransition
     {
         /// <summary>
         /// Список входных символов состояния.

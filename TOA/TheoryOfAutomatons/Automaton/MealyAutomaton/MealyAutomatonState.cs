@@ -12,18 +12,10 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
     /// <summary>
     /// Реализует наследуемый класс состояния Автомата Мили.
     /// </summary>
-    internal class MealyAutomatonState : AutomatonState<MealySelfTransition>
+    internal class MealyAutomatonState : AutomatonState
     {
         public override AutomatonType Type => AutomatonType.Mealy;
-        /// <summary>
-        /// Функция выходов этого состояния.
-        /// </summary>
-        public Dictionary<char, char> Outputs { get; set; }
-        /// <summary>
-        /// Функция переходов этого состояния.
-        /// </summary>
-        public Dictionary<char, MealyAutomatonState> Transitions { get; set; }
-
+       
         /// <summary>
         /// Представляет состояние Автомата Мили.
         /// </summary>
@@ -34,7 +26,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         public MealyAutomatonState(DFMealyAutomaton automaton, int index, string userDefinedText, Point initialPosition)
             : base(automaton, index, userDefinedText, initialPosition)
         {
-            Transitions = new Dictionary<char, MealyAutomatonState>(automaton.InputAlphabet.Count);
+            Transitions = new Dictionary<char, IAutomatonState>(automaton.InputAlphabet.Count);
             Outputs = new Dictionary<char, char>(automaton.OutputAlphabet.Count);
             SelfTransition = new MealySelfTransition(this);
             automaton.Transitions.Add(SelfTransition);
@@ -169,7 +161,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
             Automaton.TransitionFunction.Add(Tuple.Create(input, this), mealyState);
 
             if (state != this)
-                Automaton.Transitions.Add(AutomatonTransition<MealyAutomatonState>.CreateTransition(this, mealyState, input));
+                Automaton.Transitions.Add(AutomatonTransition.CreateTransition(this, mealyState, input));
             else
             {
                 Automaton.Transitions.Remove(SelfTransition);

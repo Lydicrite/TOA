@@ -4,12 +4,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.LSAutomaton.ParserSystem;
+using TOAConsole.LogicalAA.Automaton.ParserSystem;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace TOAConsole.LSA.LSAutomaton.Utils
+namespace TOAConsole.LogicalAA.Automaton.Utils
 {
-    internal static class LSAInputHandler
+    internal static class LASInputHandler
     {
         private static Automaton? _automaton;
         private static MenuState _currentMenuState = MenuState.Main;
@@ -20,23 +20,56 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
             Modes
         }
 
-        #region Константы и импорт библиотек
+        #region Константы и импорт библиотек WinAPI
 
-        // Импорт необходимых функций WinAPI
+        /// <summary>
+        /// Получает дескриптор активного окна (окна, которое в данный момент находится в фокусе).
+        /// </summary>
+        /// <returns>Дескриптор активного окна.</returns>
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
+        /// <summary>
+        /// Загружает раскладку клавиатуры по идентификатору.
+        /// </summary>
+        /// <param name="pwszKLID">Строка идентификатора раскладки (например, "00000409" для английской).</param>
+        /// <param name="flags">Флаги загрузки (например, 0 для загрузки без активации).</param>
+        /// <returns>Дескриптор загруженной раскладки.</returns>
         [DllImport("user32.dll")]
         private static extern IntPtr LoadKeyboardLayout(string pwszKLID, uint flags);
 
+        /// <summary>
+        /// Активирует указанную раскладку клавиатуры для входного потока.
+        /// </summary>
+        /// <param name="hkl">Дескриптор раскладки клавиатуры.</param>
+        /// <param name="flags">Флаги активации (например, KLF_ACTIVATE).</param>
+        /// <returns>True в случае успеха, иначе false.</returns>
         [DllImport("user32.dll")]
         private static extern IntPtr ActivateKeyboardLayout(IntPtr hkl, uint flags);
 
+        /// <summary>
+        /// Помещает сообщение в очередь сообщений указанного окна.
+        /// </summary>
+        /// <param name="hWnd">Дескриптор окна-получателя.</param>
+        /// <param name="Msg">Код сообщения (например, WM_INPUTLANGCHANGEREQUEST).</param>
+        /// <param name="wParam">Дополнительные параметры сообщения.</param>
+        /// <param name="lParam">Дополнительные параметры сообщения.</param>
+        /// <returns>True в случае успеха, иначе false.</returns>
         [DllImport("user32.dll")]
         private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
+
+
         // Константы для сообщений и флагов
+        /// <summary>
+        /// Сообщение для запроса смены раскладки клавиатуры.
+        /// </summary>
+        /// [[5]]
         private const uint WM_INPUTLANGCHANGEREQUEST = 0x0050;
+        /// <summary>
+        /// Флаг для активации раскладки клавиатуры при загрузке.
+        /// </summary>
+        /// [[5]]
         private const uint KLF_ACTIVATE = 0x00000001;
 
         #endregion
@@ -51,8 +84,9 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
         public static void ProgramCycle()
         {
             Console.Clear();
+            Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
-            LSAInputHandler.PrintInputRules();
+            LASInputHandler.PrintInputRules();
 
             while (true)
             {
@@ -64,6 +98,7 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
         [STAThread]
         public static string ReadLSAString()
         {
+            Console.ResetColor();
             ChangeLayout();
 
             var input = new StringBuilder();
@@ -186,6 +221,7 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
                 }
             } while (keyInfo.Key != ConsoleKey.Enter);
 
+            Console.ResetColor();
             Console.Write('\n');
             return input.ToString();
         }
@@ -200,6 +236,7 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
 
         private static void PrintInputRules()
         {
+            Console.ResetColor();
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
 
@@ -258,6 +295,7 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
             Console.ReadKey(true);
             ClearLastLine();
             Console.WriteLine();
+            Console.ResetColor();
         }
 
 
@@ -442,8 +480,8 @@ namespace TOAConsole.LSA.LSAutomaton.Utils
             try
             {
                 Console.Clear();
-                var lsaString = LSAInputHandler.ReadLSAString();
-                _automaton = LSAParser.Parse(lsaString);
+                var lsaString = LASInputHandler.ReadLSAString();
+                _automaton = LASParser.Parse(lsaString);
 
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write($"\n►► ЛСА успешно загружена! ◄◄\n");

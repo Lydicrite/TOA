@@ -10,7 +10,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
     /// <summary>
     /// Класс, представляющий переход между различными состояниями Автомата Мура.
     /// </summary>
-    internal class MooreFromToTransition : AutomatonTransition<MooreAutomatonState>
+    internal class MooreFromToTransition : AutomatonTransition
     {
         /// <summary>
         /// Начальная точка перехода.
@@ -113,7 +113,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
     /// <summary>
     /// Класс, представляющий самопереход состояния Автомата Мура.
     /// </summary>
-    internal class MooreSelfTransition : AutomatonTransition<MooreAutomatonState>
+    internal class MooreSelfTransition : AutomatonTransition
     {
         /// <summary>
         /// Список входных символов состояния.

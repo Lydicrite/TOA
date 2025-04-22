@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Vertexes
+namespace TOAConsole.LogicalAA.Elements.Vertexes
 {
     /// <summary>
     /// Представляет собой конечную вершину ЛСА - "Yк".
     /// </summary>
-    internal class EndVertex : LSABaseElement
+    internal class EndVertex : LAABaseElement
     {
         public EndVertex(int pos)
         {
@@ -19,7 +19,8 @@ namespace TOAConsole.LSA.Elements.Vertexes
             Position = pos;
         }
 
-        public override string GetLongDescription() => "\n ------- Конец алгоритма ------- ";
-        public override ILSAElement? GetNext(Automaton automaton) => null;
+        public override string Description => "\n ------- Конец алгоритма ------- ";
+
+        public override ILAAElement? GetNext(Automaton.Automaton automaton) => null;
     }
 }

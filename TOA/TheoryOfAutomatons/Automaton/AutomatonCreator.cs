@@ -364,7 +364,7 @@ namespace TheoryOfAutomatons.Automaton
                             Point p = FindFreeInitialPoint();
                             if (p != Point.Empty)
                             {
-                                DFAutomaton.StatesAlphabet.Add(new MealyAutomatonState(DFMealyAutomaton, DFMealyAutomaton.StatesAlphabet.Count(), form.StateDescription.ToString(), p));
+                                DFAutomaton.StatesAlphabet.Add(new AutomatonState(DFAutomaton, DFAutomaton.StatesAlphabet.Count, form.StateDescription.ToString(), p));
                                 Check();
                             }
                         }
@@ -666,15 +666,15 @@ namespace TheoryOfAutomatons.Automaton
 
         #region Вспомогательное
 
-        public void LoadParameters<TState>
+        public void LoadParameters
         (
              int type, int cD, int bW,
              int dTSms,
              Color aB, Color iB, Color hB, Color iS, Color cC,
              float bPW, Color bPC,
              float lPW, Color lPC,
-             DFAutomaton<TState> automaton
-        ) where TState : class
+             IDFAutomaton automaton
+        )
         {
             DFATypeSelectorCB.SelectedIndex = type;
             CircleDiameterNUD.Value = cD;

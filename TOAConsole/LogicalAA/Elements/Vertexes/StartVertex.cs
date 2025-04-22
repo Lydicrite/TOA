@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LSA.Elements.Common;
-using TOAConsole.LSA.LSAutomaton;
+using TOAConsole.LogicalAA.Elements.Common;
+using TOAConsole.LogicalAA.Automaton;
 
-namespace TOAConsole.LSA.Elements.Vertexes
+namespace TOAConsole.LogicalAA.Elements.Vertexes
 {
     /// <summary>
     /// Представляет собой начальную вершину ЛСА - "Yн".
     /// </summary>
-    internal class StartVertex : LSABaseElement
+    internal class StartVertex : LAABaseElement
     {
         public StartVertex(int pos)
         {
@@ -19,7 +19,8 @@ namespace TOAConsole.LSA.Elements.Vertexes
             Position = pos;
         }
 
-        public override string GetLongDescription() => "\n ------- Начало алгоритма ------- ";
-        public override ILSAElement? GetNext(Automaton automaton) => Next;
+        public override string Description => "\n ------- Начало алгоритма ------- ";
+
+        public override ILAAElement? GetNext(Automaton.Automaton automaton) => Next;
     }
 }

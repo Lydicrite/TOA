@@ -10,6 +10,7 @@ using TheoryOfAutomatons.Utils.Helpers;
 using System.Drawing;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
+using System.Collections;
 
 namespace TOA.TheoryOfAutomatons.Automaton.Common
 {
@@ -34,6 +35,15 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// </summary>
         List<char> OutputAlphabet { get; }
         /// <summary>
+        /// Алфавит состояний АА.
+        /// </summary>
+        List<IAutomatonState> StatesAlphabet { get; }
+        /// <summary>
+        /// Функция переходов АА (фактически - инструкция для функции переходов)<br/>
+        /// Ставит в соответствие паре (вход, состояние) соответствующее новое состояние из <see cref="StatesAlphabet"/>.
+        /// </summary>
+        Dictionary<Tuple<char, IAutomatonState>, IAutomatonState> TransitionFunction { get; }
+        /// <summary>
         /// Функция выходов АА (фактически - инструкция для функции выходов). <br/>
         /// Ставит в соответствие паре (текущий вход, текущее состояние) соответствующее выходное значение из <see cref="OutputAlphabet"/>.
         /// </summary>
@@ -46,7 +56,7 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// Текущий выходной символ.
         /// </summary>
         char CurrentOutputSymbol { get; }
-
+       
         #endregion
 
 
@@ -81,7 +91,7 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
 
 
 
-        #region Для отрисовки состояний
+        #region Отрисовка состояний
 
         /// <summary>
         /// Карандаш для отрисовки переходов в неактивном состоянии.
@@ -113,6 +123,7 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
 
 
         #region Отрисовка связей
+        List<IAutomatonTransition> Transitions { get; }
 
         /// <summary>
         /// Булева карта для верного размещения состояний АА.
@@ -348,13 +359,13 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// Добавляет новое состояние.
         /// </summary>
         /// <param name="state">Новое состояние.</param>
-        //void AddState(TState state);
+        void AddState(IAutomatonState state);
 
         /// <summary>
         /// Удаляет состояние.
         /// </summary>
         /// <param name="state">Состояние для удаления.</param>
-        //void DeleteState(TState state);
+        void DeleteState(IAutomatonState state);
 
         #region Отрисовка путей
 
