@@ -100,7 +100,7 @@ namespace TOAConsole.LogicalAA.Automaton
         {
             var conditionalVertices = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
 
-            if (binaryValues == "[любой исход]" || (binaryValues == string.Empty && conditionalVertices.Count() == 0))
+            if (binaryValues == "[любой исход]" || (conditionalVertices.Count() == 0))
                 return;
 
             if (!Regex.IsMatch(binaryValues, @"^[01]+$"))

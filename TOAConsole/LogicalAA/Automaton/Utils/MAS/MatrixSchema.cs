@@ -33,10 +33,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             sb.AppendLine(BuildMiddleBorder(columnWidths));
 
             // Строки данных
-            for (int i = 0; i < Headers.Count; i++)
+            for (int i = 0; i < Headers.Count - 1; i++)
             {
                 sb.AppendLine(BuildDataLine(Headers[i], Rows[i].Transitions, columnWidths));
-                if (i < Headers.Count - 1)
+                if (i < Headers.Count - 2)
                     sb.AppendLine(BuildMiddleBorder(columnWidths));
             }
 
@@ -96,17 +96,26 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <returns>Список ширин столбцов.</returns>
         private List<int> CalculateColumnWidths()
         {
-            var widths = new List<int>(Headers.Count + 1);
+            var widths = new List<int>();
 
-            // Ширина для первого столбца (заголовки строк)
+            // Ширина первого столбца (заголовки строк)
             int firstColumnWidth = Headers.Max(h => h.Length) + 2;
             widths.Add(firstColumnWidth);
 
-            // Ширина для остальных столбцов
-            for (int i = 0; i < Headers.Count; i++)
+            // Ширина остальных столбцов (должно совпадать с количеством переходов)
+            int columnsCount = Headers.Count;
+
+            for (int i = 0; i < columnsCount; i++)
             {
-                int maxWidth = Rows.Max(r => ProcessConditions(r.Transitions[i]).Length);
-                maxWidth = Math.Max(maxWidth, Headers[i].Length) + 2;
+                int maxWidth = Headers[i].Length + 2;
+
+                if (Rows.Count > 0)
+                {
+                    int maxDataWidth = Rows.Max(r =>
+                        ProcessConditions(r.Transitions[i]).Length);
+                    maxWidth = Math.Max(maxWidth, maxDataWidth + 2);
+                }
+
                 widths.Add(maxWidth);
             }
 
