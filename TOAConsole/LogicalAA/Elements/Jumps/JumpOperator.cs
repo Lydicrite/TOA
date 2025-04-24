@@ -9,7 +9,7 @@ using TOAConsole.LogicalAA.Automaton;
 namespace TOAConsole.LogicalAA.Elements.Jumps
 {
     /// <summary>
-    /// Представляет собой точку перехода ЛСА - "↑i" или "w↑i", где i = [0, ..., n].
+    /// Представляет собой оператор перехода в точку перехода ЛСА - "↑i" или "w↑i", где i = [0, ..., n] - индекс точки.
     /// </summary>
     internal class JumpOperator : LAABaseElement
     {
