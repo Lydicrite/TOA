@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using TOAConsole.LogicalAA.Automaton;
 using TOAConsole.LogicalAA.Automaton.ParserSystem;
 using TOAConsole.LogicalAA.Automaton.Utils;
 using TOAConsole.LogicalAA.Automaton.Utils.MAS;
@@ -21,6 +24,24 @@ public class Program
 
         Console.WriteLine($"\n--------------- Конец парсинга \"{lsaString}\" ---------------\n");
         Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n");
+    }
+
+
+    private static void TestMASMerge(List<string> lasList)
+    {
+        var masList = lasList.Select(lsa => LASParser.Parse(lsa).MatrixSchema).ToList();
+        var preparedMASList = MASCombiner.PrepareForCombine(masList);
+        int k = lasList.Count();
+
+        for (int i = 0; i < k; i++)
+        {
+            Console.Write($"\n\nЭлемент M[0, 1] = \"{masList[i][0, 1]}\"\n");
+            Console.Write($"\nИсходная МСА {i + 1} (для \"{lasList[i]}\"): \n{masList[i]}");
+            Console.Write($"\nПодготовленная МСА {i + 1}: \n{preparedMASList[i]}\n\n\n");
+        }
+
+        var combinedMAS = MASCombiner.CombineSchemas(preparedMASList);
+        Console.Write($"\n\nОМСА: \n{combinedMAS}\n\n");
     }
 
 
@@ -64,6 +85,20 @@ public class Program
             Console.ReadKey();
             Console.Write("\n\n");
             */
+
+            /*
+            TestMASMerge
+            (
+                new List<string>
+                {
+                    "Yн Y1 X1 ↑1 Y3 ↑2 ↓1 Y2 ↓2 Yк",
+                    "Yн X1 ↑1 Y3 ↑2 ↓1 Y2 ↓2 Yк",
+                    "Yн Y4 Yк"
+                }
+            );
+            */
+
+
 
             LASInputHandler.ProgramCycle();
         }

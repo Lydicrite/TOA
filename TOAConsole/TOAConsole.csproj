@@ -11,12 +11,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="LogicalExpressionParser\**" />
-    <EmbeddedResource Remove="LogicalExpressionParser\**" />
-    <None Remove="LogicalExpressionParser\**" />
-  </ItemGroup>
-
   <ItemGroup>    
     <PackageReference Include="System.Runtime.Caching" Version="9.0.4" />
   </ItemGroup>

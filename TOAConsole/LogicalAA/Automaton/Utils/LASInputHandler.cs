@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using TOAConsole.LogicalAA.Automaton.ParserSystem;
+using TOAConsole.LogicalAA.Automaton.Utils.MAS;
 using Windows.ApplicationModel.DataTransfer;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils
@@ -17,7 +18,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         internal enum MenuState
         {
             Main,
-            Modes
+            Modes,
+            MergeMode
         }
 
         #region Константы и импорт библиотек WinAPI
@@ -158,7 +160,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
 
                     default:
                         // Проверка допустимых символов
-                        if (IsValidLSASymbol(keyInfo.KeyChar))
+                        if (IsValidLASSymbol(keyInfo.KeyChar))
                         {
                             var symbol = keyChar.ToString().ToUpper();
 
@@ -330,8 +332,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                     Console.WriteLine("║ '1': Новый алгоритм               ║");
                     Console.WriteLine("║ '2': Выбор режима работы          ║");
                     Console.WriteLine("║ '3': Информация об алгоритме      ║");
-                    Console.WriteLine("║ '4': Правила работы с программой  ║");
-                    Console.WriteLine("║ '5', 'Esc': Выход из программы    ║");
+                    Console.WriteLine("║ '4': Объединение алгоритмов       ║");
+                    Console.WriteLine("║ '5': Правила работы с программой  ║");
+                    Console.WriteLine("║ '6', 'Esc': Выход из программы    ║");
                     Console.WriteLine("╚═══════════════════════════════════╝");
                     break;
 
@@ -360,7 +363,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             switch (key)
             {
                 case ConsoleKey.D1:
-                    LoadNewLSA();
+                    LoadNewLAA();
                     break;
 
                 case ConsoleKey.D2 when _automaton != null:
@@ -376,10 +379,14 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                     break;
 
                 case ConsoleKey.D4:
-                    PrintInputRules();
+                    StartMergeProcess();
                     break;
 
                 case ConsoleKey.D5:
+                    PrintInputRules();
+                    break;
+
+                case ConsoleKey.D6:
                 case ConsoleKey.Escape:
                     Environment.Exit(0);
                     break;
@@ -418,6 +425,98 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             }
         }
 
+        private static void StartMergeProcess()
+        {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╔════════════════════════════════════════════════╗");
+            Console.WriteLine("║             ОБЪЕДИНЕНИЕ АВТОМАТОВ              ║");
+            Console.WriteLine("╠════════════════════════════════════════════════╣");
+            Console.WriteLine("║ Позволяет произвести объединение от 2 до 10    ║");
+            Console.WriteLine("║ автоматов на основе объединения их матричных   ║");
+            Console.WriteLine("║ схем (МСА)                                     ║");
+            Console.WriteLine("║                                                ║");
+            Console.WriteLine("║ В случае успешного ввода ЛСА всех объединяемых ║");
+            Console.WriteLine("║ автоматов программа вывед информацию о каждом  ║");
+            Console.WriteLine("║ из них, их подготовленные к объединению МСА и  ║");
+            Console.WriteLine("║ итоговую ОМСА                                  ║");
+            Console.WriteLine("╚════════════════════════════════════════════════╝");
+            Console.ResetColor();
+
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("\n►► Нажмите любую клавишу для продолжения...\n");
+            Console.ResetColor();
+
+            int count = ReadInt("►► Введите количество объединяемых автоматов", 2, 10);
+            var schemes = new List<MatrixSchema>();
+            var automatons = new List<Automaton>();
+
+            for (int i = 0; i < count; i++)
+            {
+                try
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine($"\n\n►► --- Ввод ЛСА автомата #{i + 1} --- ◄◄");
+                    Console.ResetColor();
+                    var automaton = LoadSingleLAA();
+                    automatons.Add(automaton);
+                    schemes.Add(automaton.MatrixSchema);
+
+                }
+                catch (ParsingAggregateException ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"\n►► Ошибка парсинга: {ex.Message}◄◄\n");
+                    Console.ResetColor();
+                    i--;
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\n►► Ошибка: {ex.Message}◄◄\n");
+                    Console.ResetColor();
+                    i--;
+                }
+                finally
+                {
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("\n►► Нажмите любую клавишу для продолжения...\n");
+                    Console.ResetColor();
+                    Console.ReadKey(true);
+                }
+            }
+
+            var merged = MASCombiner.PrepareForCombine(schemes);
+            var combined = MASCombiner.CombineSchemas(merged);
+
+            for (int i = 0; i < count; i++)
+            {
+                try
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.Write($"\n►► Подготовленная к объединению МСА автомата #{i + 1} ◄◄\n");
+                    Console.ResetColor();
+                    Console.Write($"\n{merged[i]}\n");
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"\n►► Ошибка: {ex.Message}◄◄\n");
+                    Console.ResetColor();
+                    i--;
+                }
+            }
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("\n►► Объединённая МСА ◄◄\n");
+            Console.ResetColor();
+            Console.WriteLine(combined.ToString());
+            Console.ResetColor();
+
+            ReturnToMain();
+        }
+
+
         #endregion
 
 
@@ -449,6 +548,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         {
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
+            Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             // Загружаем английскую раскладку (en-US)
@@ -464,7 +564,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.ResetColor();
         }
 
-        private static bool IsValidLSASymbol(char c)
+        private static bool IsValidLASSymbol(char c)
         {
             return 
                 c.ToString().ToUpper() == "Y" || c.ToString().ToUpper() == "X" ||
@@ -473,9 +573,37 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 char.IsDigit(c) || c == '↑' || c == '↓';
         }
 
+        private static int ReadInt(string prompt, int min, int max)
+        {
+            int value;
+            while (!int.TryParse(Console.ReadLine(), out value) || value < min || value > max)
+            {
+                Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+
+                Console.Write($"\n{prompt} (диапазон: [{min}, {max}]): ");
+
+                Console.ResetColor();
+            }
+
+            return value;
+        }
 
 
-        private static void LoadNewLSA()
+
+        private static Automaton LoadSingleLAA()
+        {
+            var lsaString = LASInputHandler.ReadLSAString();
+            var automaton = LASParser.Parse(lsaString);
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write($"\n►► ЛСА успешно загружена! ◄◄\n");
+            Console.ResetColor();
+            automaton.PrintAlgorithmInfo();
+            return automaton;
+        }
+
+        private static void LoadNewLAA()
         {
             try
             {

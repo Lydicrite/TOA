@@ -179,6 +179,47 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         #endregion
+
+
+
+        #region Доступ к элементам
+
+        /// <summary>
+        /// Индексатор для доступа к строкам матрицы (MASRow).
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public MASRow this[int rowIndex]
+        {
+            get
+            {
+                if (rowIndex < 0 || rowIndex >= Rows.Count)
+                    throw new IndexOutOfRangeException("Row index is out of range");
+                return Rows[rowIndex];
+            }
+        }
+
+        /// <summary>
+        /// Индексатор для доступа к элементам матрицы (ячейкам).
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <param name="columnIndex"></param>
+        /// <returns></returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public string this[int rowIndex, int columnIndex]
+        {
+            get
+            {
+                if (rowIndex < 0 || rowIndex >= Rows.Count)
+                    throw new IndexOutOfRangeException("Row index is out of range");
+                if (columnIndex < 0 || columnIndex >= Headers.Count)
+                    throw new IndexOutOfRangeException("Column index is out of range");
+                return Rows[rowIndex].Transitions[columnIndex];
+            }
+        }
+
+        #endregion
     }
 
 

@@ -574,7 +574,6 @@ namespace TOAConsole.LogicalAA.Automaton
             Console.Write($"\n\n\n►► Информация об алгоритме \"{LogicalScheme}\" ◄◄\n");
             Console.ResetColor();
 
-            Console.WriteLine($"{GetTokens()}");
             Console.WriteLine($"{GetAllLoops()}");
             Console.WriteLine($"{GetResults()}");
             Console.WriteLine($"{GetMatrixSchema()}");
