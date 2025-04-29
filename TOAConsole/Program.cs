@@ -98,6 +98,14 @@ public class Program
             );
             */
 
+
+            /*
+             
+            Yн Y0 X0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y3 ↓4 Yк
+            Yн Y0 X0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y4 ↓4 Yк
+
+            */
+
             LASInputHandler.ProgramCycle();
         }
         catch (Exception ex)

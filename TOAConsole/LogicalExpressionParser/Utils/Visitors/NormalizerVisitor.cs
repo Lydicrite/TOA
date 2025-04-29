@@ -173,14 +173,14 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
                     {
                         _stack.Push(new ConstantNode(false));
                         return;
-                    } 
+                    }
                     else
                     {
                         _stack.Push
                         (
                             new BinaryNode
-                                (   "|", 
-                                    new BinaryNode("&", left, new UnaryNode("~", right)), 
+                                ("|",
+                                    new BinaryNode("&", left, new UnaryNode("~", right)),
                                     new BinaryNode("&", new UnaryNode("~", left), right)
                                 )
                         );
@@ -320,6 +320,222 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
                     _stack.Push(new BinaryNode("&", new UnaryNode("~", left), new UnaryNode("~", right)));
                     return;
             }
+
+            #region Склеивание
+
+            // Склеивание для OR: (A & B) | (A & ~B) → A и аналогичные варианты
+            {
+                if (node.Operator == "|"
+                    && left is BinaryNode leftAnd && leftAnd.Operator == "&"
+                    && right is BinaryNode rightAnd && rightAnd.Operator == "&")
+                {
+                    // Вариант 1: (A & B) | (A & ~B)
+                    {
+                        if (leftAnd.Left.Equals(rightAnd.Left)
+                        && rightAnd.Right is UnaryNode rightNot
+                        && rightNot.Operator == "~"
+                        && rightNot.Operand.Equals(leftAnd.Right))
+                        {
+                            _stack.Push(leftAnd.Left);
+                            return;
+                        }
+                    }
+
+                    // Вариант 2: (A & ~B) | (A & B)
+                    {
+                        if (leftAnd.Left.Equals(rightAnd.Left)
+                        && leftAnd.Right is UnaryNode leftNot
+                        && leftNot.Operator == "~"
+                        && leftNot.Operand.Equals(rightAnd.Right))
+                        {
+                            _stack.Push(leftAnd.Left);
+                            return;
+                        }
+                    }
+
+                    // Вариант 3: (B & A) | (B & ~A)
+                    {
+                        if (leftAnd.Right.Equals(rightAnd.Right)
+                        && rightAnd.Left is UnaryNode rightNot
+                        && rightNot.Operator == "~"
+                        && rightNot.Operand.Equals(leftAnd.Left))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 4: (B & ~A) | (B & A)
+                    {
+                        if (leftAnd.Right.Equals(rightAnd.Right)
+                        && leftAnd.Left is UnaryNode leftNot
+                        && leftNot.Operator == "~"
+                        && leftNot.Operand.Equals(rightAnd.Left))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 5: (~A & B) | (A & B) → B
+                    {
+                        if (leftAnd.Left is UnaryNode leftNot5
+                        && leftNot5.Operator == "~"
+                        && rightAnd.Left.Equals(leftNot5.Operand)
+                        && leftAnd.Right.Equals(rightAnd.Right))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 6: (A & B) | (~A & B) → B
+                    {
+                        if (rightAnd.Left is UnaryNode rightNot6
+                        && rightNot6.Operator == "~"
+                        && leftAnd.Left.Equals(rightNot6.Operand)
+                        && leftAnd.Right.Equals(rightAnd.Right))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 7: (~A & ~B) | (A & ~B) → ~B
+                    {
+                        if (leftAnd.Left is UnaryNode leftNot7
+                        && leftNot7.Operator == "~"
+                        && rightAnd.Left.Equals(leftNot7.Operand)
+                        && leftAnd.Right is UnaryNode leftRightNot7
+                        && rightAnd.Right.Equals(leftRightNot7))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 8: (A & ~B) | (~A & ~B) → ~B
+                    {
+                        if (rightAnd.Left is UnaryNode rightNot8
+                        && rightNot8.Operator == "~"
+                        && leftAnd.Left.Equals(rightNot8.Operand)
+                        && leftAnd.Right is UnaryNode leftRightNot8
+                        && rightAnd.Right.Equals(leftRightNot8))
+                        {
+                            _stack.Push(leftAnd.Right);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // Склеивание для AND: (A | B) & (A | ~B) → A и аналогичные варианты
+            {
+                if (node.Operator == "&"
+                    && left is BinaryNode leftOr && leftOr.Operator == "|"
+                    && right is BinaryNode rightOr && rightOr.Operator == "|")
+                {
+                    // Вариант 1: (A | B) & (A | ~B)
+                    {
+                        if (leftOr.Left.Equals(rightOr.Left)
+                        && rightOr.Right is UnaryNode rightNot
+                        && rightNot.Operator == "~"
+                        && rightNot.Operand.Equals(leftOr.Right))
+                        {
+                            _stack.Push(leftOr.Left);
+                            return;
+                        }
+                    }
+
+                    // Вариант 2: (A | ~B) & (A | B)
+                    {
+                        if (leftOr.Left.Equals(rightOr.Left)
+                        && leftOr.Right is UnaryNode leftNot
+                        && leftNot.Operator == "~"
+                        && leftNot.Operand.Equals(rightOr.Right))
+                        {
+                            _stack.Push(leftOr.Left);
+                            return;
+                        }
+                    }
+
+                    // Вариант 3: (B | A) & (B | ~A)
+                    {
+                        if (leftOr.Right.Equals(rightOr.Right)
+                        && rightOr.Left is UnaryNode rightNot
+                        && rightNot.Operator == "~"
+                        && rightNot.Operand.Equals(leftOr.Left))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 4: (B | ~A) & (B | A)
+                    {
+                        if (leftOr.Right.Equals(rightOr.Right)
+                        && leftOr.Left is UnaryNode leftNot
+                        && leftNot.Operator == "~"
+                        && leftNot.Operand.Equals(rightOr.Left))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 5: (~A | B) & (A | B) → B
+                    {
+                        if (leftOr.Left is UnaryNode leftNot5
+                        && leftNot5.Operator == "~"
+                        && rightOr.Left.Equals(leftNot5.Operand)
+                        && leftOr.Right.Equals(rightOr.Right))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 6: (A | B) & (~A | B) → B
+                    {
+                        if (rightOr.Left is UnaryNode rightNot6
+                        && rightNot6.Operator == "~"
+                        && leftOr.Left.Equals(rightNot6.Operand)
+                        && leftOr.Right.Equals(rightOr.Right))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 7: (~A | ~B) & (A | ~B) → ~B
+                    {
+                        if (leftOr.Left is UnaryNode leftNot7
+                        && leftNot7.Operator == "~"
+                        && rightOr.Left.Equals(leftNot7.Operand)
+                        && leftOr.Right is UnaryNode leftRightNot7
+                        && rightOr.Right.Equals(leftRightNot7))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+
+                    // Вариант 8: (A | ~B) & (~A | ~B) → ~B
+                    {
+                        if (rightOr.Left is UnaryNode rightNot8
+                        && rightNot8.Operator == "~"
+                        && leftOr.Left.Equals(rightNot8.Operand)
+                        && leftOr.Right is UnaryNode leftRightNot8
+                        && rightOr.Right.Equals(leftRightNot8))
+                        {
+                            _stack.Push(leftOr.Right);
+                            return;
+                        }
+                    }
+                }
+            }
+
+            #endregion
 
             _stack.Push(new BinaryNode(node.Operator, left, right));
         }

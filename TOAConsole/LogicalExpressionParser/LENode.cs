@@ -91,17 +91,20 @@ namespace TOAConsole.LogicalExpressionParser
         public int Index
         {
             get => _index;
-            set
-            {
-                if (_index != value)
-                {
-                    _index = value;
-                    ResetCache();
-                }
-            }
         }
 
-        public VariableNode(string name) => Name = name;
+        public VariableNode(string name, int index = -1)
+        {
+            Name = name;
+            _index = index;
+        }
+
+        public VariableNode WithIndex(int newIndex)
+        {
+            return new VariableNode(Name, newIndex);
+        }
+
+
 
         public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
         public override bool Evaluate(bool[] inputs) => inputs[Index];

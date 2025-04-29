@@ -38,15 +38,10 @@ namespace TOAConsole.LogicalExpressionParser
                 {
                     bool[] inputs = new bool[varCount];
                     for (int j = 0; j < varCount; j++)
-                    {
                         inputs[j] = (i & (1 << (varCount - 1 - j))) != 0;
-                    }
 
                     bool result = Evaluate(inputs);
-                    bool[] row = new bool[varCount + 1];
-                    Array.Copy(inputs, row, varCount);
-                    row[varCount] = result;
-                    table[i] = row;
+                    table[i] = inputs.Append(result).ToArray();
                 }
 
                 return table;
@@ -64,17 +59,26 @@ namespace TOAConsole.LogicalExpressionParser
             if (order == null)
                 throw new ArgumentNullException(nameof(order));
 
-            var uniqueVars = order.Distinct().ToImmutableArray();
-            if (uniqueVars.Length != order.Count())
+            var orderList = order.ToList(); // Преобразование в список для проверки дубликатов
+            var uniqueVars = orderList.Distinct().ToList();
+
+            // 1. Проверка на дубликаты
+            if (uniqueVars.Count != orderList.Count)
                 throw new ArgumentException("Порядок переменных содержит дубликаты.");
 
-            _variables = uniqueVars;
+            // 2. Проверка на полноту переменных
+            var missingVariables = _variables.Except(uniqueVars).ToList();
+            if (missingVariables.Any())
+                throw new ArgumentException($"Порядок переменных не содержит: {string.Join(", ", missingVariables)}");
+
+            // Обновление состояния
+            _variables = uniqueVars.ToImmutableArray();
             _variableIndices = _variables
                 .Select((name, idx) => (name, idx))
                 .ToDictionary(x => x.name, x => x.idx);
 
+            _root = UpdateVariableIndices(_root);
             ResetCache();
-            UpdateVariableInfo();
         }
 
 
@@ -106,11 +110,9 @@ namespace TOAConsole.LogicalExpressionParser
                 currentRoot = simplifier.Normalize(currentRoot); // Упрощаем промежуточные результаты
             } while (!currentRoot.Equals(previousRoot));
 
-            return new LogicalExpression(currentRoot)
-            {
-                _variables = this._variables,
-                _variableIndices = new Dictionary<string, int>(this._variableIndices)
-            };
+            var newExpr = new LogicalExpression(currentRoot);
+            newExpr.SetVariableOrder(_variables); // Обновляем порядок переменных
+            return newExpr;
         }
 
         public LogicalExpression Normalize()
@@ -124,12 +126,8 @@ namespace TOAConsole.LogicalExpressionParser
                 currentRoot = simplifier.Normalize(previousRoot);
             } while (!currentRoot.Equals(previousRoot));
 
-            var newExpr = new LogicalExpression(currentRoot)
-            {
-                _variables = this._variables,
-                _variableIndices = new Dictionary<string, int>(this._variableIndices)
-            };
-            newExpr.UpdateVariableInfo();
+            var newExpr = new LogicalExpression(currentRoot);
+            newExpr.SetVariableOrder(_variables); // Обновляем порядок переменных
             return newExpr;
         }
 
@@ -231,6 +229,28 @@ namespace TOAConsole.LogicalExpressionParser
             ResetCache();
         }
 
+        private LENode UpdateVariableIndices(LENode node)
+        {
+            switch (node)
+            {
+                case VariableNode vn:
+                    if (_variableIndices.TryGetValue(vn.Name, out int index))
+                        return new VariableNode(vn.Name, index);
+                    throw new InvalidOperationException($"Переменная {vn.Name} не найдена.");
+                case UnaryNode un:
+                    var newOperand = UpdateVariableIndices(un.Operand);
+                    return new UnaryNode(un.Operator, newOperand);
+                case BinaryNode bn:
+                    var newLeft = UpdateVariableIndices(bn.Left);
+                    var newRight = UpdateVariableIndices(bn.Right);
+                    return new BinaryNode(bn.Operator, newLeft, newRight);
+                case ConstantNode cn:
+                    return cn;
+                default:
+                    throw new NotSupportedException($"Тип узла {node.GetType()} не поддерживается.");
+            }
+        }
+
         private void CollectVariables()
         {
             var variables = new HashSet<string>();
@@ -250,7 +270,7 @@ namespace TOAConsole.LogicalExpressionParser
         private void SetVariableIndices()
         {
             var visitor = new VariableIndexSetter(_variableIndices);
-            visitor.Visit(_root);
+            _root = visitor.Visit(_root);
         }
 
         private void ValidateInputs(bool[] inputs)
@@ -382,32 +402,29 @@ namespace TOAConsole.LogicalExpressionParser
 
             public VariableIndexSetter(Dictionary<string, int> indices) => _indices = indices;
 
-            public void Visit(LENode root)
+            public LENode Visit(LENode node)
             {
-                var stack = new Stack<LENode>();
-                stack.Push(root);
-
-                while (stack.Count > 0)
+                switch (node)
                 {
-                    var node = stack.Pop();
-                    switch (node)
-                    {
-                        case VariableNode vn:
-                            if (!_indices.TryGetValue(vn.Name, out var newIndex))
-                                throw new InvalidOperationException($"Переменная {vn.Name} не найдена в списке");
-                            if (vn.Index != newIndex)
-                                vn.Index = newIndex;
-                            break;
+                    case VariableNode vn:
+                        if (!_indices.TryGetValue(vn.Name, out var newIndex))
+                            throw new InvalidOperationException($"Переменная {vn.Name} не найдена в списке");
+                        return vn.WithIndex(newIndex); // Создаем новый узел
 
-                        case UnaryNode un:
-                            stack.Push(un.Operand);
-                            break;
+                    case UnaryNode un:
+                        var newOperand = Visit(un.Operand);
+                        return new UnaryNode(un.Operator, newOperand);
 
-                        case BinaryNode bn:
-                            stack.Push(bn.Right);
-                            stack.Push(bn.Left);
-                            break;
-                    }
+                    case BinaryNode bn:
+                        var newLeft = Visit(bn.Left);
+                        var newRight = Visit(bn.Right);
+                        return new BinaryNode(bn.Operator, newLeft, newRight);
+
+                    case ConstantNode cn:
+                        return cn;
+
+                    default:
+                        throw new NotSupportedException($"Тип узла {node.GetType()} не поддерживается");
                 }
             }
         }
