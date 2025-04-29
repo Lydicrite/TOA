@@ -66,7 +66,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                     ToolStripMenuItem inputMenu = new ToolStripMenuItem($"при входе \"{input}\"...");
                     foreach (var state in Automaton.StatesAlphabet)
                     {
-                        bool specificTransitionExists = Transitions.Contains(new KeyValuePair<char, MooreAutomatonState>(input, state));
+                        bool specificTransitionExists = Transitions.Contains(new KeyValuePair<char, IAutomatonState>(input, state));
 
                         if (!transitionExists && !specificTransitionExists)
                         {
@@ -92,7 +92,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 editOutputMenu.DropDownItems.Add(
                     new ToolStripMenuItem(
                         Output == output ? $"[✓] {output}" : $"[ ] {output}",
-                        null, (s, e) => ToggleOutput(output))
+                        null, (s, e) => ToggleOutput('\0', output))
                 );
             }
             contextMenu.Items.Add(editOutputMenu);
@@ -139,7 +139,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
                 Automaton.OutputFunction[this] = '\0';
             }
 
-            Automaton.TransitionFunction.Add(Tuple.Create(input, this), mooreState);
+            Automaton.TransitionFunction.Add(Tuple.Create(input, this as IAutomatonState), mooreState);
 
             if (state != this)
                 Automaton.Transitions.Add(AutomatonTransition.CreateTransition(this, mooreState, input));
@@ -165,7 +165,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         public override void RemoveTransition(char input)
         {
             Transitions.Remove(input);
-            Automaton.TransitionFunction.Remove(Tuple.Create(input, this));
+            Automaton.TransitionFunction.Remove(Tuple.Create(input, this as IAutomatonState));
 
             var tr = Automaton.Transitions.Find(t => t.From == this && t.Annotation.Contains(input));
             if (!(tr is MooreSelfTransition))
@@ -189,7 +189,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
         /// Добавляет или изменяет выходной символ.
         /// </summary>
         /// <param name="output">Выходной символ.</param>
-        private void ToggleOutput(char output)
+        public override void ToggleOutput(char input, char output)
         {
             if (Output == output)
             {

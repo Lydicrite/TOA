@@ -464,6 +464,7 @@ namespace TheoryOfAutomatons
             // 
             // settingsFLP
             // 
+            settingsFLP.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             settingsFLP.AutoScroll = true;
             settingsFLP.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             settingsFLP.BorderStyle = BorderStyle.FixedSingle;
@@ -1042,7 +1043,6 @@ namespace TheoryOfAutomatons
             // 
             groupBox9.Controls.Add(labelScreenCoords);
             groupBox9.Controls.Add(labelRealCoords);
-            groupBox9.Enabled = false;
             groupBox9.Font = new System.Drawing.Font("Microsoft YaHei UI", 8.25F, FontStyle.Bold);
             groupBox9.ForeColor = Color.LightGray;
             groupBox9.Location = new Point(319, 1);
@@ -1051,7 +1051,6 @@ namespace TheoryOfAutomatons
             groupBox9.TabIndex = 3;
             groupBox9.TabStop = false;
             groupBox9.Text = "Координаты";
-            groupBox9.Visible = false;
             // 
             // labelScreenCoords
             // 

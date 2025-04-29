@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TheoryOfAutomatons.Automaton.Common;
-using TheoryOfAutomatons.Utils.Containers;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Utils.Helpers
 {
@@ -212,7 +211,7 @@ namespace TheoryOfAutomatons.Utils.Helpers
         /// </summary>
         /// <param name="automaton">Автомат.</param>
         /// <param name="form">Форма.</param>
-        public static void AdaptContainerSize<TState>(DFAutomaton<TState> automaton, PictureBox container, MainForm form) where TState : class
+        public static void AdaptContainerSize(IDFAutomaton automaton, PictureBox container, MainForm form)
         {
             if (container == null)
                 return;

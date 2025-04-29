@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using TheoryOfAutomatons.Automaton.Common;
 using TheoryOfAutomatons.Utils.Helpers;
+using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.MealyAutomaton
 {
@@ -12,18 +13,6 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
     /// </summary>
     internal class MealyFromToTransition : AutomatonTransition
     {
-        /// <summary>
-        /// Начальная точка перехода.
-        /// </summary>
-        public Point Start { get; set; }
-        /// <summary>
-        /// Конечная точка перехода.
-        /// </summary>
-        public Point End { get; set; }
-        /// <summary>
-        /// Путь для отрисовки перехода.
-        /// </summary>
-        public List<Point> Path { get; set; }
         /// <summary>
         /// Входной символ, по которому осуществляется переход.
         /// </summary>
@@ -118,7 +107,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
     /// <summary>
     /// Класс, представляющий самопереход состояния Автомата Мили.
     /// </summary>
-    internal class MealySelfTransition : AutomatonTransition
+    internal class MealySelfTransition : AutomatonTransition, IAutomatonSelfTransition
     {
         /// <summary>
         /// Список входных символов состояния.

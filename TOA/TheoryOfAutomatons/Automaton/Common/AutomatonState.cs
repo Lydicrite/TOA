@@ -62,7 +62,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Самопереход состояния.
         /// </summary>
-        public IAutomatonTransition SelfTransition { get; protected set; }
+        public IAutomatonSelfTransition SelfTransition { get; protected set; }
         /// <summary>
         /// Функция переходов этого состояния.
         /// </summary>
@@ -337,6 +337,13 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="input">Входной символ, по которому осуществляется поиск удаляемого перехода.</param>
         public abstract void RemoveTransition(char input);
+
+        /// <summary>
+        /// Добавляет или изменяет часть выходной функции.
+        /// </summary>
+        /// <param name="input">Входной символ.</param>
+        /// <param name="output">Выходной символ.</param>
+        public abstract void ToggleOutput(char input, char output);
 
         #endregion
 

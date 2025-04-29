@@ -123,7 +123,7 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
 
 
         #region Отрисовка связей
-        List<IAutomatonTransition> Transitions { get; }
+        List<IAutomatonFromToTransition> Transitions { get; }
 
         /// <summary>
         /// Булева карта для верного размещения состояний АА.
@@ -330,11 +330,6 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
 
 
 
-
-
-
-
-
         #region Логика работы АА
 
         /// <summary>
@@ -353,6 +348,7 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         #endregion
 
 
+
         #region Визуализация
 
         /// <summary>
@@ -366,6 +362,8 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="state">Состояние для удаления.</param>
         void DeleteState(IAutomatonState state);
+
+
 
         #region Отрисовка путей
 

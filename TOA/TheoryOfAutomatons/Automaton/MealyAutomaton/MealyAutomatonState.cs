@@ -66,7 +66,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                     ToolStripMenuItem inputMenu = new ToolStripMenuItem($"при входе \"{input}\"...");
                     foreach (var state in Automaton.StatesAlphabet)
                     {
-                        bool specificTransitionExists = Transitions.Contains(new KeyValuePair<char, MealyAutomatonState>(input, state));
+                        bool specificTransitionExists = Transitions.Contains(new KeyValuePair<char, IAutomatonState>(input, state));
 
                         if (!transitionExists && !specificTransitionExists)
                         {
@@ -158,7 +158,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
                 Automaton.OutputFunction.Add(Tuple.Create(input, this), '\0');
             }
 
-            Automaton.TransitionFunction.Add(Tuple.Create(input, this), mealyState);
+            Automaton.TransitionFunction.Add(Tuple.Create(input, this as IAutomatonState), mealyState);
 
             if (state != this)
                 Automaton.Transitions.Add(AutomatonTransition.CreateTransition(this, mealyState, input));
@@ -184,7 +184,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         public override void RemoveTransition(char input)
         {
             Transitions.Remove(input);
-            Automaton.TransitionFunction.Remove(Tuple.Create(input, this));
+            Automaton.TransitionFunction.Remove(Tuple.Create(input, this as IAutomatonState));
 
             var tr = Automaton.Transitions.Find(t => t.From == this && t.Annotation.Contains(input));
             if (!(tr is MealySelfTransition))
@@ -209,7 +209,7 @@ namespace TheoryOfAutomatons.Automaton.MealyAutomaton
         /// </summary>
         /// <param name="input">Входной символ.</param>
         /// <param name="output">Выходной символ.</param>
-        public void ToggleOutput(char input, char output)
+        public override void ToggleOutput(char input, char output)
         {
             if (Outputs.ContainsKey(input))
             {

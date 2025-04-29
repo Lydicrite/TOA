@@ -11,7 +11,7 @@ using TheoryOfAutomatons.Utils.Helpers;
 
 namespace TOA.TheoryOfAutomatons.Automaton.Common
 {
-    internal interface IAutomatonTransition
+    internal interface IAutomatonFromToTransition
     {
         /// <summary>
         /// Состояние, из которого происходит переход.
@@ -28,15 +28,15 @@ namespace TOA.TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Начальная точка перехода.
         /// </summary>
-        public Point Start { get; set; }
+        public Point Start { get; }
         /// <summary>
         /// Конечная точка перехода.
         /// </summary>
-        public Point End { get; set; }
+        public Point End { get; }
         /// <summary>
         /// Путь для отрисовки перехода.
         /// </summary>
-        public List<Point> Path { get; set; }
+        public List<Point> Path { get; }
 
 
 

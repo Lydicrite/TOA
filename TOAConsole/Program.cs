@@ -98,8 +98,6 @@ public class Program
             );
             */
 
-
-
             LASInputHandler.ProgramCycle();
         }
         catch (Exception ex)

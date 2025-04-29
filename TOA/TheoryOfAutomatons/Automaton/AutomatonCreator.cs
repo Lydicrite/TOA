@@ -203,6 +203,7 @@ namespace TheoryOfAutomatons.Automaton
                     DFAutomaton = AutomatonFactory.CreateAutomaton
                     (
                         AutomatonFactory.FromInt(type),
+                        file,
                         Container,
                         this
                     );
@@ -364,7 +365,7 @@ namespace TheoryOfAutomatons.Automaton
                             Point p = FindFreeInitialPoint();
                             if (p != Point.Empty)
                             {
-                                DFAutomaton.StatesAlphabet.Add(new AutomatonState(DFAutomaton, DFAutomaton.StatesAlphabet.Count, form.StateDescription.ToString(), p));
+                                DFAutomaton.StatesAlphabet.Add(AutomatonFactory.CreateState(DFAutomaton.Type, DFAutomaton, DFAutomaton.StatesAlphabet.Count, form.StateDescription.ToString(), p) );
                                 Check();
                             }
                         }

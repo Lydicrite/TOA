@@ -23,7 +23,6 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// <summary>
     /// Реализует абстрактный класс Конечного Автомата, содержащий общие поля, члены, методы и функции.
     /// </summary>
-    /// <typeparam name="TState">Тип состояния Автомата</typeparam>
     internal abstract class DFAutomaton : IDFAutomaton
     {
         #region Параметры для работы
@@ -141,7 +140,7 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <summary>
         /// Список, использующийся для отрисовки переходов между состояниями АА.
         /// </summary>
-        public List<IAutomatonTransition> Transitions { get; protected set; }
+        public List<IAutomatonFromToTransition> Transitions { get; protected set; }
         /// <summary>
         /// Булева карта для верного размещения состояний АА.
         /// </summary>
@@ -256,7 +255,7 @@ namespace TheoryOfAutomatons.Automaton.Common
             OutputAlphabet = new List<char>();
             StatesAlphabet = new List<IAutomatonState>();
             TransitionFunction = new Dictionary<Tuple<char, IAutomatonState>, IAutomatonState>();
-            Transitions = new List<IAutomatonTransition>();
+            Transitions = new List<IAutomatonFromToTransition>();
             // OutputFunction реализуется отдельно для каждого типа автомата
 
             Container.CreateGraphics();
@@ -563,7 +562,6 @@ namespace TheoryOfAutomatons.Automaton.Common
 
 
 
-
         #region Визуализация
 
         /// <summary>
@@ -588,6 +586,8 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// </summary>
         /// <param name="state">Состояние для удаления.</param>
         public abstract void DeleteState(IAutomatonState state);
+
+
 
         #region Отрисовка путей
 

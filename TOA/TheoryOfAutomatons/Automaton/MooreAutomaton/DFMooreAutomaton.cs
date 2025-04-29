@@ -168,7 +168,7 @@ namespace TheoryOfAutomatons.Automaton.MooreAutomaton
 
             DrawHelper.SetGraphicsParameters(g);
 
-            IAutomatonTransition tr = null;
+            IAutomatonFromToTransition tr = null;
             if (CurrentInputSymbol != '\0')
             {
                 tr = Transitions.Find(t => t.From == CurrentState && t.To == TransitionFunction[Tuple.Create(CurrentInputSymbol, CurrentState)]);

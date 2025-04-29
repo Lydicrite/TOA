@@ -5,6 +5,7 @@ using TheoryOfAutomatons.Automaton.MealyAutomaton;
 using TheoryOfAutomatons.Automaton.MooreAutomaton;
 using TheoryOfAutomatons.Utils;
 using TheoryOfAutomatons.Utils.Helpers;
+using TOA.TheoryOfAutomatons.Automaton;
 using TOA.TheoryOfAutomatons.Automaton.Common;
 
 namespace TheoryOfAutomatons.Automaton.Common
@@ -13,22 +14,19 @@ namespace TheoryOfAutomatons.Automaton.Common
     /// Абстрактный класс, представляющий переход автомата.
     /// </summary>
     /// <typeparam name="TState">Тип состояния автомата.</typeparam>
-    internal abstract class AutomatonTransition : IAutomatonTransition
+    internal abstract class AutomatonTransition : IAutomatonFromToTransition
     {
-        /// <summary>
-        /// Состояние, из которого происходит переход.
-        /// </summary>
         public IAutomatonState From { get; protected set; }
 
-        /// <summary>
-        /// Состояние, в которое происходит переход.
-        /// </summary>
         public IAutomatonState To { get; protected set; }
 
         /// <summary>
         /// Аннотация, связанная с переходом.
         /// </summary>
         public string Annotation { get; protected set; }
+        public Point Start { get; set; }
+        public Point End { get; set; }
+        public List<Point> Path { get; protected set; }
 
         /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="AutomatonTransition{TState}"/>.
@@ -87,18 +85,12 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <returns>Созданный переход между состояниями.</returns>
         protected static AutomatonTransition CreateFromToTransition(IAutomatonState from, IAutomatonState to, char inputSymbol)
         {
-            if (typeof(TState) == typeof(MealyAutomatonState))
-            {
+            if (from.Type == to.Type && from.Type == AutomatonType.Mealy)
                 return new MealyFromToTransition(from as MealyAutomatonState, to as MealyAutomatonState, inputSymbol) as AutomatonTransition;
-            }
-            else if (typeof(TState) == typeof(MooreAutomatonState))
-            {
+            else if (from.Type == to.Type && from.Type == AutomatonType.Moore)
                 return new MooreFromToTransition(from as MooreAutomatonState, to as MooreAutomatonState, inputSymbol) as AutomatonTransition;
-            }
             else
-            {
-                throw new NotSupportedException("Неподдерживаемый тип состояния Автомата TState.");
-            }
+                throw new NotSupportedException("Неподдерживаемый тип состояния автомата.");
         }
 
         /// <summary>
@@ -108,18 +100,12 @@ namespace TheoryOfAutomatons.Automaton.Common
         /// <returns>Созданный самопереход.</returns>
         protected static AutomatonTransition CreateSelfTransition(IAutomatonState state)
         {
-            if (typeof(TState) == typeof(MealyAutomatonState))
-            {
+            if (state.Type == AutomatonType.Mealy)
                 return new MealySelfTransition(state as MealyAutomatonState) as AutomatonTransition;
-            }
-            else if (typeof(TState) == typeof(MooreAutomatonState))
-            {
+            else if (state.Type == AutomatonType.Moore)
                 return new MooreSelfTransition(state as MooreAutomatonState) as AutomatonTransition;
-            }
             else
-            {
                 throw new NotSupportedException("Неподдерживаемый тип состояния Автомата TState.");
-            }
         }
 
         /// <summary>
@@ -141,6 +127,11 @@ namespace TheoryOfAutomatons.Automaton.Common
             if (pointsCount <= 30) return 28;
             if (pointsCount <= 33) return 31;
             return 34;
+        }
+
+        int IAutomatonFromToTransition.CalculateNewPointCount(int pointsCount)
+        {
+            return CalculateNewPointCount(pointsCount);
         }
     }
 
