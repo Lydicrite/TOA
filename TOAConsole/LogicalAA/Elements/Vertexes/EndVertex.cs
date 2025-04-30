@@ -15,7 +15,7 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     {
         public EndVertex(int pos)
         {
-            Id = "Yк";
+            ID = "Yк";
             Position = pos;
         }
 

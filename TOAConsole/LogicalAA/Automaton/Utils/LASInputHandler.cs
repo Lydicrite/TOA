@@ -429,23 +429,37 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("╔════════════════════════════════════════════════╗");
-            Console.WriteLine("║             ОБЪЕДИНЕНИЕ АВТОМАТОВ              ║");
-            Console.WriteLine("╠════════════════════════════════════════════════╣");
-            Console.WriteLine("║ Позволяет произвести объединение от 2 до 10    ║");
-            Console.WriteLine("║ автоматов на основе объединения их матричных   ║");
-            Console.WriteLine("║ схем (МСА)                                     ║");
-            Console.WriteLine("║                                                ║");
-            Console.WriteLine("║ В случае успешного ввода ЛСА всех объединяемых ║");
-            Console.WriteLine("║ автоматов программа вывед информацию о каждом  ║");
-            Console.WriteLine("║ из них, их подготовленные к объединению МСА и  ║");
-            Console.WriteLine("║ итоговую ОМСА                                  ║");
-            Console.WriteLine("╚════════════════════════════════════════════════╝");
+            Console.WriteLine("╔═════════════════════════════════════════════════╗");
+            Console.WriteLine("║             ОБЪЕДИНЕНИЕ АВТОМАТОВ               ║");
+            Console.WriteLine("╠═════════════════════════════════════════════════╣");
+            Console.WriteLine("║ Позволяет произвести объединение от 2 до 10     ║");
+            Console.WriteLine("║ автоматов на основе объединения их матричных    ║");
+            Console.WriteLine("║ схем (МСА).                                     ║");
+            Console.WriteLine("║                                                 ║");
+            Console.WriteLine("║ В случае успешного ввода ЛСА всех объединяемых  ║");
+            Console.WriteLine("║ автоматов программа выводит информацию о каждом ║");
+            Console.WriteLine("║ из них, их подготовленные к объединению МСА и   ║");
+            Console.WriteLine("║ итоговую ОМСА, выполняя её упрощение и          ║");
+            Console.WriteLine("║ минимизацию с помощью законов алгебры логики и  ║");
+            Console.WriteLine("║ распределения сдвигов.                          ║");
+            Console.WriteLine("║                                                 ║");
+            Console.WriteLine("║ МСА в своих ячейках содержит формулы переходов  ║");
+            Console.WriteLine("║ из Yi (строки) в Yj (столбцы).                  ║");
+            Console.WriteLine("║  - '0' означает отсутствие перехода.            ║");
+            Console.WriteLine("║  - '1' означает прямой переход (для стоящих     ║");
+            Console.WriteLine("║ подряд Y-вершин, либо разделённых операторами и ║");
+            Console.WriteLine("║ (или) точками переходов).                       ║");
+            Console.WriteLine("║  - 'логическая формула' означает комбинацию     ║");
+            Console.WriteLine("║ значений условных вершин, при которых из Yi в   ║");
+            Console.WriteLine("║ Yj можнно перейти, минуя другие Yk.             ║");
+            Console.WriteLine("╚═════════════════════════════════════════════════╝");
             Console.ResetColor();
 
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Write("\n►► Нажмите любую клавишу для продолжения...\n");
+            Console.Write("\n►► Нажмите любую клавишу для продолжения... ");
             Console.ResetColor();
+            Console.ReadKey(true);
+            ClearLastLine();
 
             int count = ReadInt("►► Введите количество объединяемых автоматов", 2, 10);
             var schemes = new List<MatrixSchema>();
@@ -480,21 +494,41 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 finally
                 {
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("\n►► Нажмите любую клавишу для продолжения...\n");
+                    Console.Write("\n►► Нажмите любую клавишу для продолжения...");
                     Console.ResetColor();
                     Console.ReadKey(true);
+                    ClearLastLine();
                 }
             }
 
+            var binaryCodes = new List<string>();
+            var varCodes = new List<string>();
+            var newVariables = new HashSet<string>();
+
             var merged = MASCombiner.PrepareForCombine(schemes);
-            var combined = MASCombiner.CombineSchemas(merged);
+            var combined = MASCombiner.CombineSchemas(merged, ref binaryCodes, ref varCodes, ref newVariables);
+
+            Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write
+                (
+                    $"\n►► В объединении участвуют {count} автомата, отсюда: " +
+                    $"\n\t► достаточное количество новых переменных для объединения: {newVariables.Count()} ◄" +
+                    $"\n\t► новые переменные: {string.Join(", ", newVariables)} ◄\n◄◄\n"
+                );
 
             for (int i = 0; i < count; i++)
             {
                 try
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"\n►► Подготовленная к объединению МСА автомата #{i + 1} ◄◄\n");
+                    Console.Write
+                        (
+                            $"\n►►" +
+                            $"\nПодготовленная к объединению МСА автомата #{i + 1}" +
+                            $"\n\t► кодирована следующим кодом: \"{binaryCodes[i]}\" ({varCodes[i]}) ◄" +
+                            $"\n◄◄\n"
+                        );
                     Console.ResetColor();
                     Console.Write($"\n{merged[i]}\n");
                 }
@@ -508,9 +542,41 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             }
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("\n►► Объединённая МСА ◄◄\n");
+            Console.WriteLine
+                (
+                    $"\n►►" +
+                    $"\nОбъединённая МСА" +
+                    $"\n\t► содержит неупрощённые логические формулы переходов из Yᵢ в Yⱼ ◄" +
+                    $"\n◄◄\n"
+                );
             Console.ResetColor();
             Console.WriteLine(combined.ToString());
+            Console.ResetColor();
+
+            var simplified = combined.Simplify();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine
+                (
+                    $"\n►►" +
+                    $"\nУпрощённая МСА" +
+                    $"\n\t► содержит упрощённые по законам алгебры логики логические формулы переходов из Yᵢ в Yⱼ ◄" +
+                    $"\n◄◄\n"
+                );
+            Console.ResetColor();
+            Console.WriteLine(simplified.ToString());
+            Console.ResetColor();
+
+            var minimized = simplified.Minimize();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine
+                (
+                    $"\n►►" +
+                    $"\nМинимизированная МСА" +
+                    $"\n\t► содержит упрощённые по законам алгебры логики логические формулы переходов из Yᵢ в Yⱼ ◄" +
+                    $"\n◄◄\n"
+                );
+            Console.ResetColor();
+            Console.WriteLine(minimized.ToString());
             Console.ResetColor();
 
             ReturnToMain();
@@ -567,8 +633,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         private static bool IsValidLASSymbol(char c)
         {
             return 
-                c.ToString().ToUpper() == "Y" || c.ToString().ToUpper() == "X" ||
+                c.ToString().ToUpper() == "Y" ||
                 c.ToString().ToLower() == "н" || c.ToString().ToLower() == "к" ||
+                c.ToString().ToUpper() == "X" || c.ToString().ToUpper() == "P" ||
                 c == ' ' || c == '(' || c == ')' || c == '|' ||
                 char.IsDigit(c) || c == '↑' || c == '↓';
         }
@@ -576,7 +643,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         private static int ReadInt(string prompt, int min, int max)
         {
             int value;
-            while (!int.TryParse(Console.ReadLine(), out value) || value < min || value > max)
+            do
             {
                 Console.ResetColor();
                 Console.ForegroundColor = ConsoleColor.Cyan;
@@ -584,7 +651,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 Console.Write($"\n{prompt} (диапазон: [{min}, {max}]): ");
 
                 Console.ResetColor();
-            }
+            } while (!int.TryParse(Console.ReadLine(), out value) || value < min || value > max);
 
             return value;
         }

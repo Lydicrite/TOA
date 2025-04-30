@@ -22,11 +22,11 @@ namespace TOAConsole.LogicalAA.Elements.Jumps
         {
             JumpIndex = index;
             Position = pos;
-            Id = $"↓{index}";
+            ID = $"↓{index}";
         }
 
         public override string Description =>
-            $"\nПройдена точка перехода {JumpIndex}: \"{Id}\"" +
+            $"\nПройдена точка перехода {JumpIndex}: \"{ID}\"" +
             $"\n\tПозиция в списке токенов: {Position}";
 
         public override ILAAElement? GetNext(Automaton.Automaton automaton) => Next;

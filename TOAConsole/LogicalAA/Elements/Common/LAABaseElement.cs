@@ -19,18 +19,16 @@ namespace TOAConsole.LogicalAA.Elements.Common
         /// <summary>
         /// Строковый идентификатор элемента.
         /// </summary>
-        string? Id { get; }
+        string? ID { get; }
         /// <summary>
         /// Потомок этого элемента (возможно null)
         /// </summary>
         ILAAElement? Next { get; set; }
-
         /// <summary>
         /// Возвращает подробное описание элемента.
         /// </summary>
         /// <returns></returns>
         string Description { get; }
-
         /// <summary>
         /// Получает потомка для этого элемента.
         /// <br>Где нужно, использует <paramref name="automaton"/> для поиска потомка.</br>
@@ -46,7 +44,7 @@ namespace TOAConsole.LogicalAA.Elements.Common
     internal abstract class LAABaseElement : ILAAElement
     {
         public int Position { get; protected set; }
-        public string? Id { get; protected set; }
+        public string? ID { get; protected set; }
         public ILAAElement? Next { get; set; }
 
         public abstract string Description { get; }

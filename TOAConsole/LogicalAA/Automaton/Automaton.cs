@@ -170,7 +170,7 @@ namespace TOAConsole.LogicalAA.Automaton
                 if (verbose)
                     outputs.Add(CurrentElement.Description);
                 else
-                    outputs.Add(CurrentElement.Id);
+                    outputs.Add(CurrentElement.ID);
 
                 if (visited.Contains(CurrentElement))
                 {
@@ -188,7 +188,7 @@ namespace TOAConsole.LogicalAA.Automaton
                 if (verbose)
                     outputs.Add(CurrentElement.Description);
                 else
-                    outputs.Add(CurrentElement.Id);
+                    outputs.Add(CurrentElement.ID);
             }
 
             return outputs;
@@ -311,7 +311,7 @@ namespace TOAConsole.LogicalAA.Automaton
                 {
                     Console.Write(CurrentElement.Description + "\n");
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"\n►► Введите логическое значение для \"{cv.Id}\" ('0' или '1'): ");
+                    Console.Write($"\n►► Введите логическое значение для \"{cv.ID}\" ('0' или '1'): ");
                     Console.ResetColor();
                     var input = Console.ReadLine()?.Trim();
                     while (input != "0" && input != "1")
@@ -324,7 +324,7 @@ namespace TOAConsole.LogicalAA.Automaton
                     inputs += input;
                     cv.Value = input == "1";
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write($"\n►► Для веришны \"{cv.Id}\" установлено значение '{input}' ◄◄\n");
+                    Console.Write($"\n►► Для веришны \"{cv.ID}\" установлено значение '{input}' ◄◄\n");
                     Console.ResetColor();
                 }
                 else
@@ -395,7 +395,7 @@ namespace TOAConsole.LogicalAA.Automaton
             foreach (var cv in conditionalVertices)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write($"\n►► Для веришны \"{cv.Id}\" установлено значение '{cv.Value.Value}' ◄◄\n");
+                Console.Write($"\n►► Для веришны \"{cv.ID}\" установлено значение '{cv.Value.Value}' ◄◄\n");
                 Console.ResetColor();
             }
 

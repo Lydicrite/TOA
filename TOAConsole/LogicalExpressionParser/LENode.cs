@@ -62,11 +62,13 @@ namespace TOAConsole.LogicalExpressionParser
             _value = value; 
         }
 
+
+
         public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
         public override bool Evaluate(bool[] _) => _value;
         public override void CollectVariables(HashSet<string> _) { }
         
-        public override string ToString() => _value.ToString().ToLower();
+        public override string ToString() => (_value ? 1 : 0).ToString().ToLower();
         public override bool Equals(object obj)
         {
             return obj is ConstantNode other && _value == other._value;
@@ -141,6 +143,8 @@ namespace TOAConsole.LogicalExpressionParser
             Operand = operand ?? throw new ArgumentNullException(nameof(operand));
         }
 
+
+
         public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
         public override bool Evaluate(bool[] inputs)
         {
@@ -154,7 +158,7 @@ namespace TOAConsole.LogicalExpressionParser
             ;
         }
 
-        public override string ToString() => $"{Operator}({Operand.ToString()})";
+        public override string ToString() => $"{Operator}{Operand.ToString()}";
         public override bool Equals(object obj)
         {
             if (obj is UnaryNode other)
@@ -199,6 +203,8 @@ namespace TOAConsole.LogicalExpressionParser
             Left = left ?? throw new ArgumentNullException(nameof(left));
             Right = right ?? throw new ArgumentNullException(nameof(right));
         }
+
+
 
         public override void Accept(ILEVisitor visitor) => visitor.Visit(this);
         public override bool Evaluate(bool[] inputs)

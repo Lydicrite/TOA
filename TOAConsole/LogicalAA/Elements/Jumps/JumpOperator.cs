@@ -27,11 +27,11 @@ namespace TOAConsole.LogicalAA.Elements.Jumps
             JumpIndex = index;
             Position = pos;
             IsUnconditional = isUnconditional;
-            Id = $"{(isUnconditional ? "w↑" : "↑")}{index}";
+            ID = $"{(isUnconditional ? "w↑" : "↑")}{index}";
         }
 
         public override string Description =>
-            $"\nВыполнение перехода в точку ↓{JumpIndex}: \"{Id}\"" +
+            $"\nВыполнение перехода в точку ↓{JumpIndex}: \"{ID}\"" +
             $"\n\tПереход безусловный: {(IsUnconditional ? "да" : "нет")}" +
             $"\n\tПозиция в списке токенов: {Position}";
 

@@ -10,11 +10,16 @@ using TOAConsole.LogicalExpressionParser.Utils;
 
 namespace TOAConsole.LogicalExpressionParser
 {
-    internal class LogicalExpressionParser
+    internal class LEParser
     {
         private readonly Dictionary<string, int> _operatorPrecedence;
         private readonly Dictionary<string, Func<LENode, LENode>> _unaryOperators;
         private readonly Dictionary<string, Func<LENode, LENode, LENode>> _binaryOperators;
+
+
+
+        #region Словари союзных токенов
+
         private readonly Dictionary<string, string> _operatorAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             // Бинарные операторы
@@ -29,20 +34,31 @@ namespace TOAConsole.LogicalExpressionParser
             // Унарные операторы
             { "!", "~" }, { "NOT", "~" }, { "~", "~" }, { "¬", "~" }
         };
-        private static readonly HashSet<string> _reservedKeywords = new HashSet<string> { "true", "false" };
+
+        private readonly Dictionary<string, string> _constantAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "0", "0" }, { "false", "0" },
+            { "1", "1" }, { "true", "1" }
+        };
+
+        #endregion
+
+
+
+        #region Кэш
+
         private const int MaxCacheSize = 1024;
         private static readonly MemoryCache _logicalExpressionsCache = new MemoryCache("LogicalExpressionsCache");
         private static readonly CacheItemPolicy _cachePolicy = new CacheItemPolicy
         {
-            RemovedCallback = args =>
-            {
-                Console.WriteLine($"[КЭШ] Удален элемент: {args.CacheItem.Key} | Причина: {args.RemovedReason}");
-            },
-
             SlidingExpiration = TimeSpan.FromMinutes(5)
         };
 
-        public LogicalExpressionParser()
+        #endregion
+
+
+
+        public LEParser()
         {
             _operatorPrecedence = new Dictionary<string, int>
             {
@@ -71,6 +87,7 @@ namespace TOAConsole.LogicalExpressionParser
             if (_logicalExpressionsCache.Contains(expression))
                 return (LENode)_logicalExpressionsCache.Get(expression);
 
+            ReplaceConstantAliases(ref expression);
             ReplaceOperatorAliases(ref expression);
             var tokens = Tokenize(expression);
             ValidateTokenSequence(tokens);
@@ -85,6 +102,16 @@ namespace TOAConsole.LogicalExpressionParser
 
             _logicalExpressionsCache.Add(expression, ast, _cachePolicy);
             return ast;
+        }
+
+        private void ReplaceConstantAliases(ref string expression)
+        {
+            var pattern = @"\b(0|1)\b";
+            expression = Regex.Replace(
+                expression,
+                pattern,
+                m => _constantAliases[m.Value.ToLower()]
+            );
         }
 
         private void ReplaceOperatorAliases(ref string expression)
@@ -127,6 +154,11 @@ namespace TOAConsole.LogicalExpressionParser
                     tokens.Add(varName);
                 }
                 else if (expression[i] == '(' || expression[i] == ')')
+                {
+                    tokens.Add(expression[i].ToString());
+                    i++;
+                }
+                else if (expression[i] == '0' || expression[i] == '1')
                 {
                     tokens.Add(expression[i].ToString());
                     i++;
@@ -200,13 +232,9 @@ namespace TOAConsole.LogicalExpressionParser
 
             foreach (var token in postfix)
             {
-                if (token.ToLower() == "true")
+                if (_constantAliases.TryGetValue(token, out var alias))
                 {
-                    stack.Push(new ConstantNode(true));
-                }
-                else if (token.ToLower() == "false")
-                {
-                    stack.Push(new ConstantNode(false));
+                    stack.Push(new ConstantNode(alias == "1"));
                 }
                 else if (_unaryOperators.TryGetValue(token, out var unaryFactory))
                 {

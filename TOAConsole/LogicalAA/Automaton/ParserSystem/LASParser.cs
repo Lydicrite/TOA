@@ -13,6 +13,8 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
 {
     internal static class LASParser
     {
+        private static int _conditionalVertexCounter = 0;
+
         /// <summary>
         /// Преобразует входную строку <paramref name="input"/> в объект <see cref="Automaton"/>.
         /// </summary>
@@ -21,6 +23,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
         /// <exception cref="FormatException"></exception>
         public static Automaton Parse(string input)
         {
+            _conditionalVertexCounter = 0;
             var errors = new List<ParsingError>();
             var parsedPositions = new Dictionary<int, bool>();
 
@@ -74,7 +77,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             input = Regex.Replace(input, @"[()|]", " ");
 
             // Нормализуем регистр
-            input = Regex.Replace(input, @"\b([yx])(\d+)\b", m =>
+            input = Regex.Replace(input, @"\b([yxp])(\d+)\b", m =>
                 m.Groups[1].Value.ToUpper() + m.Groups[2].Value);
 
             input = Regex.Replace(input, @"\b(w↑\d+)\b", m => m.Value.ToLower());
@@ -90,7 +93,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
         /// <returns>Список токенов ЛСА, используемых для создания элементов автомата.</returns>
         private static List<string> Tokenize(string input, ref List<ParsingError> errors)
         {
-            var tokenPattern = @"(Yн|Yк|w↑\d+|↑\d+|↓\d+|X\d+|Y\d+)";
+            var tokenPattern = @"(Yн|Yк|w↑\d+|↑\d+|↓\d+|X\d+|P\d+|Y\d+)";
             var matches = Regex.Matches(input, tokenPattern, RegexOptions.IgnoreCase);
 
             if (matches.Count == 0)
@@ -178,8 +181,10 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
                 case "Yк":
                     return HandleEndVertex(automaton, position - 1, ref parsedPositions, ref errors);
 
-                case var x when x.StartsWith("X"):
-                    return ParseConditionalVertex(automaton, ref position, ref parsedPositions, int.Parse(x[1..]), ref errors);
+                case var x when x.StartsWith("X") || x.StartsWith("P"):
+                    string prefix = x.Substring(0, 1);
+                    int originalNumber = int.Parse(x.Substring(1));
+                    return ParseConditionalVertex(automaton, ref position, ref parsedPositions, prefix, originalNumber, ref errors);
 
                 case var y when y.StartsWith("Y"):
                     if (y == "Yн")
@@ -224,11 +229,12 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
         /// <exception cref="FormatException"></exception>
         private static ConditionalVertex ParseConditionalVertex
         (
-            Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions, 
-            int index, ref List<ParsingError> errors
+            Automaton automaton, ref int position, ref Dictionary<int, bool> parsedPositions,
+            string prefix, int originalNumber, ref List<ParsingError> errors
         )
         {
-            var vertex = new ConditionalVertex(index, position - 1);
+            int index = ++_conditionalVertexCounter;
+            var vertex = new ConditionalVertex(prefix, originalNumber, index, position - 1);
             automaton.AddElement(vertex);
 
             // Парсим LBS (условный оператор ↑j)
@@ -401,7 +407,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             {
                 if (prevBase.Next != null && prevBase.Next != current)
                 {
-                    AddError(errors, $"Ошибка связки: элемент \"{prevBase.Id}\" уже имеет следующий элемент (потомка), его позиция: {prevBase.Next.Position}", prevBase.Next.Position);
+                    AddError(errors, $"Ошибка связки: элемент \"{prevBase.ID}\" уже имеет следующий элемент (потомка), его позиция: {prevBase.Next.Position}", prevBase.Next.Position);
                     return;
                 }
                 prevBase.Next = current;
@@ -532,7 +538,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             foreach (var jo in automaton.Elements.OfType<JumpOperator>())
             {
                 if (!automaton.JumpPoints.ContainsKey(jo.JumpIndex))
-                    AddError(errors, $"Точка перехода \"↓{jo.JumpIndex}\" для оператора \"{jo.Id}\" не найдена", jo.Position);
+                    AddError(errors, $"Точка перехода \"↓{jo.JumpIndex}\" для оператора \"{jo.ID}\" не найдена", jo.Position);
             }
         }
 
@@ -564,7 +570,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             {
                 if (cv.LBS == null || cv.RBS == null)
                 {
-                    string ex = $"Условная вершина \"{cv.Id}\" имеет неопределённых потомков: ";
+                    string ex = $"Условная вершина \"{cv.ID}\" имеет неопределённых потомков: ";
                     if (cv.LBS == null) ex += "\n\tОтсутствует левый потомок";
                     if (cv.RBS == null) ex += "\n\tОтсутствует правый потомок";
                     AddError(errors, ex, cv.Position);

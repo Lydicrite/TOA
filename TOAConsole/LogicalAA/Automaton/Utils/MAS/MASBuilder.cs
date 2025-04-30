@@ -36,7 +36,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             colsVertexes.Add(end);
 
             var matrix = new MatrixSchema();
-            matrix.Headers = rowsVertexes.Select(v => v.Id).ToList();
+            matrix.Headers = rowsVertexes.Select(v => v.ID).ToList();
 
             // Получаем все возможные пути для всех комбинаций условий
             var pathConditions = AnalyzeAllPaths(automaton, rowsVertexes, colsVertexes);
@@ -122,7 +122,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             // Собираем все Y-вершины в пути
             var yVertices = path
                 .Select((el, idx) => new { Element = el, Index = idx })
-                .Where(x => IsYVertex(x.Element))
+                .Where(x => IsOperatorVertex(x.Element))
                 .ToList();
 
             // Анализируем все возможные пары
@@ -136,7 +136,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                     var end = yVertices[j].Index;
 
                     // Проверяем отсутствие промежуточных Y
-                    if (HasIntermediateY(path, start, end)) continue;
+                    if (HasIntermediateOV(path, start, end)) continue;
 
                     var key = (from, to);
                     var conditions = CollectConditionsForSegment(path, start, end, binaryConditions, conditionals);
@@ -170,8 +170,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                     bool actualValue = binaryConditions[cvIndex] == '1';
 
                     conditions.Add(requiresRBS == actualValue
-                        ? (requiresRBS ? $"X{cv.Index}" : $"¬X{cv.Index}")
-                        : (requiresRBS ? $"¬X{cv.Index}" : $"X{cv.Index}"));
+                        ? (requiresRBS ? $"{cv.ID}" : $"¬{cv.ID}")
+                        : (requiresRBS ? $"¬{cv.ID}" : $"{cv.ID}"));
                 }
             }
 
@@ -180,26 +180,20 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 
 
 
-
-        private static bool ContainsCondition(List<List<string>> existing, List<string> newConditions)
-        {
-            return existing.Any(c => c.SequenceEqual(newConditions));
-        }
-
-        private static bool IsYVertex(ILAAElement element)
+        private static bool IsOperatorVertex(ILAAElement element)
             => element is StartVertex || element is OperatorVertex || element is EndVertex;
 
-        private static bool HasIntermediateY(List<ILAAElement> path, int start, int end)
+        private static bool HasIntermediateOV(List<ILAAElement> path, int start, int end)
         {
             for (int i = start + 1; i < end; i++)
-                if (IsYVertex(path[i])) return true;
+                if (IsOperatorVertex(path[i])) return true;
 
             return false;
         }
 
-        private static bool HasIntermediateY(List<ILAAElement> path)
+        private static bool HasIntermediateOV(List<ILAAElement> path)
         {
-            return path.Skip(1).Take(path.Count - 2).Any(IsYVertex);
+            return path.Skip(1).Take(path.Count - 2).Any(IsOperatorVertex);
         }
 
         private static string FormatConditions(List<List<string>> conditionGroups)

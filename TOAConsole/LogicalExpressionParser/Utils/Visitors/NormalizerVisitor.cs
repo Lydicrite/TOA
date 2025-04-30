@@ -27,6 +27,13 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
             node.Operand.Accept(this);
             var operand = _stack.Pop();
 
+            // Оптимизация: ~(const) → !const
+            if (operand is ConstantNode cn)
+            {
+                _stack.Push(new ConstantNode(!cn.Evaluate(null)));
+                return;
+            }
+
             // Устранение двойного отрицания
             if (node.Operator == "~" && operand is UnaryNode inner && inner.Operator == "~")
             {

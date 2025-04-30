@@ -22,11 +22,11 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
         {
             Index = index;
             Position = pos;
-            Id = $"Y{index}";
+            ID = $"Y{index}";
         }
 
         public override string Description =>
-            $"\nПройдена операторная вершина {Index}: \"{Id}\"" +
+            $"\nПройдена операторная вершина {Index}: \"{ID}\"" +
             $"\nПозиция в списке токенов: {Position}";
 
         public override ILAAElement? GetNext(Automaton.Automaton automaton) => Next;

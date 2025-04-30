@@ -14,9 +14,17 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     internal class ConditionalVertex : LAABaseElement
     {
         /// <summary>
-        /// Индекс этой условной вершины.
+        /// Уникальный индекс условной вершины.
         /// </summary>
         public int Index { get; }
+        /// <summary>
+        /// Префикс вершины (X или P).
+        /// </summary>
+        public string Prefix { get; }
+        /// <summary>
+        /// Число из исходного токена.
+        /// </summary>
+        public int OriginalNumber { get; }
         /// <summary>
         /// Логическое значение этой условной вершины
         /// </summary>
@@ -32,11 +40,13 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
         /// </summary>
         public ILAAElement? RBS { get; set; }
 
-        public ConditionalVertex(int index, int pos)
+        public ConditionalVertex(string prefix, int originalNumber, int index, int pos)
         {
+            Prefix = prefix;
+            OriginalNumber = originalNumber;
             Index = index;
             Position = pos;
-            Id = $"X{index}";
+            ID = $"{Prefix}{OriginalNumber}";
         }
 
         public override string Description
@@ -44,9 +54,8 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
             get
             {
                 string condValue = Value.HasValue ? $"{(Value.Value ? 1 : 0)}" : "не установлено";
-
                 return
-                    $"\nПройдена условная вершина {Index}: \"{Id}\"" +
+                    $"\nПройдена условная вершина {Index}: \"{ID}\"" +
                     $"\n\tЗначение условия: {condValue}" +
                     $"\n\tПозиция в списке токенов: {Position}";
             }

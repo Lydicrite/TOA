@@ -8,12 +8,25 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 {
     internal class MASCombiner
     {
+        private static List<string> _binaryCodes = new List<string>();
+        private static List<string> _pVarCodes = new List<string>();
+        private static HashSet<string> _newPVariables = new HashSet<string>();
+
         #region Объединение матриц
 
         /// <summary>
         /// Объединяет модифицированные МСА в единую матрицу.
         /// </summary>
-        public static MatrixSchema CombineSchemas(List<MatrixSchema> modifiedSchemes)
+        /// <param name="modifiedSchemes">Список подготовленных к объединению МСА.</param>
+        /// <param name="binaryCodes">Список двоичных кодов, используемых для кодирования объединяемых МСА.</param>
+        /// <param name="varCodes">Список из конъюнкций кодирующих переменных, используемых для кодирования объединяемых МСА.</param>
+        /// <param name="newVariables">Список кодирующих переменных, используемых для кодирования объединяемых МСА.</param>
+        /// <returns>Объединённая МСА.</returns>
+        public static MatrixSchema CombineSchemas
+        (
+            List<MatrixSchema> modifiedSchemes, ref List<string> binaryCodes, 
+            ref List<string> varCodes, ref HashSet<string> newVariables
+        )
         {
             // Собираем все уникальные вершины из всех МСА
             var allVertices = modifiedSchemes
@@ -41,6 +54,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                 }
                 combinedSchema.Rows.Add(newRow);
             }
+
+            binaryCodes = _binaryCodes;
+            varCodes = _pVarCodes;
+            newVariables = _newPVariables;
 
             return combinedSchema;
         }
@@ -113,41 +130,36 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return $"({string.Join(") ˅ (", nonEmpty)})";
         }
 
-        /// <summary>
-        /// Проверяет эквивалентность условий (временная реализация).
-        /// </summary>
-        private static bool ConditionsAreEqual(string a, string b)
-        {
-            return a.Equals(b, StringComparison.Ordinal);
-        }
-
         #endregion
-
-
 
 
 
         #region Подготовка к объединению
 
         /// <summary>
-        /// Объединяет список МСА в набор модифицированных МСА с добавлением переменных P1...Pn.
+        /// Преобразует список МСА отдельных алгоритмовв список модифицированных МСА с добавлением переменных P1 ... Pn.
         /// </summary>
         /// <param name="schemes"></param>
         /// <returns></returns>
         public static List<MatrixSchema> PrepareForCombine(List<MatrixSchema> schemes)
         {
-            // Определяем количество дополнительных переменных P
+            _newPVariables.Clear();
+            _binaryCodes.Clear();
+            _pVarCodes.Clear();
+
             int n = (int)Math.Ceiling(Math.Log(schemes.Count, 2));
             var mergedSchemas = new List<MatrixSchema>();
 
-            // Генерируем двоичные коды для каждой МСА
-            var codes = GenerateBinaryCodes(schemes.Count, n);
+            _binaryCodes = GenerateBinaryCodes(schemes.Count, n);
 
-            // Модифицируем каждую МСА
             for (int i = 0; i < schemes.Count; i++)
             {
-                MatrixSchema modifiedSchema = ModifySchema(schemes[i], codes[i]);
+                string code = _binaryCodes[i];
+                MatrixSchema modifiedSchema = ModifySchema(schemes[i], code);
                 mergedSchemas.Add(modifiedSchema);
+
+                string pConjunction = CreatePConjunction(code, schemes[i]);
+                _pVarCodes.Add(pConjunction);
             }
 
             return mergedSchemas;
@@ -180,8 +192,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                 Rows = new List<MASRow>()
             };
 
-            // Формируем конъюнкцию переменных P1 ... Pn по коду
-            var pConjunction = CreatePConjunction(code);
+            // Формируем конъюнкцию переменных Pk ... Pn по коду
+            var pConjunction = CreatePConjunction(code, schema);
 
             foreach (var row in schema.Rows)
             {
@@ -204,12 +216,24 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// </summary>
         /// <param name="code"></param>
         /// <returns></returns>
-        private static string CreatePConjunction(string code)
+        private static string CreatePConjunction(string code, MatrixSchema schema)
         {
+            var schemaPVars = schema.DetectPVariables();
+            int lastSchemePNumber = schemaPVars.Any()
+                ? schemaPVars.Max(p => int.Parse(p[1..]))
+                : 0;
+
             var parts = new List<string>();
             for (int i = 0; i < code.Length; i++)
             {
-                parts.Add(code[i] == '0' ? $"¬P{i + 1}" : $"P{i + 1}");
+                if (code[i] != '0' && code[i] != '1')
+                    throw new ArgumentException("Код для кодирования МСА должен содержать только '0' или '1'.");
+
+                int pNumber = i + lastSchemePNumber + 1;
+                var pID = $"P{pNumber}";
+
+                _newPVariables.Add(pID);
+                parts.Add(code[i] == '0' ? $"¬{pID}" : $"{pID}");
             }
             return string.Join(" ˄ ", parts);
         }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TOAConsole.LogicalExpressionParser;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 {
@@ -11,6 +13,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
     /// </summary>
     internal class MatrixSchema
     {
+        private static LEParser _parser = new();
+
         /// <summary>
         /// Список заголовков столбцов таблицы.
         /// </summary>
@@ -19,6 +23,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// Список строк таблицы.
         /// </summary>
         public List<MASRow> Rows { get; set; } = new();
+
+
 
         public override string ToString()
         {
@@ -156,6 +162,169 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 
 
 
+        #region Упрощение и минимизация
+
+        /// <summary>
+        /// Упрощает логические выражения в ячейках МСА.
+        /// </summary>
+        /// <returns>Новая МСА, содержащая упрощённые логические выражения в своих ячейках.</returns>
+        /// <exception cref="AggregateException"></exception>
+        public MatrixSchema Simplify()
+        {
+            var simplifiedMatrix = this.DeepCopy();
+
+            var exceptions = new List<Exception>();
+
+            for (int rowIdx = 0; rowIdx < simplifiedMatrix.Rows.Count; rowIdx++)
+            {
+                var row = simplifiedMatrix.Rows[rowIdx];
+
+                for (int colIdx = 0; colIdx < row.Transitions.Count; colIdx++)
+                {
+                    string originalCondition = row.Transitions[colIdx];
+
+                    if (string.IsNullOrWhiteSpace(originalCondition))
+                        continue;
+
+                    try
+                    {
+                        // Парсинг и упрощение
+                        var parsed = _parser.Parse(originalCondition);
+                        var originalExpr = new LogicalExpression(parsed);
+
+                        // Установка порядка переменных
+                        var variables = originalExpr.BooleanValues.First()
+                            .Take(originalExpr.BooleanValues[0].Length - 1)
+                            .Select((_, i) => originalExpr.Variables[i])
+                            .ToArray();
+                        originalExpr.SetVariableOrder(variables);
+
+                        var simplifiedExpr = originalExpr.Expand();
+
+                        // Проверка эквивалентности
+                        if (!originalExpr.Equals(simplifiedExpr))
+                            throw new InvalidOperationException
+                            (
+                                $"Упрощение нарушило эквивалентность: {originalCondition} -> {simplifiedExpr}"
+                            );
+
+                        // Форматирование ячейки
+                        var cellString = simplifiedExpr
+                            .ToString()
+                            .Replace('~', '¬')
+                            .Replace('&', '˄')
+                            .Replace('|', '˅');
+
+
+                        // Удаление внешних скобок если они есть
+                        if (cellString.StartsWith("(") && cellString.EndsWith(")"))
+                            cellString = cellString.Substring(1, cellString.Length - 2);
+
+                        // Разбиение на конъюнкции и нормализация
+                        var parts = cellString
+                            .Split(new[] { '˅' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(p => p.Trim())
+                            .ToList();
+
+                        var cleanedParts = parts
+                            .Select(p => p
+                                .Replace("(", "")
+                                .Replace(")", "")
+                                .Trim()
+                            )
+                            .Where(p => !string.IsNullOrEmpty(p))
+                            .ToList();
+
+                        // Сборка финальной строки с обёрткой в скобки
+                        cellString = cleanedParts.Any()
+                            ? string.Join(" ˅ ", cleanedParts.Select(p => cleanedParts.Count() > 1 ? $"({p})" : p))
+                            : " ";
+
+                        row.Transitions[colIdx] = cellString;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        exceptions.Add(new Exception(
+                            $"\nОшибка в ячейке [{Headers[rowIdx]} -> {Headers[colIdx]}]: {ex.Message}",
+                            ex
+                        ));
+                    }
+                }
+            }
+
+            if (exceptions.Any())
+                throw new AggregateException(
+                    "Ошибки при упрощении логических выражений",
+                    exceptions
+                );
+
+            return simplifiedMatrix;
+        }
+
+        public MatrixSchema Minimize()
+        {
+            // Шаг 1: Первоначальное упрощение
+            var minimized = this.Simplify();
+
+            // Шаг 2: Распределение сдвигов для P-переменных
+            minimized = ApplyShiftDistribution(minimized);
+
+            // Шаг 3: Финальное упрощение
+            return minimized.Simplify();
+        }
+
+        private MatrixSchema ApplyShiftDistribution(MatrixSchema schema)
+        {
+            Regex regex = new Regex(@"(?<!\S)¬?P\d+\b");
+            var pVariables = schema.DetectPVariables();
+            var newSchema = schema.DeepCopy();
+
+            foreach (var pVar in pVariables)
+            {
+                for (int colIdx = 0; colIdx < newSchema.Headers.Count; colIdx++)
+                {
+                    // Анализ столбца на постоянство значения P-переменной
+                    var column = newSchema.GetColumn(colIdx);
+                    var columnValues = new HashSet<string>();
+                    foreach (var cell in column)
+                    {
+                        if (cell.Replace(" ", "") == string.Empty)
+                            continue;
+
+                        var matched = regex.Matches(cell).Select(m => m.Value).ToList();
+                        foreach (var m in matched)
+                            if (m.Contains(pVar) || m == pVar)
+                                columnValues.Add(m);
+                    }
+
+                    if (columnValues.Any())
+                    {
+                        string constValue = columnValues.First();
+                        if (columnValues.All(v => v == constValue))
+                        {
+                            // Подстановка константы в строки
+                            string replacement = constValue.Contains('¬') ? "(0)" : "(1)";
+                            for (int cIdx = 0; cIdx < newSchema.Rows.Count; cIdx++)
+                            {
+                                newSchema.Rows[colIdx].Transitions[cIdx] =
+                                    newSchema.Rows[colIdx].Transitions[cIdx]
+                                        .Replace(pVar, replacement);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var msastr = newSchema.ToString();
+
+            return newSchema;
+        }
+
+        #endregion
+
+
+
         #region Формирование границ таблицы
 
         private static bool IsWrappedInParentheses(string value)
@@ -219,6 +388,28 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             }
         }
 
+        public List<string> GetColumn(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= Headers.Count)
+                throw new ArgumentOutOfRangeException(
+                    nameof(columnIndex),
+                    $"Индекс столбца {columnIndex} выходит за пределы диапазона [0, {Headers.Count - 1}]"
+                );
+
+            var column = new List<string>();
+            foreach (var row in Rows)
+            {
+                if (columnIndex >= row.Transitions.Count)
+                    throw new InvalidOperationException(
+                        $"Строка не содержит столбец с индексом {columnIndex}"
+                    );
+
+                column.Add(row.Transitions[columnIndex]);
+            }
+
+            return column;
+        }
+
         #endregion
     }
 
@@ -229,7 +420,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
     /// <summary>
     /// Методы расширения для работы со строками.
     /// </summary>
-    internal static class StringExtensions
+    internal static class Extensions
     {
         /// <summary>
         /// Метод расширения для центрирования текста в ячейке.
@@ -246,6 +437,36 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             int rightPadding = padding - leftPadding;
 
             return new string(' ', leftPadding) + text + new string(' ', rightPadding);
+        }
+
+        public static MatrixSchema DeepCopy(this MatrixSchema schema)
+        {
+            return new MatrixSchema
+            {
+                Headers = new List<string>(schema.Headers),
+                Rows = schema.Rows.Select(r => new MASRow
+                {
+                    Transitions = new List<string>(r.Transitions)
+                }).ToList()
+            };
+        }
+
+        public static List<string> DetectPVariables(this MatrixSchema schema)
+        {
+            var variables = new HashSet<string>();
+            var pattern = @"\bP\d+\b";
+
+            foreach (var row in schema.Rows)
+            {
+                foreach (var cell in row.Transitions)
+                {
+                    var matches = Regex.Matches(cell, pattern);
+                    foreach (Match m in matches)
+                        variables.Add(m.Value);
+                }
+            }
+
+            return variables.ToList();
         }
     }
 

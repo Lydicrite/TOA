@@ -26,25 +26,6 @@ public class Program
         Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 
-
-    private static void TestMASMerge(List<string> lasList)
-    {
-        var masList = lasList.Select(lsa => LASParser.Parse(lsa).MatrixSchema).ToList();
-        var preparedMASList = MASCombiner.PrepareForCombine(masList);
-        int k = lasList.Count();
-
-        for (int i = 0; i < k; i++)
-        {
-            Console.Write($"\n\nЭлемент M[0, 1] = \"{masList[i][0, 1]}\"\n");
-            Console.Write($"\nИсходная МСА {i + 1} (для \"{lasList[i]}\"): \n{masList[i]}");
-            Console.Write($"\nПодготовленная МСА {i + 1}: \n{preparedMASList[i]}\n\n\n");
-        }
-
-        var combinedMAS = MASCombiner.CombineSchemas(preparedMASList);
-        Console.Write($"\n\nОМСА: \n{combinedMAS}\n\n");
-    }
-
-
     public static void Main()
     {
         Console.Clear();
@@ -98,11 +79,13 @@ public class Program
             );
             */
 
-
             /*
              
             Yн Y0 X0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y3 ↓4 Yк
             Yн Y0 X0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y4 ↓4 Yк
+
+            Yн Y0 P0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y3 ↓4 Yк
+            Yн Y0 P0 ↑1 Y1 w↑2 ↓1 Y2 ↓2 X1 ↑3 w↑4 ↓3 Y4 ↓4 Yк
 
             */
 

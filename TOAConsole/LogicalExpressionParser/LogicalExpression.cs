@@ -28,8 +28,6 @@ namespace TOAConsole.LogicalExpressionParser
             {
                 var variables = _variables.ToArray();
                 int varCount = variables.Length;
-                if (varCount == 0)
-                    throw new InvalidOperationException("Нет переменных для генерации таблицы истинности.");
 
                 int combinations = 1 << varCount;
                 bool[][] table = new bool[combinations][];
@@ -64,7 +62,7 @@ namespace TOAConsole.LogicalExpressionParser
 
             // 1. Проверка на дубликаты
             if (uniqueVars.Count != orderList.Count)
-                throw new ArgumentException("Порядок переменных содержит дубликаты.");
+                throw new ArgumentException("Порядок переменных содержит дубликаты");
 
             // 2. Проверка на полноту переменных
             var missingVariables = _variables.Except(uniqueVars).ToList();
@@ -314,9 +312,6 @@ namespace TOAConsole.LogicalExpressionParser
 
         public DataTable GenerateTruthTable()
         {
-            if (_variables == null || _variables.Count() == 0)
-                throw new InvalidOperationException("Переменные выражения должны быть установлены до генерации таблицы.");
-
             var table = new DataTable();
             table.TableName = $"Таблица истинности f(...) = {ToString()}";
 
