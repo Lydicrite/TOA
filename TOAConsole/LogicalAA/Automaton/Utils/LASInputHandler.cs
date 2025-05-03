@@ -10,17 +10,40 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils
 {
+    /// <summary>
+    /// Класс, содержащий методы для удобной консольной работы с моделью абстрактного автомата <see cref="Automaton"/>
+    /// </summary>
     internal static class LASInputHandler
     {
+        #region Поля обработчика ввода
+
+        /// <summary>
+        /// Объект <see cref="Automaton"/>, с которым работает программа.
+        /// </summary>
         private static Automaton? _automaton;
+        /// <summary>
+        /// Текущее состояние меню
+        /// </summary>
         private static MenuState _currentMenuState = MenuState.Main;
 
+        /// <summary>
+        /// Перечисление состояний меню программы.
+        /// </summary>
         internal enum MenuState
         {
+            /// <summary>
+            /// Главное меню.
+            /// </summary>
             Main,
-            Modes,
-            MergeMode
+            /// <summary>
+            /// Меню моделирования в различных режимах.
+            /// </summary>
+            Modes
         }
+
+        #endregion
+
+
 
         #region Константы и импорт библиотек WinAPI
 
@@ -66,29 +89,28 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         /// <summary>
         /// Сообщение для запроса смены раскладки клавиатуры.
         /// </summary>
-        /// [[5]]
         private const uint WM_INPUTLANGCHANGEREQUEST = 0x0050;
         /// <summary>
         /// Флаг для активации раскладки клавиатуры при загрузке.
         /// </summary>
-        /// [[5]]
         private const uint KLF_ACTIVATE = 0x00000001;
 
         #endregion
 
 
 
-
-
         #region Ввод информации
 
+        /// <summary>
+        /// Запускает основной цикл работы программы.
+        /// </summary>
         [STAThread]
         public static void ProgramCycle()
         {
             Console.Clear();
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
-            LASInputHandler.PrintInputRules();
+            LASInputHandler.PrintMainInfo();
 
             while (true)
             {
@@ -97,6 +119,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             }
         }
 
+        /// <summary>
+        /// Обеспечивает дружественный ввод и чтение строки, содержащей ЛСА.
+        /// </summary>
+        /// <returns>Строка, содержащая ЛСА.</returns>
         [STAThread]
         public static string ReadLSAString()
         {
@@ -228,15 +254,114 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             return input.ToString();
         }
 
+        /// <summary>
+        /// Поддерживает обработку ввода в различных ситуациях.
+        /// </summary>
+        private static void HandleInput()
+        {
+            var key = Console.ReadKey(true).Key;
+
+            switch (_currentMenuState)
+            {
+                case MenuState.Main:
+                    HandleMainMenu(key);
+                    break;
+
+                case MenuState.Modes:
+                    HandleModesMenu(key);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Обрабатывает нажатие ключевых клавиш, отвечающих за начало работы каких-либо модулей программы, описанных в главном меню.
+        /// </summary>
+        /// <param name="key">Клавиша, нажатая пользователем.</param>
+        private static void HandleMainMenu(ConsoleKey key)
+        {
+            ClearLastLine();
+            Console.WriteLine();
+
+            switch (key)
+            {
+                case ConsoleKey.D1:
+                    LoadNewLAA();
+                    break;
+
+                case ConsoleKey.D2 when _automaton != null:
+                    _currentMenuState = MenuState.Modes;
+                    break;
+
+                case ConsoleKey.D3 when _automaton != null:
+                    _automaton.PrintAlgorithmInfo();
+                    Console.ResetColor();
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write("\nНажмите любую клавишу...\n");
+                    Console.ReadKey(true);
+                    break;
+
+                case ConsoleKey.D4:
+                    StartMergeProcess();
+                    break;
+
+                case ConsoleKey.D5:
+                    PrintMainInfo();
+                    break;
+
+                case ConsoleKey.D6:
+                case ConsoleKey.Escape:
+                    Environment.Exit(0);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Обрабатывает нажатие ключевых клавиш, отвечающих за начало работы режимов моделирования, описанных в меню выбора режимов работы.
+        /// </summary>
+        /// <param name="key"></param>
+        private static void HandleModesMenu(ConsoleKey key)
+        {
+            if (_automaton == null)
+                return;
+
+            ClearLastLine();
+            Console.WriteLine();
+
+            switch (key)
+            {
+                case ConsoleKey.D1:
+                    _automaton.RunInteractive();
+                    ReturnToMain();
+                    break;
+
+                case ConsoleKey.D2:
+                    _automaton.RunOnetime();
+                    ReturnToMain();
+                    break;
+
+                case ConsoleKey.D3:
+                    _automaton.RunToGetAllResults();
+                    ReturnToMain();
+                    break;
+
+                case ConsoleKey.D4:
+                case ConsoleKey.Escape:
+                    _currentMenuState = MenuState.Main;
+                    break;
+            }
+        }
+
         #endregion
 
 
 
 
 
-        #region Вывод текста и информации
-
-        private static void PrintInputRules()
+        #region Вывод информации
+        /// <summary>
+        /// Выводит основную информацию и правила работы с программой.
+        /// </summary>
+        private static void PrintMainInfo()
         {
             Console.ResetColor();
             Console.InputEncoding = Encoding.Unicode;
@@ -249,12 +374,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.WriteLine("╠══════════════════════════════════════════════════════════════╣");
             Console.WriteLine("║  Допустимые элементы:                                        ║");
             Console.WriteLine("║  ┌───────────────────────────────────────────────────────┐   ║");
-            Console.WriteLine("║  │ • Y{i}  - операторная вершина с индексом i            │   ║");
-            Console.WriteLine("║  │ • X{i}  - условная вершина с индексом i               │   ║");
-            Console.WriteLine("║  │ • ↑{i}  - оператор условного перехода                 │   ║");
-            Console.WriteLine("║  │ • w↑{i} - оператор безусловного перехода              │   ║");
-            Console.WriteLine("║  │ • ↓{i}  - точка перехода с индексом i                 │   ║");
-            Console.WriteLine("║  │ • i     - неотрицательное число (индекс элемента)     │   ║");
+            Console.WriteLine("║  │ • Y{i}        - операторная вершина с индексом i      │   ║");
+            Console.WriteLine("║  │ • X{i} / P{i} - условная вершина с индексом i         │   ║");
+            Console.WriteLine("║  │ • ↑{i}        - оператор условного перехода           │   ║");
+            Console.WriteLine("║  │ • w↑{i}       - оператор безусловного перехода        │   ║");
+            Console.WriteLine("║  │ • ↓{i}        - точка перехода с индексом i           │   ║");
             Console.WriteLine("║  └───────────────────────────────────────────────────────┘   ║");
             Console.WriteLine("╠══════════════════════════════════════════════════════════════╣");
             Console.WriteLine("║  Допустимые символы:                                         ║");
@@ -288,6 +412,14 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.WriteLine("║  │ 3) Полный перебор всех значений логических условий Х   │  ║");
             Console.WriteLine("║  │и вывод результата моделирования                    (M3)│  ║");
             Console.WriteLine("║  └────────────────────────────────────────────────────────┘  ║");
+            Console.WriteLine("║                                                              ║");
+            Console.WriteLine("║  Дополнительный функционал                                   ║");
+            Console.WriteLine("║  ┌─────────────────────────────────────────────────────────┐ ║");
+            Console.WriteLine("║  │ 1) Вывод основной информации об алгоритмах, моделируемых│ ║");
+            Console.WriteLine("║  │исследуемыми автоматами                                  │ ║");
+            Console.WriteLine("║  │ 2) Инструмент объединения нескольких автоматов на основе│ ║");
+            Console.WriteLine("║  │их матричных схем                                        │ ║");
+            Console.WriteLine("║  └─────────────────────────────────────────────────────────┘ ║");
             Console.WriteLine("╚══════════════════════════════════════════════════════════════╝");
             Console.ResetColor();
 
@@ -300,24 +432,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.ResetColor();
         }
 
-
-
-        private static void HandleInput()
-        {
-            var key = Console.ReadKey(true).Key;
-
-            switch (_currentMenuState)
-            {
-                case MenuState.Main:
-                    HandleMainMenu(key);
-                    break;
-
-                case MenuState.Modes:
-                    HandleModesMenu(key);
-                    break;
-            }
-        }
-
+        /// <summary>
+        /// Выводит главное меню или вспомогательное меню в зависимости от ситуации.
+        /// </summary>
         private static void RenderMenu()
         {
             Console.Clear();
@@ -355,82 +472,15 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.ResetColor();
         }
 
-        private static void HandleMainMenu(ConsoleKey key)
-        {
-            ClearLastLine();
-            Console.WriteLine();
-
-            switch (key)
-            {
-                case ConsoleKey.D1:
-                    LoadNewLAA();
-                    break;
-
-                case ConsoleKey.D2 when _automaton != null:
-                    _currentMenuState = MenuState.Modes;
-                    break;
-
-                case ConsoleKey.D3 when _automaton != null:
-                    _automaton.PrintAlgorithmInfo();
-                    Console.ResetColor();
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("\nНажмите любую клавишу...\n");
-                    Console.ReadKey(true);
-                    break;
-
-                case ConsoleKey.D4:
-                    StartMergeProcess();
-                    break;
-
-                case ConsoleKey.D5:
-                    PrintInputRules();
-                    break;
-
-                case ConsoleKey.D6:
-                case ConsoleKey.Escape:
-                    Environment.Exit(0);
-                    break;
-            }
-        }
-
-        private static void HandleModesMenu(ConsoleKey key)
-        {
-            if (_automaton == null) 
-                return;
-
-            ClearLastLine();
-            Console.WriteLine();
-
-            switch (key)
-            {
-                case ConsoleKey.D1:
-                    _automaton.RunInteractive();
-                    ReturnToMain();
-                    break;
-
-                case ConsoleKey.D2:
-                    _automaton.RunOnetime();
-                    ReturnToMain();
-                    break;
-
-                case ConsoleKey.D3:
-                    _automaton.RunToGetAllResults();
-                    ReturnToMain();
-                    break;
-
-                case ConsoleKey.D4:
-                case ConsoleKey.Escape:
-                    _currentMenuState = MenuState.Main;
-                    break;
-            }
-        }
-
+        /// <summary>
+        /// Запускает модуль объединения автоматов.
+        /// </summary>
         private static void StartMergeProcess()
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine("╔═════════════════════════════════════════════════╗");
-            Console.WriteLine("║             ОБЪЕДИНЕНИЕ АВТОМАТОВ               ║");
+            Console.WriteLine("║              ОБЪЕДИНЕНИЕ АВТОМАТОВ              ║");
             Console.WriteLine("╠═════════════════════════════════════════════════╣");
             Console.WriteLine("║ Позволяет произвести объединение от 2 до 10     ║");
             Console.WriteLine("║ автоматов на основе объединения их матричных    ║");
@@ -591,6 +641,12 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
 
         #region Вспомогательные методы
 
+        /// <summary>
+        /// Вставляет символ <paramref name="symbol"/> в <see cref="StringBuilder"/> <paramref name="input"/> на позицию курсора <paramref name="cursorPos"/>.
+        /// </summary>
+        /// <param name="symbol">Символ для вставки.</param>
+        /// <param name="cursorPos">Ссылка на позицию курсора.</param>
+        /// <param name="input"><see cref="StringBuilder"/>, содержащий вводимую строку.</param>
         private static void InsertSymbol(string symbol, ref int cursorPos, StringBuilder input)
         {
             input.Insert(cursorPos, symbol);
@@ -598,6 +654,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             RedrawInput(input, cursorPos);
         }
 
+        /// <summary>
+        /// Вводит
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="cursorPos"></param>
         private static void RedrawInput(StringBuilder input, int cursorPos)
         {
             int currentLeft = Console.CursorLeft;

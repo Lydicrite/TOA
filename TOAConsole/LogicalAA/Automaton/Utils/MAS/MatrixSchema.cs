@@ -13,8 +13,6 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
     /// </summary>
     internal class MatrixSchema
     {
-        private static LEParser _parser = new();
-
         /// <summary>
         /// Список заголовков столбцов таблицы.
         /// </summary>
@@ -189,7 +187,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                     try
                     {
                         // Парсинг и упрощение
-                        var parsed = _parser.Parse(originalCondition);
+                        var parsed = LEParser.Parse(originalCondition);
                         var originalExpr = new LogicalExpression(parsed);
 
                         // Установка порядка переменных

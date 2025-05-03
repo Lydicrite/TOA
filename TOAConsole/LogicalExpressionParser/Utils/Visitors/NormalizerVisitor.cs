@@ -6,10 +6,21 @@ using System.Threading.Tasks;
 
 namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
 {
+    /// <summary>
+    /// Посетитель, применяющий к узлам выражения законы алгебры логики для их упрощения и нормализации.
+    /// </summary>
     internal class NormalizerVisitor : BaseVisitor
     {
+        /// <summary>
+        /// Стэк, содержащий узлы выражения и используемый для их обработки.
+        /// </summary>
         private readonly Stack<LENode> _stack = new Stack<LENode>();
 
+        /// <summary>
+        /// Метод, применяющий законы алгебры логики для узла.
+        /// </summary>
+        /// <param name="node">Узел, для которого нужно применить метод.</param>
+        /// <returns></returns>
         public LENode Normalize(LENode node)
         {
             node.Accept(this);

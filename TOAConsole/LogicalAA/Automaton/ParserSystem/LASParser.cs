@@ -13,6 +13,9 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
 {
     internal static class LASParser
     {
+        /// <summary>
+        /// Количество условных вершин в текущем выражении, подвергающемуся парсингу.
+        /// </summary>
         private static int _conditionalVertexCounter = 0;
 
         /// <summary>

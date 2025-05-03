@@ -6,18 +6,30 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TOAConsole.LogicalExpressionParser.Utils.Visitors;
 
 namespace TOAConsole.LogicalExpressionParser
 {
-    internal interface ILEVisitor
-    {
-        void Visit(LENode node);
-    }
-
+    /// <summary>
+    /// Абстрактный класс элемента логического выражения.
+    /// </summary>
     internal abstract class LENode
     {
+        /// <summary>
+        /// Принимает посетителя <see cref="ILEVisitor"/>.
+        /// </summary>
+        /// <param name="visitor">Принимаемый посетитель.</param>
         public abstract void Accept(ILEVisitor visitor);
+        /// <summary>
+        /// Вычисляет значение выражения по переданным входным параметрам <paramref name="inputs"/>.
+        /// </summary>
+        /// <param name="inputs">Входные параметры (значения переменных).</param>
+        /// <returns>Значение логического выражения по входам <paramref name="inputs"/>.</returns>
         public abstract bool Evaluate(bool[] inputs);
+        /// <summary>
+        /// Собирает имена переменных в выражении в <paramref name="variables"/>.
+        /// </summary>
+        /// <param name="variables">Хэш-сет, содержащий имена переменных.</param>
         public abstract void CollectVariables(HashSet<string> variables);
         
         public abstract override string ToString();
@@ -26,15 +38,28 @@ namespace TOAConsole.LogicalExpressionParser
 
         #region Кэширование
 
+        /// <summary>
+        /// Кэшированное <see cref="Expression"/> выражение (узел дерева).
+        /// </summary>
         private Expression _cachedExpression;
+        /// <summary>
+        /// Кэшированное <see cref="Expression"/> выражение параметра.
+        /// </summary>
         protected ParameterExpression _cachedParam;
 
+        /// <summary>
+        /// Обнуляет кэш узла.
+        /// </summary>
         public virtual void ResetCache()
         {
             _cachedExpression = null;
             _cachedParam = null;
         }
-
+        /// <summary>
+        /// Возвращает кэшированное выражение узла, а также обновляет кэш, если он пуст.
+        /// </summary>
+        /// <param name="param">Входные параметры для узла.</param>
+        /// <returns>Кэшированное выражение.</returns>
         public Expression GetCachedExpression(ParameterExpression param)
         {
             if (_cachedExpression == null || !ReferenceEquals(_cachedParam, param))
@@ -44,8 +69,17 @@ namespace TOAConsole.LogicalExpressionParser
             }
             return _cachedExpression;
         }
-
+        /// <summary>
+        /// Строит и возвращает выражение узла с учётом переданных параметров.
+        /// </summary>
+        /// <param name="param">Входные параметры для узла.</param>
+        /// <returns>Новое выражение.</returns>
         protected abstract Expression BuildExpression(ParameterExpression param);
+        /// <summary>
+        /// Возвращает выражение узла с учётом переданных параметров.
+        /// </summary>
+        /// <param name="param">Входные параметры для узла.</param>
+        /// <returns>Новое выражение.</returns>
         public abstract Expression ToExpression(ParameterExpression param);
 
         #endregion
@@ -53,8 +87,14 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
+    /// <summary>
+    /// Представляет узел логической константы (<see langword="true"/> или <see langword="false"/>).
+    /// </summary>
     internal sealed class ConstantNode : LENode
     {
+        /// <summary>
+        /// Значение константы.
+        /// </summary>
         private readonly bool _value;
 
         public ConstantNode(bool value) 
@@ -86,21 +126,31 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
+    /// <summary>
+    /// Представляет узел переменной в логическом выражении.
+    /// </summary>
     internal sealed class VariableNode : LENode
     {
-        private int _index;
+        /// <summary>
+        /// Индекс переменной.
+        /// </summary>
+        public int Index { get; }
+        /// <summary>
+        /// Имя переменной.
+        /// </summary>
         public string Name { get; }
-        public int Index
-        {
-            get => _index;
-        }
-
+        
         public VariableNode(string name, int index = -1)
         {
             Name = name;
-            _index = index;
+            Index = index;
         }
 
+        /// <summary>
+        /// Возвращает новый узел переменной с новым индексом и прежним именем.
+        /// </summary>
+        /// <param name="newIndex">Индекс нового узла.</param>
+        /// <returns>Новый узел переменной с новым индексом и прежним именем.</returns>
         public VariableNode WithIndex(int newIndex)
         {
             return new VariableNode(Name, newIndex);
@@ -132,9 +182,18 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
+    /// <summary>
+    /// Представляет узел унарного оператора в логическом выражении.
+    /// </summary>
     internal sealed class UnaryNode : LENode
     {
+        /// <summary>
+        /// Операнд этого оператора.
+        /// </summary>
         public LENode Operand { get; private set; }
+        /// <summary>
+        /// Строковое представление операнда.
+        /// </summary>
         public string Operator { get; private set; }
 
         public UnaryNode(string op, LENode operand)
@@ -193,8 +252,17 @@ namespace TOAConsole.LogicalExpressionParser
 
     internal sealed class BinaryNode : LENode
     {
+        /// <summary>
+        /// Левый операнд этого оператора.
+        /// </summary>
         public LENode Left { get; private set; }
+        /// <summary>
+        /// Правый операнд этого оператора.
+        /// </summary>
         public LENode Right { get; private set; }
+        /// <summary>
+        /// Строковое представление операнда.
+        /// </summary>
         public string Operator { get; private set; }
 
         public BinaryNode(string op, LENode left, LENode right)

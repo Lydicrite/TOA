@@ -10,17 +10,49 @@ using TOAConsole.LogicalExpressionParser.Utils;
 
 namespace TOAConsole.LogicalExpressionParser
 {
-    internal class LEParser
+    /// <summary>
+    /// Представляет класс парсера логических выражений.
+    /// </summary>
+    internal static class LEParser
     {
-        private readonly Dictionary<string, int> _operatorPrecedence;
-        private readonly Dictionary<string, Func<LENode, LENode>> _unaryOperators;
-        private readonly Dictionary<string, Func<LENode, LENode, LENode>> _binaryOperators;
+        /// <summary>
+        /// Словарь, определяющий очерёдность обработки логических операторов.
+        /// </summary>
+        private static readonly Dictionary<string, int> _operatorPrecedence = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "~", 5 }, { "&", 4 }, { "!&", 4 }, { "^", 3 }, { "|", 2 }, { "!|", 2 }, { "=>", 1 }, { "<=>", 0 }
+        };
+
+        /// <summary>
+        /// Словарь, определяющий функции преобразования для унарных операторов.
+        /// </summary>
+        private static readonly Dictionary<string, Func<LENode, LENode>> _unaryOperators = new(StringComparer.OrdinalIgnoreCase)
+        {
+            { "~", operand => new UnaryNode("~", operand) }
+        };
+
+        /// <summary>
+        /// Словарь, определяющий функции преобразования для бинарных операторов.
+        /// </summary>
+        private static readonly Dictionary<string, Func<LENode, LENode, LENode>> _binaryOperators = new(StringComparer.OrdinalIgnoreCase)
+        {
+                { "&", (l, r) =>   new BinaryNode("&", l, r) },
+                { "|", (l, r) =>   new BinaryNode("|", l, r) },
+                { "^", (l, r) =>   new BinaryNode("^", l, r) },
+                { "=>", (l, r) =>  new BinaryNode("=>", l, r) },
+                { "<=>", (l, r) => new BinaryNode("<=>", l, r) },
+                { "!&", (l, r) =>  new BinaryNode("!&", l, r) },
+                { "!|", (l, r) =>  new BinaryNode("!|", l, r) }
+        };
 
 
 
         #region Словари союзных токенов
 
-        private readonly Dictionary<string, string> _operatorAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        /// <summary>
+        /// Словарь, определяющий "союзные" строковые представления для стандартных представлений всех операторов.
+        /// </summary>
+        private static readonly Dictionary<string, string> _operatorAliases = new(StringComparer.OrdinalIgnoreCase)
         {
             // Бинарные операторы
             { "&", "&" }, { "AND", "&" }, { "˄", "&" }, { "∧", "&" },
@@ -35,7 +67,10 @@ namespace TOAConsole.LogicalExpressionParser
             { "!", "~" }, { "NOT", "~" }, { "~", "~" }, { "¬", "~" }
         };
 
-        private readonly Dictionary<string, string> _constantAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        /// <summary>
+        /// Словарь, определяющий "союзные" строковые представления для стандартных представлений констант.
+        /// </summary>
+        private static readonly Dictionary<string, string> _constantAliases = new(StringComparer.OrdinalIgnoreCase)
         {
             { "0", "0" }, { "false", "0" },
             { "1", "1" }, { "true", "1" }
@@ -47,9 +82,18 @@ namespace TOAConsole.LogicalExpressionParser
 
         #region Кэш
 
+        /// <summary>
+        /// Максимальное количество элементов в кэше.
+        /// </summary>
         private const int MaxCacheSize = 1024;
+        /// <summary>
+        /// Объект, хранящий и управляющий кэшем всех логических выражений, обработанных парсером.
+        /// </summary>
         private static readonly MemoryCache _logicalExpressionsCache = new MemoryCache("LogicalExpressionsCache");
-        private static readonly CacheItemPolicy _cachePolicy = new CacheItemPolicy
+        /// <summary>
+        /// Определяет политику работы с кэшем.
+        /// </summary>
+        private static readonly CacheItemPolicy _cachePolicy = new CacheItemPolicy()
         {
             SlidingExpiration = TimeSpan.FromMinutes(5)
         };
@@ -58,31 +102,12 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
-        public LEParser()
-        {
-            _operatorPrecedence = new Dictionary<string, int>
-            {
-                { "~", 5 }, { "&", 4 }, { "!&", 4 }, { "^", 3 }, { "|", 2 }, { "!|", 2 }, { "=>", 1 }, { "<=>", 0 }
-            };
-
-            _unaryOperators = new Dictionary<string, Func<LENode, LENode>>
-            {
-                { "~", operand => new UnaryNode("~", operand) }
-            };
-
-            _binaryOperators = new Dictionary<string, Func<LENode, LENode, LENode>>
-            {
-                { "&", (l, r) =>   new BinaryNode("&", l, r) },
-                { "|", (l, r) =>   new BinaryNode("|", l, r) },
-                { "^", (l, r) =>   new BinaryNode("^", l, r) },
-                { "=>", (l, r) =>  new BinaryNode("=>", l, r) },
-                { "<=>", (l, r) => new BinaryNode("<=>", l, r) },
-                { "!&", (l, r) =>  new BinaryNode("!&", l, r) },
-                { "!|", (l, r) =>  new BinaryNode("!|", l, r) }
-            };
-        }
-
-        public LENode Parse(string expression)
+        /// <summary>
+        /// Преобразует строку в вычислимое логическое выражение.
+        /// </summary>
+        /// <param name="expression">Строка, содержащая текстовое представление логического выражения.</param>
+        /// <returns>Корневой (начальный) узел логического выражения.</returns>
+        public static LENode Parse(string expression)
         {
             if (_logicalExpressionsCache.Contains(expression))
                 return (LENode)_logicalExpressionsCache.Get(expression);
@@ -94,17 +119,19 @@ namespace TOAConsole.LogicalExpressionParser
             var postfix = ConvertToPostfix(tokens);
             var ast = BuildAST(postfix);
 
+            // Очистка кэша
             if (_logicalExpressionsCache.GetCount() >= MaxCacheSize)
-            {
-                Console.WriteLine($"[КЭШ] Достигнут максимальный размер ({MaxCacheSize}), выполняем очистку 10%");
                 _logicalExpressionsCache.Trim(10);
-            }
 
             _logicalExpressionsCache.Add(expression, ast, _cachePolicy);
             return ast;
         }
 
-        private void ReplaceConstantAliases(ref string expression)
+        /// <summary>
+        /// Заменяет все символы констант на их стандартные варианты.
+        /// </summary>
+        /// <param name="expression">Ссылка на строку, в которой производится замена.</param>
+        private static void ReplaceConstantAliases(ref string expression)
         {
             var pattern = @"\b(0|1)\b";
             expression = Regex.Replace(
@@ -114,7 +141,11 @@ namespace TOAConsole.LogicalExpressionParser
             );
         }
 
-        private void ReplaceOperatorAliases(ref string expression)
+        /// <summary>
+        /// Заменяет все символы операторов на их стандартные варианты.
+        /// </summary>
+        /// <param name="expression">Ссылка на строку, в которой производится замена.</param>
+        private static void ReplaceOperatorAliases(ref string expression)
         {
             var sortedKeys = _operatorAliases.Keys
                 .OrderByDescending(k => k.Length)
@@ -127,7 +158,12 @@ namespace TOAConsole.LogicalExpressionParser
             expression = regex.Replace(expression, match => _operatorAliases[match.Value]);
         }
 
-        private List<string> Tokenize(string expression)
+        /// <summary>
+        /// Выполняет токенизацию входной строки.
+        /// </summary>
+        /// <param name="expression">Строка, представляющая логическое выражение.</param>
+        /// <returns>Список токенов выражения.</returns>
+        private static List<string> Tokenize(string expression)
         {
             var tokens = new List<string>();
             int i = 0;
@@ -190,7 +226,12 @@ namespace TOAConsole.LogicalExpressionParser
             return tokens;
         }
 
-        private List<string> ConvertToPostfix(List<string> tokens)
+        /// <summary>
+        /// Реализует алгоритм сортировочной станции для учёта приоритетов операторов.
+        /// </summary>
+        /// <param name="tokens">Список токенов выражения.</param>
+        /// <returns>Список токенов в постфиксной записи.</returns>
+        private static List<string> ConvertToPostfix(List<string> tokens)
         {
             var output = new List<string>();
             var stack = new Stack<string>();
@@ -226,7 +267,12 @@ namespace TOAConsole.LogicalExpressionParser
             return output;
         }
 
-        private LENode BuildAST(List<string> postfix)
+        /// <summary>
+        /// Строит абстрактное синтаксическое дерево на основе списка токенов в постфиксной записи.
+        /// </summary>
+        /// <param name="postfix">Список токенов в постфиксной записи.</param>
+        /// <returns>Корневой (начальный) узел синтаксического дерева выражения</returns>
+        private static LENode BuildAST(List<string> postfix)
         {
             var stack = new Stack<LENode>();
 
@@ -257,9 +303,11 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
-
-
-        private void ValidateTokenSequence(List<string> tokens)
+        /// <summary>
+        /// Проверяет на корректность последовательность токенов.
+        /// </summary>
+        /// <param name="tokens">Список токенов.</param>
+        private static void ValidateTokenSequence(List<string> tokens)
         {
             int bracketBalance = 0;
             for (int i = 0; i < tokens.Count; i++)
@@ -305,23 +353,55 @@ namespace TOAConsole.LogicalExpressionParser
                 ThrowError("Неспаренные скобки", tokens.Count - 1);
         }
 
-        private bool IsValidBeforeOpenBracket(string prevToken) =>
+        /// <summary>
+        /// Проверяет, может ли предыдущий токен стоять перед открывающей скобкой.
+        /// </summary>
+        /// <param name="prevToken">Предыдущий токен.</param>
+        /// <returns><see langword="true"/>, если <paramref name="prevToken"/> может стоять перед открывающией скобкой, иначе <see langword="false"/>.</returns>
+        private static bool IsValidBeforeOpenBracket(string prevToken) =>
             _binaryOperators.ContainsKey(prevToken) || prevToken == "(" || _unaryOperators.ContainsKey(prevToken);
 
-        private bool IsValidAfterCloseBracket(string nextToken) =>
+        /// <summary>
+        /// Проверяет, может ли следующий токен стоять после закрывающей скобки.
+        /// </summary>
+        /// <param name="nextToken">Следующий токен.</param>
+        /// <returns><see langword="true"/>, если <paramref name="nextToken"/> может стоять после закрывающей скобки, иначе <see langword="false"/>.</returns>
+        private static bool IsValidAfterCloseBracket(string nextToken) =>
             _binaryOperators.ContainsKey(nextToken) || nextToken == ")";
 
-        private bool IsValidAfterUnaryOperator(string nextToken) =>
+        /// <summary>
+        /// Проверяет, может ли следующий токен стоять после унарного оператора.
+        /// </summary>
+        /// <param name="nextToken">Следующий токен.</param>
+        /// <returns><see langword="true"/>, если <paramref name="nextToken"/> может стоять после унарного оператора, иначе <see langword="false"/>.</returns>
+        private static bool IsValidAfterUnaryOperator(string nextToken) =>
             nextToken == "(" || IsVariableOrConstant(nextToken) || nextToken == "~";
 
-        private bool IsValidBinaryOperatorContext(string left, string right) =>
+        /// <summary>
+        /// Проверяет, в верном ли контексте использован бинарный оператор.
+        /// </summary>
+        /// <param name="left">Токен, расположенный слева от оператора.</param>
+        /// <param name="right">Токен, расположенный справа от оператора.</param>
+        /// <returns><see langword="true"/>, если бинарный оператор использован в верном контексте, иначе <see langword="false"/>.</returns>
+        private static bool IsValidBinaryOperatorContext(string left, string right) =>
             (IsVariableOrConstant(left) || left == ")" || _unaryOperators.ContainsKey(left)) && 
             (IsVariableOrConstant(right) || right == "(" || _unaryOperators.ContainsKey(right));
 
-        private bool IsVariableOrConstant(string token) =>
+        /// <summary>
+        /// Проверяет, представляет ли токен переменную или константу.
+        /// </summary>
+        /// <param name="token">Проверяемый токен.</param>
+        /// <returns><see langword="true"/>, если токен представляет переменную или константу, иначе <see langword="false"/>.</returns>
+        private static bool IsVariableOrConstant(string token) =>
             !_operatorPrecedence.ContainsKey(token) && token != "(" && token != ")";
 
-        private void ThrowError(string message, int position) 
-            => throw new ExpressionParseException(message, position);
+        /// <summary>
+        /// Выбрасывает исключение <see cref="LEParseException"/>.
+        /// </summary>
+        /// <param name="message">Сообщение ошибки.</param>
+        /// <param name="position">Позиция в списке токенов, в которой найдена ошибка.</param>
+        /// <exception cref="LEParseException"></exception>
+        private static void ThrowError(string message, int position) 
+            => throw new LEParseException(message, position);
     }
 }

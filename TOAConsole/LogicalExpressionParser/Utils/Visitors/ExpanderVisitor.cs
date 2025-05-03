@@ -6,10 +6,21 @@ using System.Threading.Tasks;
 
 namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
 {
+    /// <summary>
+    /// Посетитель, применяющий законы Де-Моргана и дистрибутивности для логических выражений.
+    /// </summary>
     internal class ExpanderVisitor : BaseVisitor
     {
+        /// <summary>
+        /// Стэк, содержащий узлы выражения и используемый для их обработки.
+        /// </summary>
         private readonly Stack<LENode> _stack = new Stack<LENode>();
 
+        /// <summary>
+        /// Метод, применяющий законы Де-Моргана и дистрибутивности для узла.
+        /// </summary>
+        /// <param name="node">Узел, для которого нужно применить метод.</param>
+        /// <returns></returns>
         public LENode Expand(LENode node)
         {
             node.Accept(this);
