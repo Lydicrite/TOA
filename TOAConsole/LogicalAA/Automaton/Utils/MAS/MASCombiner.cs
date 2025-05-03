@@ -74,6 +74,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return combinedSchema;
         }
 
+        /// <summary>
+        /// Упорядочивает список вершин автомата.
+        /// </summary>
+        /// <param name="vertices">Неупорядоченный список вершин автомата.</param>
+        /// <returns>Упорядоченный список вершин автомата.</returns>
         private static List<string> OrderVertices(IEnumerable<string> vertices)
         {
             var sorted = new List<string>();
@@ -95,8 +100,12 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Собирает условия из всех МСА для ячейки (rowVertex, colVertex).
+        /// Собирает условия из всех МСА для ячейки (<paramref name="rowVertex"/>, <paramref name="colVertex"/>).
         /// </summary>
+        /// <param name="schemes">Список объединяемых МСА.</param>
+        /// <param name="rowVertex">ID вершины ряда.</param>
+        /// <param name="colVertex">ID вершины столбца.</param>
+        /// <returns>Объединённый список условий для попадания в ячейку (<paramref name="rowVertex"/>, <paramref name="colVertex"/>).</returns>
         private static List<string> CollectConditions(List<MatrixSchema> schemes, string rowVertex, string colVertex)
         {
             var conditions = new List<string>();
@@ -120,8 +129,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Объединяет условия по правилам 4.2.1–4.2.3.
+        /// Объединяет список из условий по особым правилам в одну строку.
         /// </summary>
+        /// <param name="conditions">Объединяемый список условий.</param>
+        /// <returns>Строка, содержащая формулу перехода.</returns>
         private static string MergeConditions(List<string> conditions)
         {
             var nonEmpty = conditions
@@ -151,8 +162,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <summary>
         /// Преобразует список МСА отдельных алгоритмовв список модифицированных МСА с добавлением переменных P1 ... Pn.
         /// </summary>
-        /// <param name="schemes"></param>
-        /// <returns></returns>
+        /// <param name="schemes">Список объединяемых МСА.</param>
+        /// <returns>Список подготовленных к объединению МСА.</returns>
         public static List<MatrixSchema> PrepareForCombine(List<MatrixSchema> schemes)
         {
             _newPVariables.Clear();
@@ -178,11 +189,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Генерирует двоичные коды для K автоматов.
+        /// Генерирует двоичные коды для <paramref name="k"/> автоматов.
         /// </summary>
-        /// <param name="k"></param>
-        /// <param name="n"></param>
-        /// <returns></returns>
+        /// <param name="k">Количество автоматов.</param>
+        /// <param name="n">Количество переменных, используемых для кодирования.</param>
+        /// <returns>Список строк с двоичными кодами для кодирования МСА.</returns>
         private static List<string> GenerateBinaryCodes(int k, int n)
         {
             return Enumerable.Range(0, k)
@@ -193,9 +204,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <summary>
         /// Модифицирует МСА в соответствии с кодом.
         /// </summary>
-        /// <param name="schema"></param>
-        /// <param name="code"></param>
-        /// <returns></returns>
+        /// <param name="schema">Модифицируемая МСА.</param>
+        /// <param name="code">Строка с двоичным кодом.</param>
+        /// <returns>Модифицированная МСА.</returns>
         private static MatrixSchema ModifySchema(MatrixSchema schema, string code)
         {
             var newSchema = new MatrixSchema
@@ -224,10 +235,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 
 
         /// <summary>
-        /// Создает конъюнкцию переменных P по коду (например, "P1 ˄ ¬P2")
+        /// Создает конъюнкцию переменных P по двоичному коду <paramref name="code"/>.
         /// </summary>
-        /// <param name="code"></param>
-        /// <returns></returns>
+        /// <param name="code">Двоичный код в строковом варианте.</param>
+        /// <param name="schema">Модифицированная МСА.</param>
+        /// <returns>Строка, содержащая конъюнкцию новых переменных P в значениях, заданных <paramref name="code"/>.</returns>
         private static string CreatePConjunction(string code, MatrixSchema schema)
         {
             var schemaPVars = schema.DetectPVariables();
@@ -241,7 +253,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                 if (code[i] != '0' && code[i] != '1')
                     throw new ArgumentException("Код для кодирования МСА должен содержать только '0' или '1'.");
 
-                int pNumber = i + lastSchemePNumber + 1;
+                int pNumber = i + lastSchemePNumber + (lastSchemePNumber == 0 ? 0 : 1);
                 var pID = $"P{pNumber}";
 
                 _newPVariables.Add(pID);
@@ -251,11 +263,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Модифицирует условие в ячейке
+        /// Модифицирует формулу перехода в ячейке МСА.
         /// </summary>
-        /// <param name="condition"></param>
-        /// <param name="pConjunction"></param>
-        /// <returns></returns>
+        /// <param name="condition">Формула перехода в ячейке.</param>
+        /// <param name="pConjunction">Конъюнкция новых P-переменных.</param>
+        /// <returns>Изменённая формула перехода.</returns>
         private static string ModifyCondition(string condition, string pConjunction)
         {
             if (string.IsNullOrWhiteSpace(condition)) 
@@ -274,10 +286,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Заключает выражение в скобки, если необходимо
+        /// Заключает формулу перехода в скобки, если необходимо.
         /// </summary>
-        /// <param name="condition"></param>
-        /// <returns></returns>
+        /// <param name="condition">Обрабатываемая формула перехода.</param>
+        /// <returns>Обработанная формула перехода.</returns>
         private static string WrapInParentheses(string condition)
         {
             if (condition.Contains('˅') && !condition.StartsWith('('))
