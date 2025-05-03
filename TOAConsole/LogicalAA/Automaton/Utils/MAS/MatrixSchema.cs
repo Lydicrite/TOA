@@ -38,10 +38,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             sb.AppendLine(BuildMiddleBorder(columnWidths));
 
             // Строки данных
-            for (int i = 0; i < Headers.Count - 1; i++)
+            for (int i = 0; i < Headers.Count; i++)
             {
                 sb.AppendLine(BuildDataLine(Headers[i], Rows[i].Transitions, columnWidths));
-                if (i < Headers.Count - 2)
+                if (i < Headers.Count - 1)
                     sb.AppendLine(BuildMiddleBorder(columnWidths));
             }
 

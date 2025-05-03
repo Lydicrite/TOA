@@ -31,9 +31,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 
             var rowsVertexes = new List<ILAAElement> { start };
             rowsVertexes.AddRange(operatorVertices);
+            rowsVertexes.Add(end);
 
             var colsVertexes = rowsVertexes;
-            colsVertexes.Add(end);
 
             var matrix = new MatrixSchema();
             matrix.Headers = rowsVertexes.Select(v => v.ID).ToList();
