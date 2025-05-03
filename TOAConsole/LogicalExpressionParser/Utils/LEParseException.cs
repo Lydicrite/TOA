@@ -10,7 +10,7 @@ namespace TOAConsole.LogicalExpressionParser.Utils
     /// Представляет исключения, возникающее при работе парсера логических выражений.
     /// </summary>
     [Serializable]
-    internal class LEParseException : Exception
+    internal sealed class LEParseException : Exception
     {
         /// <summary>
         /// Позиция в списке токенов, где произошла ошибка.

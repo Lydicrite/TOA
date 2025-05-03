@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TOAConsole.LogicalAA.Elements.Vertexes;
 using TOAConsole.LogicalExpressionParser;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
@@ -11,14 +12,14 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
     /// <summary>
     /// Представляет матричную схему алгоритма.
     /// </summary>
-    internal class MatrixSchema
+    internal sealed class MatrixSchema
     {
         /// <summary>
-        /// Список заголовков столбцов таблицы.
+        /// Список заголовков столбцов МСА.
         /// </summary>
         public List<string> Headers { get; set; } = new();
         /// <summary>
-        /// Список строк таблицы.
+        /// Список строк МСА.
         /// </summary>
         public List<MASRow> Rows { get; set; } = new();
 
@@ -51,21 +52,21 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Форматирует строку с заголовками столбцов матрицы.
+        /// Форматирует строку с заголовками столбцов МСА.
         /// </summary>
         /// <param name="widths">Ширины столбцов.</param>
         /// <returns>Отформатированная строка заголовков.</returns>
         private string BuildHeaderLine(List<int> widths)
         {
             var sb = new StringBuilder();
-            sb.Append("│");
+            sb.Append('│');
             sb.Append(" ".PadRight(widths[0]));
-            sb.Append("│");
+            sb.Append('│');
 
             for (int i = 0; i < Headers.Count; i++)
             {
                 sb.Append(Headers[i].Center(widths[i + 1]));
-                sb.Append("│");
+                sb.Append('│');
             }
 
             return sb.ToString();
@@ -78,17 +79,17 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <param name="transitions">Данные переходов.</param>
         /// <param name="widths">Ширины столбцов.</param>
         /// <returns>Отформатированная строка данных.</returns>
-        private string BuildDataLine(string rowHeader, List<string> transitions, List<int> widths)
+        private static string BuildDataLine(string rowHeader, List<string> transitions, List<int> widths)
         {
             var sb = new StringBuilder();
-            sb.Append("│");
+            sb.Append('│');
             sb.Append(rowHeader.PadRight(widths[0]));
-            sb.Append("│");
+            sb.Append('│');
 
             for (int i = 0; i < transitions.Count; i++)
             {
                 sb.Append(ProcessConditions(transitions[i]).Center(widths[i + 1]));
-                sb.Append("│");
+                sb.Append('│');
             }
 
             return sb.ToString();
@@ -127,11 +128,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Обрабатывает логические условия для корректного отображения в матрице.
+        /// Обрабатывает логические условия для корректного отображения в МСА.
         /// </summary>
         /// <param name="input">Исходная строка условий.</param>
         /// <returns>Отформатированная строка с добавлением скобок.</returns>
-        private string ProcessConditions(string input)
+        private static string ProcessConditions(string input)
         {
             if (string.IsNullOrEmpty(input) || input == "0" || input == "1")
                 return input;
@@ -191,8 +192,8 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                         var originalExpr = new LogicalExpression(parsed);
 
                         // Установка порядка переменных
-                        var variables = originalExpr.BooleanValues.First()
-                            .Take(originalExpr.BooleanValues[0].Length - 1)
+                        var variables = originalExpr.TruthTable.First()
+                            .Take(originalExpr.TruthTable[0].Length - 1)
                             .Select((_, i) => originalExpr.Variables[i])
                             .ToArray();
                         originalExpr.SetVariableOrder(variables);
@@ -260,6 +261,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return simplifiedMatrix;
         }
 
+        /// <summary>
+        /// Минимизирует МСА с помощью распределения сдвигов.
+        /// </summary>
+        /// <returns>Новая минимизированная МСА с упрощёнными логическими выражениями.</returns>
         public MatrixSchema Minimize()
         {
             // Шаг 1: Первоначальное упрощение
@@ -272,7 +277,12 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return minimized.Simplify();
         }
 
-        private MatrixSchema ApplyShiftDistribution(MatrixSchema schema)
+        /// <summary>
+        /// Применяет распределение сдвигов для минимизации МСА.
+        /// </summary>
+        /// <param name="schema">МСА, в которой небходимо выполнить распределение сдвигов.</param>
+        /// <returns>Новая МСА, подвергнутая распределению сдвигов.</returns>
+        private static MatrixSchema ApplyShiftDistribution(MatrixSchema schema)
         {
             Regex regex = new Regex(@"(?<!\S)¬?P\d+\b");
             var pVariables = schema.DetectPVariables();
@@ -325,21 +335,41 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 
         #region Формирование границ таблицы
 
+        /// <summary>
+        /// Проверяет, обёрнуто ли выражение в скобки.
+        /// </summary>
+        /// <param name="value">Проверяемое выражение.</param>
+        /// <returns><see langword="true"/>, если <paramref name="value"/> обёрнуто в скобки, иначе <see langword="false"/>.</returns>
         private static bool IsWrappedInParentheses(string value)
         {
             return value.StartsWith("(") && value.EndsWith(")");
         }
 
+        /// <summary>
+        /// Строит верхнюю границу таблицы.
+        /// </summary>
+        /// <param name="widths">Список из ширин столбцов.</param>
+        /// <returns>Строка, представляющая верхнюю границу таблицы МСА.</returns>
         private static string BuildTopBorder(List<int> widths)
         {
             return "┌" + string.Join("┬", widths.Select(w => new string('─', w))) + "┐";
         }
 
+        /// <summary>
+        /// Строит границу между строками таблицы.
+        /// </summary>
+        /// <param name="widths">Список из ширин столбцов.</param>
+        /// <returns>Строка, представляющая границу между строками таблицы МСА.</returns>
         private static string BuildMiddleBorder(List<int> widths)
         {
             return "├" + string.Join("┼", widths.Select(w => new string('─', w))) + "┤";
         }
 
+        /// <summary>
+        /// Строит нижнюю границу таблицы.
+        /// </summary>
+        /// <param name="widths">Список из ширин столбцов.</param>
+        /// <returns>Строка, представляющая нижнюю границу таблицы МСА.</returns>
         private static string BuildBottomBorder(List<int> widths)
         {
             return "└" + string.Join("┴", widths.Select(w => new string('─', w))) + "┘";
@@ -354,15 +384,15 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <summary>
         /// Индексатор для доступа к строкам матрицы (MASRow).
         /// </summary>
-        /// <param name="rowIndex"></param>
-        /// <returns></returns>
+        /// <param name="rowIndex">Индекс искомого элемента.</param>
+        /// <returns>Объект <see cref="MASRow"/>, расположенный по переданному индексу.</returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
         public MASRow this[int rowIndex]
         {
             get
             {
                 if (rowIndex < 0 || rowIndex >= Rows.Count)
-                    throw new IndexOutOfRangeException("Row index is out of range");
+                    throw new IndexOutOfRangeException("Индекс строки за пределами диапазона");
                 return Rows[rowIndex];
             }
         }
@@ -370,22 +400,29 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <summary>
         /// Индексатор для доступа к элементам матрицы (ячейкам).
         /// </summary>
-        /// <param name="rowIndex"></param>
-        /// <param name="columnIndex"></param>
-        /// <returns></returns>
+        /// <param name="rowIndex">Индекс строки искомого элемента.</param>
+        /// <param name="columnIndex">Индекс столбца искомого элемента.</param>
+        /// <returns>Искомый элемент.</returns>
         /// <exception cref="IndexOutOfRangeException"></exception>
         public string this[int rowIndex, int columnIndex]
         {
             get
             {
                 if (rowIndex < 0 || rowIndex >= Rows.Count)
-                    throw new IndexOutOfRangeException("Row index is out of range");
+                    throw new IndexOutOfRangeException("Индекс строки за пределами диапазона");
                 if (columnIndex < 0 || columnIndex >= Headers.Count)
-                    throw new IndexOutOfRangeException("Column index is out of range");
+                    throw new IndexOutOfRangeException("Индекс столбца за пределами диапазона");
                 return Rows[rowIndex].Transitions[columnIndex];
             }
         }
 
+        /// <summary>
+        /// Получает список содержимого столбца.
+        /// </summary>
+        /// <param name="columnIndex">Индекс столбца.</param>
+        /// <returns>Элемент МСА, расположенный по переданным индексам.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public List<string> GetColumn(int columnIndex)
         {
             if (columnIndex < 0 || columnIndex >= Headers.Count)
@@ -437,6 +474,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return new string(' ', leftPadding) + text + new string(' ', rightPadding);
         }
 
+        /// <summary>
+        /// Возвращает глубокую копию для данной МСА.
+        /// </summary>
+        /// <param name="schema">Исходная МСА.</param>
+        /// <returns>Копия исходной МСА.</returns>
         public static MatrixSchema DeepCopy(this MatrixSchema schema)
         {
             return new MatrixSchema
@@ -449,6 +491,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             };
         }
 
+        /// <summary>
+        /// Обнаруживает все условные вершины, чьё <see cref="ConditionalVertex.ID"/> начинается с буквы 'P'.
+        /// </summary>
+        /// <param name="schema">Исходная МСА.</param>
+        /// <returns>Список из <see cref="ConditionalVertex.ID"/> искомых условных вершин.</returns>
         public static List<string> DetectPVariables(this MatrixSchema schema)
         {
             var variables = new HashSet<string>();
@@ -477,6 +524,22 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// Список условий переходов для строки.
         /// </summary>
         public List<string> Transitions { get; set; } = new();
+
+        /// <summary>
+        /// Индексатор для доступа к элементам строки МСА.
+        /// </summary>
+        /// <param name="rowIndex">Индекс искомого элемента.</param>
+        /// <returns>Элемент, расположенный по переданному индексу.</returns>
+        /// <exception cref="IndexOutOfRangeException"></exception>
+        public string this[int rowIndex]
+        {
+            get
+            {
+                if (rowIndex < 0 || rowIndex >= Transitions.Count)
+                    throw new IndexOutOfRangeException("Индекс строки за пределами диапазона");
+                return Transitions[rowIndex];
+            }
+        }
     }
 
     #endregion

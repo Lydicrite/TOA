@@ -21,13 +21,13 @@ namespace TOAConsole.LogicalExpressionParser
         /// <param name="visitor">Принимаемый посетитель.</param>
         public abstract void Accept(ILEVisitor visitor);
         /// <summary>
-        /// Вычисляет значение выражения по переданным входным параметрам <paramref name="inputs"/>.
+        /// Вычисляет значение узла по переданным входным параметрам <paramref name="inputs"/>.
         /// </summary>
         /// <param name="inputs">Входные параметры (значения переменных).</param>
         /// <returns>Значение логического выражения по входам <paramref name="inputs"/>.</returns>
         public abstract bool Evaluate(bool[] inputs);
         /// <summary>
-        /// Собирает имена переменных в выражении в <paramref name="variables"/>.
+        /// Собирает имена переменных в узле в <paramref name="variables"/>.
         /// </summary>
         /// <param name="variables">Хэш-сет, содержащий имена переменных.</param>
         public abstract void CollectVariables(HashSet<string> variables);

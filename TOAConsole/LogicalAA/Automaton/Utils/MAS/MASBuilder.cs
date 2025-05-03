@@ -39,7 +39,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             matrix.Headers = rowsVertexes.Select(v => v.ID).ToList();
 
             // Получаем все возможные пути для всех комбинаций условий
-            var pathConditions = AnalyzeAllPaths(automaton, rowsVertexes, colsVertexes);
+            var pathConditions = AnalyzeAllPaths(automaton);
 
             // Заполняем матрицу на основе собранных условий
             foreach (var rowVertex in rowsVertexes)
@@ -60,12 +60,12 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return matrix;
         }
 
-        private static Dictionary<(ILAAElement From, ILAAElement To), List<List<string>>> AnalyzeAllPaths
-        (
-            Automaton automaton,
-            List<ILAAElement> rows,
-            List<ILAAElement> cols
-        )
+        /// <summary>
+        /// Анализирует ход работы алгоритма при всех комбинациях входных условий.
+        /// </summary>
+        /// <param name="automaton"><see cref="Automaton"/>, описывающий алгоритм.</param>
+        /// <returns>Словарь с ключом в виде пар (From -> To) и значением из списка списков условий переходов из From в To.</returns>
+        private static Dictionary<(ILAAElement From, ILAAElement To), List<List<string>>> AnalyzeAllPaths(Automaton automaton)
         {
             var pathConditions = new Dictionary<(ILAAElement, ILAAElement), List<List<string>>>();
             var conditionals = automaton.Elements.OfType<ConditionalVertex>().ToList();
@@ -81,12 +81,17 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                 var path = GetExecutionPath(automaton);
 
                 // Анализируем путь на наличие допустимых переходов
-                AnalyzePath(path, rows, cols, binary, conditionals, pathConditions);
+                AnalyzePath(path, binary, conditionals, ref pathConditions);
             }
 
             return pathConditions;
         }
 
+        /// <summary>
+        /// Получает путь из пройденных элементов автомата.
+        /// </summary>
+        /// <param name="automaton">Автомат, для которого нужно получить путь пройденных элементов.</param>
+        /// <returns>Список из пройденных элементов в порядке их прохождения.</returns>
         private static List<ILAAElement> GetExecutionPath(Automaton automaton)
         {
             var path = new List<ILAAElement>();
@@ -109,14 +114,19 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return path;
         }
 
+        /// <summary>
+        /// Анализирует путь из пройденных элементов автомата при входных условиях <paramref name="binaryConditions"/>.
+        /// </summary>
+        /// <param name="path">Путь из пройденных элементов автомата.</param>
+        /// <param name="binaryConditions">Входные условия для условных вершин автомата.</param>
+        /// <param name="conditionals">Список условных вершин автомата.</param>
+        /// <param name="results">Ссылка на словарь с ключом в виде пар (From -> To) и значением из списка списков условий переходов из From в To.</param>
         private static void AnalyzePath
         (
             List<ILAAElement> path,
-            List<ILAAElement> rows,
-            List<ILAAElement> cols,
             string binaryConditions,
             List<ConditionalVertex> conditionals,
-            Dictionary<(ILAAElement, ILAAElement), List<List<string>>> results
+            ref Dictionary<(ILAAElement, ILAAElement), List<List<string>>> results
         )
         {
             // Собираем все Y-вершины в пути
@@ -147,6 +157,16 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             }
         }
 
+        /// <summary>
+        /// Собирает значения условных вершин для сегмента пути <paramref name="path"/> (по входным условиям <paramref name="binaryConditions"/>).
+        /// <br>Сегмент пути определяется начальным (<paramref name="startIdx"/>) и конечным (<paramref name="endIdx"/>) индексами его элементов.</br>
+        /// </summary>
+        /// <param name="path">Путь из пройденных элементов автомата.</param>
+        /// <param name="startIdx">Начальный индекс сегмента пути.</param>
+        /// <param name="endIdx">Конечный индекс сегмента пути.</param>
+        /// <param name="binaryConditions">Входные условия для условных вершин автомата.</param>
+        /// <param name="conditionals">Список условных вершин автомата.</param>
+        /// <returns></returns>
         private static List<string> CollectConditionsForSegment
         (
             List<ILAAElement> path,
@@ -179,10 +199,22 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
 
-
+        /// <summary>
+        /// Проверяет, является переданный элемент автомата операторной вершиной.
+        /// </summary>
+        /// <param name="element">Проверяемый элемент автомата.</param>
+        /// <returns><see langword="true"/>, если <paramref name="element"/> является экземпляром одного из следующих классов: 
+        /// <see cref="StartVertex"/>, <see cref="OperatorVertex"/> или <see cref="EndVertex"/>.</returns>
         private static bool IsOperatorVertex(ILAAElement element)
             => element is StartVertex || element is OperatorVertex || element is EndVertex;
 
+        /// <summary>
+        /// Проверяет, содержит ли путь из элементов автомата операторную вершину между позициями <paramref name="start"/> и <paramref name="end"/>. 
+        /// </summary>
+        /// <param name="path">Список пройденных элементов автомата.</param>
+        /// <param name="start">Начальная позиция поиска.</param>
+        /// <param name="end">Конечная позиция поиска.</param>
+        /// <returns><see langword="true"/>, если путь из элементов автомата содержит операторную вершину между позициями <paramref name="start"/> и <paramref name="end"/>, иначе <see langword="false"/>.</returns>
         private static bool HasIntermediateOV(List<ILAAElement> path, int start, int end)
         {
             for (int i = start + 1; i < end; i++)
@@ -191,11 +223,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             return false;
         }
 
-        private static bool HasIntermediateOV(List<ILAAElement> path)
-        {
-            return path.Skip(1).Take(path.Count - 2).Any(IsOperatorVertex);
-        }
-
+        /// <summary>
+        /// Форматирует группы условий перехода для получения логической формулы перехода.
+        /// </summary>
+        /// <param name="conditionGroups">Список из списков условий перехода.</param>
+        /// <returns>Строка, содержащая логическую формулу перехода.</returns>
         private static string FormatConditions(List<List<string>> conditionGroups)
         {
             if (conditionGroups.Count == 0) 

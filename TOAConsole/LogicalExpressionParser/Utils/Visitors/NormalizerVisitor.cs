@@ -9,7 +9,7 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
     /// <summary>
     /// Посетитель, применяющий к узлам выражения законы алгебры логики для их упрощения и нормализации.
     /// </summary>
-    internal class NormalizerVisitor : BaseVisitor
+    internal sealed class NormalizerVisitor : BaseVisitor
     {
         /// <summary>
         /// Стэк, содержащий узлы выражения и используемый для их обработки.

@@ -7,11 +7,24 @@ using System.Threading.Tasks;
 
 namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
 {
-    internal class ExpressionBuilderVisitor : BaseVisitor
+    /// <summary>
+    /// Посетитель, строящий абстрактное синтаксическое дерево, используя классы <see cref="Expression"/> и <seealso cref="ParameterExpression"/>.
+    /// </summary>
+    internal sealed class ExpressionBuilderVisitor : BaseVisitor
     {
+        /// <summary>
+        /// Стэк, содержащий выражения и используемый для их обработки.
+        /// </summary>
         private readonly Stack<Expression> _expressionStack = new();
+        /// <summary>
+        /// Объект, содержащий входные параметры выражения.
+        /// </summary>
         private readonly ParameterExpression _param;
 
+        /// <summary>
+        /// Создаёт новый посетитель, строящий абстрактное синтаксическое дерево.
+        /// </summary>
+        /// <param name="param">Параметры для дерева выражеиня.</param>
         public ExpressionBuilderVisitor(ParameterExpression param) => _param = param;
 
         protected override void VisitConstant(ConstantNode node)
@@ -28,7 +41,15 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
         {
             node.Operand.Accept(this);
             var expr = _expressionStack.Pop();
-            _expressionStack.Push(Expression.Not(expr));
+
+            switch (node.Operator)
+            {
+                case "~": 
+                    _expressionStack.Push(Expression.Not(expr));
+                    break;
+                default:
+                    throw new NotSupportedException($"Оператор '{node.Operator}' не поддерживается");
+            }
         }
 
         protected override void VisitBinary(BinaryNode node)
@@ -38,7 +59,6 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
             var right = _expressionStack.Pop();
             var left = _expressionStack.Pop();
 
-            // Логика для операторов вынесена в отдельный метод
             _expressionStack.Push(ProcessBinaryOperator(node.Operator, left, right));
         }
 

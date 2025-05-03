@@ -11,7 +11,7 @@ namespace TOAConsole.LogicalAA.Elements.Jumps
     /// <summary>
     /// Представляет собой точку перехода ЛСА - "↓i", где i = [0, ..., n].
     /// </summary>
-    internal class JumpPoint : LAABaseElement
+    internal sealed class JumpPoint : LAABaseElement
     {
         /// <summary>
         /// Индекс этой точки перехода.

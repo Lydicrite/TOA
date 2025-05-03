@@ -11,7 +11,7 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     /// <summary>
     /// Представляет собой конечную вершину ЛСА - "Yк".
     /// </summary>
-    internal class EndVertex : LAABaseElement
+    internal sealed class EndVertex : LAABaseElement
     {
         public EndVertex(int pos)
         {

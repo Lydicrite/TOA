@@ -6,11 +6,25 @@ using System.Threading.Tasks;
 
 namespace TOAConsole.LogicalAA.Automaton.ParserSystem
 {
-    internal class ParsingError
+    /// <summary>
+    /// Представляет контейнер для данных об ошибке, происходящей при парсинге.
+    /// </summary>
+    internal sealed class ParsingError
     {
+        /// <summary>
+        /// Сообщение об ошибке.
+        /// </summary>
         public string Message { get; }
+        /// <summary>
+        /// Позиция в списке токенов, где произошла ошибка.
+        /// </summary>
         public int Position { get; }
 
+        /// <summary>
+        /// Создаёт новую ошибку парсинга с необходимыми данными.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке.</param>
+        /// <param name="position">Позиция в списке токенов, где произошла ошибка.</param>
         public ParsingError(string message, int position)
         {
             Message = message;
@@ -18,10 +32,20 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
         }
     }
 
-    internal class ParsingAggregateException : Exception
+    /// <summary>
+    /// Представляет класс исключения, возникающего при появлении ошибок при парсинге.
+    /// </summary>
+    internal sealed class ParsingAggregateException : Exception
     {
+        /// <summary>
+        /// Список ошибок парсинга.
+        /// </summary>
         public List<ParsingError> Errors { get; }
 
+        /// <summary>
+        /// Создаёт исключение со списком обнаруженных ошибок парсинга.
+        /// </summary>
+        /// <param name="errors">Список ошибок парсинга.</param>
         public ParsingAggregateException(List<ParsingError> errors)
             : base($"\tНайдено {errors.Count} ошибок при парсинге ЛСА: \n")
         {

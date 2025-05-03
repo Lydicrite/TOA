@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,7 +21,25 @@ namespace TOAConsole.LogicalAA.Automaton
         /// <summary>
         /// Логическая схема, описывающая этот автомат.
         /// </summary>
-        public string LogicalScheme { get; private set; } = string.Empty;
+        public string LogicalSchema { get; private set; } = string.Empty;
+        /// <summary>
+        /// Матричная схема, описывающая этот автомат.
+        /// </summary>
+        public MatrixSchema MatrixSchema
+        {
+            get
+            {
+                if (Elements.Count == 0 || LogicalSchema == string.Empty)
+                    throw new NotImplementedException("Автомат не имеет заданной структуры");
+
+                ResetConditions();
+                return MASBuilder.GenerateMAS(this);
+            }
+            set
+            {
+                MatrixSchema = value;
+            }
+        }
         /// <summary>
         /// Список токенов автомата.
         /// <br>Заполняется во время парсинга входной строки, содержащей запись ЛСА.</br>
@@ -38,29 +57,16 @@ namespace TOAConsole.LogicalAA.Automaton
         /// Текущий "активный" элемент автомата.
         /// </summary>
         public ILAAElement? CurrentElement { get; private set; }
+        
         /// <summary>
-        /// Матричная схема, описывающая этот автомат.
+        /// Создаёт новый автомат на основе списка токенов и его логической схемы.
         /// </summary>
-        public MatrixSchema MatrixSchema 
-        {
-            get 
-            {
-                if (Elements.Count == 0 || LogicalScheme == string.Empty)
-                    throw new NotImplementedException("Автомат не имеет заданной структуры");
-
-                ResetConditions();
-                return MASBuilder.GenerateMAS(this);
-            }
-            set 
-            {
-                MatrixSchema = value;
-            }
-        }
-
+        /// <param name="tokens">Список токенов автомата.</param>
+        /// <param name="logicalScheme">ЛСА автомата.</param>
         public Automaton(List<string> tokens, string logicalScheme)
         {
             Tokens = tokens;
-            LogicalScheme = logicalScheme;
+            LogicalSchema = logicalScheme;
         }
 
 
@@ -100,7 +106,7 @@ namespace TOAConsole.LogicalAA.Automaton
         {
             var conditionalVertices = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
 
-            if (binaryValues == "[любой исход]" || (conditionalVertices.Count() == 0))
+            if (binaryValues == "[любой исход]" || (conditionalVertices.Count == 0))
                 return;
 
             if (!Regex.IsMatch(binaryValues, @"^[01]+$"))
@@ -206,7 +212,7 @@ namespace TOAConsole.LogicalAA.Automaton
         public Dictionary<string, List<string>> DetectLoopsForConditions(string binaryValues)
         {
             SetConditionsFromBinary(binaryValues);
-            var path = Run(verbose: false).Where(x => x != null).Select(ExtractId).ToList();
+            var path = Run(verbose: false).Where(x => x != null).Select(ExtractID).ToList();
             return FindUniqueLoops(path);
         }
 
@@ -219,7 +225,7 @@ namespace TOAConsole.LogicalAA.Automaton
             ResetConditions();
             var allCycles = new Dictionary<string, Dictionary<string, List<string>>>();
             var conditionals = Elements.OfType<ConditionalVertex>().OrderBy(v => v.Index).ToList();
-            if (conditionals.Count() == 0)
+            if (conditionals.Count == 0)
                 return allCycles;
 
             int n = conditionals.Count;
@@ -236,7 +242,7 @@ namespace TOAConsole.LogicalAA.Automaton
             return allCycles;
         }
 
-        private Dictionary<string, List<string>> FindUniqueLoops(List<string> path)
+        private static Dictionary<string, List<string>> FindUniqueLoops(List<string> path)
         {
             var cycles = new Dictionary<string, List<string>>();
             var visited = new HashSet<string>();
@@ -252,8 +258,7 @@ namespace TOAConsole.LogicalAA.Automaton
                             var cycle = path.Skip(i).Take(j - i).ToList();
                             var normalized = NormalizeLoop(cycle);
 
-                            if (!cycles.ContainsKey(normalized.Key))
-                                cycles.Add(normalized.Key, normalized.Value);
+                            cycles.TryAdd(normalized.Key, normalized.Value);
                         }
                     }
                 }
@@ -262,13 +267,13 @@ namespace TOAConsole.LogicalAA.Automaton
             return cycles;
         }
 
-        private (string Key, List<string> Value) NormalizeLoop(List<string> loop)
+        private static (string Key, List<string> Value) NormalizeLoop(List<string> loop)
         {
-            var startIndex = loop.FindIndex(x => x.StartsWith("↓"));
+            var startIndex = loop.FindIndex(x => x.StartsWith('↓'));
             if (startIndex > 0)
                 loop = loop.Skip(startIndex).Concat(loop.Take(startIndex)).ToList();
 
-            return (string.Join("→", loop), loop);
+            return (string.Join('→', loop), loop);
         }
 
         #endregion
@@ -298,7 +303,7 @@ namespace TOAConsole.LogicalAA.Automaton
             Console.WriteLine("║ не войдёт в цикл или пока алгоритм не дойдёт   ║");
             Console.WriteLine("║ до конечной операторной вершины Yк.            ║");
             Console.WriteLine("╚════════════════════════════════════════════════╝");
-            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalScheme}\" в режиме M1 ◄◄\n");
+            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalSchema}\" в режиме M1 ◄◄\n");
             Console.ResetColor();
 
             CurrentElement = Elements.OfType<StartVertex>().FirstOrDefault();
@@ -346,7 +351,7 @@ namespace TOAConsole.LogicalAA.Automaton
                 Console.Write(CurrentElement.Description + "\n");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M1 завершена ◄◄\n\n\n\n");
+            Console.Write($"\n►► Работа с алгоритмом \"{LogicalSchema}\" в режиме M1 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
             ResetConditions();
         }
@@ -371,7 +376,7 @@ namespace TOAConsole.LogicalAA.Automaton
             Console.WriteLine("║ не войдёт в цикл или пока алгоритм не дойдёт   ║");
             Console.WriteLine("║ до конечной операторной вершины Yк.            ║");
             Console.WriteLine("╚════════════════════════════════════════════════╝");
-            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalScheme}\" в режиме M2 ◄◄\n");
+            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalSchema}\" в режиме M2 ◄◄\n");
             Console.ResetColor();
 
             CurrentElement = Elements.OfType<StartVertex>().FirstOrDefault();
@@ -420,7 +425,7 @@ namespace TOAConsole.LogicalAA.Automaton
                 Console.Write(CurrentElement.Description + "\n");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M2 завершена ◄◄\n\n\n\n");
+            Console.Write($"\n►► Работа с алгоритмом \"{LogicalSchema}\" в режиме M2 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
             ResetConditions();
         }
@@ -441,12 +446,12 @@ namespace TOAConsole.LogicalAA.Automaton
             Console.WriteLine("║ логических условий, а также информацию об      ║");
             Console.WriteLine("║ обнаруженных при этих условиях циклах.         ║");
             Console.WriteLine("╚════════════════════════════════════════════════╝");
-            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalScheme}\" в режиме M3 ◄◄\n");
+            Console.Write($"\n►► Начата работа с алгоритмом \"{LogicalSchema}\" в режиме M3 ◄◄\n");
             Console.ResetColor();
             Console.WriteLine($"{GetResults()}");
             Console.WriteLine($"{GetAllLoops()}");
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"\n►► Работа с алгоритмом \"{LogicalScheme}\" в режиме M3 завершена ◄◄\n\n\n\n");
+            Console.Write($"\n►► Работа с алгоритмом \"{LogicalSchema}\" в режиме M3 завершена ◄◄\n\n\n\n");
             Console.ResetColor();
             ResetConditions();
         }
@@ -519,7 +524,7 @@ namespace TOAConsole.LogicalAA.Automaton
         public string GetResults()
         {
             var allResults = GenerateResultsDictionary();
-            var resultsDescr = $"\n► Результаты работы алгоритма для всех возможных комбинаций значений условных вершин: [{allResults.Count()}] \n{{";
+            var resultsDescr = $"\n► Результаты работы алгоритма для всех возможных комбинаций значений условных вершин: [{allResults.Count}] \n{{";
 
             foreach (var result in allResults)
             {
@@ -531,7 +536,7 @@ namespace TOAConsole.LogicalAA.Automaton
         }
 
         /// <summary>
-        /// Создаёт и возвращает словарь с ключами в виде входных значений условных вершин и значениями в виде строки из пройденных вершин.
+        /// Создаёт и возвращает словарь с ключами в виде входных значений условных вершин и значениями в виде строки из пройденных элементов.
         /// </summary>
         /// <returns>Словарь, созданный по описанным правилам.</returns>
         public Dictionary<string, string> GenerateResultsDictionary()
@@ -543,11 +548,11 @@ namespace TOAConsole.LogicalAA.Automaton
             
             for (int i = 0; i < Math.Pow(2, n); i++)
             {
-                string binary = (conditionals.Count() != 0) ? Convert.ToString(i, 2).PadLeft(n, '0') : "[любой исход]";
-                if (conditionals.Count() != 0)
+                string binary = (conditionals.Count != 0) ? Convert.ToString(i, 2).PadLeft(n, '0') : "[любой исход]";
+                if (conditionals.Count != 0)
                     SetConditionsFromBinary(binary);
                 var runOut = Run(verbose: false);
-                var path = runOut.Select(s => ExtractId(s)).ToList();
+                var path = runOut.Select(s => ExtractID(s)).ToList();
                 table[binary] = string.Join(" → ", path);
                 ResetConditions();
             }
@@ -571,7 +576,7 @@ namespace TOAConsole.LogicalAA.Automaton
         {
             ResetConditions();
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"\n\n\n►► Информация об алгоритме \"{LogicalScheme}\" ◄◄\n");
+            Console.Write($"\n\n\n►► Информация об алгоритме \"{LogicalSchema}\" ◄◄\n");
             Console.ResetColor();
 
             Console.WriteLine($"{GetAllLoops()}");
@@ -579,7 +584,7 @@ namespace TOAConsole.LogicalAA.Automaton
             Console.WriteLine($"{GetMatrixSchema()}");
 
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Write($"►► Вывод информации об алгоритме \"{LogicalScheme}\" завершён ◄◄\n");
+            Console.Write($"►► Вывод информации об алгоритме \"{LogicalSchema}\" завершён ◄◄\n");
             Console.ResetColor();
             ResetConditions();
         }
@@ -592,7 +597,12 @@ namespace TOAConsole.LogicalAA.Automaton
 
         #region Дополнительные методы
 
-        private string? ExtractId(string? description)
+        /// <summary>
+        /// Получает ID элемента автомата из его описания.
+        /// </summary>
+        /// <param name="description">Описание элемента.</param>
+        /// <returns>ID элемента.</returns>
+        private string? ExtractID(string? description)
         {
             if (description == null) 
                 return "";

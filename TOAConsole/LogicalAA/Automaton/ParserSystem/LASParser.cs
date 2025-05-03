@@ -32,7 +32,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
 
             input = PreprocessInput(input);
             var tokens = Tokenize(input, ref errors);
-            for (int i = 0; i < tokens.Count(); i++)
+            for (int i = 0; i < tokens.Count; i++)
                 parsedPositions.Add(i, false);
 
             var automaton = new Automaton(tokens, input);
@@ -184,12 +184,12 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
                 case "Yк":
                     return HandleEndVertex(automaton, position - 1, ref parsedPositions, ref errors);
 
-                case var x when x.StartsWith("X") || x.StartsWith("P"):
+                case var x when x.StartsWith('X') || x.StartsWith('P'):
                     string prefix = x.Substring(0, 1);
                     int originalNumber = int.Parse(x.Substring(1));
                     return ParseConditionalVertex(automaton, ref position, ref parsedPositions, prefix, originalNumber, ref errors);
 
-                case var y when y.StartsWith("Y"):
+                case var y when y.StartsWith('Y'):
                     if (y == "Yн")
                     {
                         AddError(errors, "Yн может быть только в начале", position - 1);
@@ -199,10 +199,10 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
                     var opVertex = CreateOperatorVertex(automaton, position - 1, ref parsedPositions, int.Parse(y[1..]), ref errors);
                     return opVertex;
 
-                case var jp when jp.StartsWith("↓"):
+                case var jp when jp.StartsWith('↓'):
                     return CreateJumpPoint(automaton, position - 1, ref parsedPositions, int.Parse(jp[1..]), ref errors);
 
-                case var jo when jo.StartsWith("↑") || jo.StartsWith("w↑"):
+                case var jo when jo.StartsWith('↑') || jo.StartsWith("w↑"):
                     var isUnconditional = jo.StartsWith("w↑");
                     return CreateJumpOperator(automaton, position - 1, ref parsedPositions, int.Parse(jo[(isUnconditional ? 2 : 1)..]), isUnconditional, ref errors);
 
@@ -275,7 +275,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             if (position >= automaton.Tokens.Count) return null;
 
             var token = automaton.Tokens[position];
-            if (!token.StartsWith("↑"))
+            if (!token.StartsWith('↑'))
             {
                 AddError(errors, $"Ожидается условный оператор перехода, получен: {token}", position);
                 return null;
@@ -307,7 +307,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
                 var currentToken = automaton.Tokens[position];
 
                 // Явные выходы: ↓ или внешний Yк
-                if (currentToken.StartsWith("↓") || (currentToken == "Yк" && currentElement != null))
+                if (currentToken.StartsWith('↓') || (currentToken == "Yк" && currentElement != null))
                 {
                     currentElement.Next = ParseElement(automaton, ref position, ref parsedPositions, ref errors);
                     parsedPositions[position] = true;
@@ -383,7 +383,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
         /// <param name="errors">Ссылка на список ошибок парсера.</param>
         /// <returns>Настроенная конечная вершина ЛСА.</returns>
         /// <exception cref="FormatException"></exception>
-        private static ILAAElement? HandleEndVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
+        private static EndVertex? HandleEndVertex(Automaton automaton, int pos, ref Dictionary<int, bool> parsedPositions, ref List<ParsingError> errors)
         {
             if (automaton.Elements.OfType<EndVertex>().Any())
             {
@@ -475,7 +475,7 @@ namespace TOAConsole.LogicalAA.Automaton.ParserSystem
             automaton.AddElement(jo);
             parsedPositions[pos] = true;
 
-            if (pos - 1 < automaton.Elements.Count() && automaton.Elements[pos - 1] is OperatorVertex ov)
+            if (pos - 1 < automaton.Elements.Count && automaton.Elements[pos - 1] is OperatorVertex ov)
                 LinkPrevious(ov, jo, ref errors);
             return jo;
         }

@@ -9,7 +9,7 @@ namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
     /// <summary>
     /// Посетитель, применяющий законы Де-Моргана и дистрибутивности для логических выражений.
     /// </summary>
-    internal class ExpanderVisitor : BaseVisitor
+    internal sealed class ExpanderVisitor : BaseVisitor
     {
         /// <summary>
         /// Стэк, содержащий узлы выражения и используемый для их обработки.

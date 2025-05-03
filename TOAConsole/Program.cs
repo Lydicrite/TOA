@@ -7,21 +7,24 @@ using TOAConsole.LogicalAA.Automaton.ParserSystem;
 using TOAConsole.LogicalAA.Automaton.Utils;
 using TOAConsole.LogicalAA.Automaton.Utils.MAS;
 
-public class Program
+namespace TOAConsole
 {
-    public static void Main()
+    public class Program
     {
-        Console.Clear();
-        Console.InputEncoding = Encoding.Unicode;
-        Console.OutputEncoding = Encoding.Unicode;
+        public static void Main()
+        {
+            Console.Clear();
+            Console.InputEncoding = Encoding.Unicode;
+            Console.OutputEncoding = Encoding.Unicode;
 
-        try
-        {
-            LASInputHandler.ProgramCycle();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"\nОшибка: -> {ex.Message}");
+            try
+            {
+                LASInputHandler.ProgramCycle();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nОшибка: -> {ex.Message}");
+            }
         }
     }
 }

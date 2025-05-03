@@ -11,18 +11,41 @@ using TOAConsole.LogicalExpressionParser.Utils.Visitors;
 
 namespace TOAConsole.LogicalExpressionParser
 {
-    internal class LogicalExpression
+    internal sealed class LogicalExpression
     {
+        /// <summary>
+        /// Кэшированный хэш выражения.
+        /// </summary>
         private int? _cachedHashCode;
+        /// <summary>
+        /// Корневой узел выражения.
+        /// </summary>
         private LENode _root;
+        /// <summary>
+        /// Список переменных выражения.
+        /// </summary>
         private ImmutableArray<string> _variables = ImmutableArray<string>.Empty;
+        /// <summary>
+        /// Словарь с ключом в виде имени переменной и значением в виде её индекса.
+        /// </summary>
         private Dictionary<string, int> _variableIndices;
+        /// <summary>
+        /// Делегат (функция) выражения.
+        /// </summary>
         private Func<bool[], bool> _compiledDelegate;
+        /// <summary>
+        /// Переменная для обновления данных выражения.
+        /// </summary>
         private bool _isDirty = true;
 
-        public IEnumerable<string> GetVariables() => _variables.AsEnumerable();
+        /// <summary>
+        /// Список переменных выражения с доступом только для чтения.
+        /// </summary>
         public IReadOnlyList<string> Variables { get { return _variables.AsReadOnly(); } }
-        public bool[][] BooleanValues
+        /// <summary>
+        /// Таблица истинности выражения в виде двумерного массива.
+        /// </summary>
+        public bool[][] TruthTable
         {
             get
             {
@@ -46,12 +69,26 @@ namespace TOAConsole.LogicalExpressionParser
             }
         }
 
+
+
+        /// <summary>
+        /// Создаёт новое логическое выражение с корневым узлом <paramref name="root"/>.
+        /// </summary>
+        /// <param name="root">Корневой узел нового логического выражения.</param>
         public LogicalExpression(LENode root)
         {
             _root = root;
             UpdateVariableInfo();
         }
 
+
+
+        /// <summary>
+        /// Устанавливает порядок переменных для выражения.
+        /// </summary>
+        /// <param name="order">Новый порядок переменных в виде коллекции строк.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         public void SetVariableOrder(IEnumerable<string> order)
         {
             if (order == null)
@@ -66,7 +103,7 @@ namespace TOAConsole.LogicalExpressionParser
 
             // 2. Проверка на полноту переменных
             var missingVariables = _variables.Except(uniqueVars).ToList();
-            if (missingVariables.Any())
+            if (missingVariables.Count != 0)
                 throw new ArgumentException($"Порядок переменных не содержит: {string.Join(", ", missingVariables)}");
 
             // Обновление состояния
@@ -85,6 +122,10 @@ namespace TOAConsole.LogicalExpressionParser
 
         #region Нормализация
 
+        /// <summary>
+        /// Применяет возможности классов <see cref="ExpanderVisitor"/> и <see cref="NormalizerVisitor"/> для выражения.
+        /// </summary>
+        /// <returns>Новое выражение, полученное из исходного путём упрощения, нормализации и раскрытия скобок.</returns>
         public LogicalExpression Expand()
         {
             var simplifier = new NormalizerVisitor();
@@ -113,6 +154,10 @@ namespace TOAConsole.LogicalExpressionParser
             return newExpr;
         }
 
+        /// <summary>
+        /// Применяет возможности класса <see cref="NormalizerVisitor"/> для выражения.
+        /// </summary>
+        /// <returns>Новое выражение, полученное из исходного путём упрощения и нормализации.</returns>
         public LogicalExpression Normalize()
         {
             var simplifier = new NormalizerVisitor();
@@ -165,13 +210,13 @@ namespace TOAConsole.LogicalExpressionParser
                     }
 
                     // Готовим входные данные для текущего выражения
-                    bool[] thisInputs = thisVariables.Any()
+                    bool[] thisInputs = thisVariables.Length != 0
                         ? thisVariables.Select(v => values[v]).ToArray()
                         : Array.Empty<bool>();
                     bool thisResult = this.Evaluate(thisInputs);
 
                     // Готовим входные данные для другого выражения
-                    bool[] otherInputs = otherVariables.Any()
+                    bool[] otherInputs = otherVariables.Length != 0
                         ? otherVariables.Select(v => values[v]).ToArray()
                         : Array.Empty<bool>();
                     bool otherResult = other.Evaluate(otherInputs);
@@ -195,7 +240,7 @@ namespace TOAConsole.LogicalExpressionParser
             try
             {
                 int hash = 0;
-                foreach (var row in BooleanValues)
+                foreach (var row in TruthTable)
                 {
                     foreach (var value in row)
                     {
@@ -213,12 +258,18 @@ namespace TOAConsole.LogicalExpressionParser
 
 
 
+        /// <summary>
+        /// Обновляет кэш выражения.
+        /// </summary>
         private void ResetCache()
         {
             _isDirty = true;
             _root.ResetCache();
         }
 
+        /// <summary>
+        /// Обновляет информацию о переменных выражения.
+        /// </summary>
         private void UpdateVariableInfo()
         {
             var variables = new HashSet<string>();
@@ -227,6 +278,13 @@ namespace TOAConsole.LogicalExpressionParser
             ResetCache();
         }
 
+        /// <summary>
+        /// Обновляет индексы переменных для узла <paramref name="node"/>.
+        /// </summary>
+        /// <param name="node">Узел, для которого нужно обновить индексы переменных.</param>
+        /// <returns>Новый узел <see cref="LENode"/>, созданный на основе <paramref name="node"/>.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         private LENode UpdateVariableIndices(LENode node)
         {
             switch (node)
@@ -249,6 +307,9 @@ namespace TOAConsole.LogicalExpressionParser
             }
         }
 
+        /// <summary>
+        /// Определяет все переменные выражения и их индексы.
+        /// </summary>
         private void CollectVariables()
         {
             var variables = new HashSet<string>();
@@ -265,16 +326,24 @@ namespace TOAConsole.LogicalExpressionParser
                 .ToDictionary(x => x.name, x => x.idx);
         }
 
+        /// <summary>
+        /// Устанавливает индексы переменных.
+        /// </summary>
         private void SetVariableIndices()
         {
-            var visitor = new VariableIndexSetter(_variableIndices);
-            _root = visitor.Visit(_root);
+            var visitor = new VariableIndexerVisitor(_variableIndices);
+            _root = visitor.ProcessNode(_root);
         }
 
+        /// <summary>
+        /// Проверяет корректность входного массива.
+        /// </summary>
+        /// <param name="inputs">Входной массив значений переменных.</param>
+        /// <exception cref="ArgumentException"></exception>
         private void ValidateInputs(bool[] inputs)
         {
-            if (inputs.Length != _variables.Count())
-                throw new ArgumentException($"Ожидалось {_variables.Count()} переменных: {string.Join(", ", _variables)}" +
+            if (inputs.Length != _variables.Length)
+                throw new ArgumentException($"Ожидалось {_variables.Length} переменных: {string.Join(", ", _variables)}" +
                                                              $"\nПолучено {inputs.Length}: {string.Join(", ", inputs)}");
         }
 
@@ -283,6 +352,9 @@ namespace TOAConsole.LogicalExpressionParser
 
         #region Компиляция в Expression Tree
 
+        /// <summary>
+        /// Компилирует выражение в AST (абстрактное синтаксическое дерево).
+        /// </summary>
         public void Compile()
         {
             if (!_isDirty && _compiledDelegate != null) 
@@ -295,6 +367,11 @@ namespace TOAConsole.LogicalExpressionParser
             _isDirty = false;
         }
 
+        /// <summary>
+        /// Вычисляет значение выражения по входам.
+        /// </summary>
+        /// <param name="inputs">Входной массив значений переменных.</param>
+        /// <returns>Значение выражения.</returns>
         public bool Evaluate(bool[] inputs)
         {
             Compile();
@@ -310,6 +387,10 @@ namespace TOAConsole.LogicalExpressionParser
 
         #region Генерация таблицы истинности
 
+        /// <summary>
+        /// Создаёт таблицу истинности в удобном для печати и просмотра виде.
+        /// </summary>
+        /// <returns>Объект <see cref="DataTable"/>, представляющий таблицу истинности.</returns>
         public DataTable GenerateTruthTable()
         {
             var table = new DataTable();
@@ -325,7 +406,7 @@ namespace TOAConsole.LogicalExpressionParser
             table.Columns.Add($"f(...)");
 
             // Генерируем все комбинации значений
-            int varCount = _variables.Count();
+            int varCount = _variables.Length;
             int combinations = 1 << varCount;
 
             for (int i = 0; i < combinations; i++)
@@ -349,6 +430,10 @@ namespace TOAConsole.LogicalExpressionParser
             return table;
         }
 
+        /// <summary>
+        /// Печатает таблицу истинности.
+        /// </summary>
+        /// <returns>Строка, содержащая таблицу истинности.</returns>
         public string PrintTruthTable()
         {
             int padding = 2;
@@ -379,49 +464,6 @@ namespace TOAConsole.LogicalExpressionParser
             }
 
             return sb.ToString();
-        }
-
-        public DataView GetTruthTableView() => new DataView(GenerateTruthTable());
-
-        #endregion
-
-
-
-
-
-        #region Вспомогательный класс для установки индексов переменных
-
-        private class VariableIndexSetter
-        {
-            private readonly Dictionary<string, int> _indices;
-
-            public VariableIndexSetter(Dictionary<string, int> indices) => _indices = indices;
-
-            public LENode Visit(LENode node)
-            {
-                switch (node)
-                {
-                    case VariableNode vn:
-                        if (!_indices.TryGetValue(vn.Name, out var newIndex))
-                            throw new InvalidOperationException($"Переменная {vn.Name} не найдена в списке");
-                        return vn.WithIndex(newIndex); // Создаем новый узел
-
-                    case UnaryNode un:
-                        var newOperand = Visit(un.Operand);
-                        return new UnaryNode(un.Operator, newOperand);
-
-                    case BinaryNode bn:
-                        var newLeft = Visit(bn.Left);
-                        var newRight = Visit(bn.Right);
-                        return new BinaryNode(bn.Operator, newLeft, newRight);
-
-                    case ConstantNode cn:
-                        return cn;
-
-                    default:
-                        throw new NotSupportedException($"Тип узла {node.GetType()} не поддерживается");
-                }
-            }
         }
 
         #endregion

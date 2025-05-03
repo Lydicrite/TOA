@@ -194,14 +194,14 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                             if (symbol == "Н")
                             {
                                 symbol = symbol.ToLower();
-                                if (input.Length != 0 && !input.ToString().StartsWith("Yн ") && input[cursorPos - 1] == 'Y' && input.ToString().Count(c => c == 'н') == 0)
+                                if (input.Length != 0 && !input.ToString().StartsWith("Yн ") && input[cursorPos - 1] == 'Y' && !input.ToString().Any(c => c == 'н'))
                                     InsertSymbol(symbol, ref cursorPos, input);
                                 break;
                             }
                             else if (symbol == "К")
                             {
                                 symbol = symbol.ToLower();
-                                if (input.Length != 0 && input[cursorPos - 1] == 'Y' && input.ToString().Count(c => c == 'к') == 0)
+                                if (input.Length != 0 && input[cursorPos - 1] == 'Y' && !input.ToString().Any(c => c == 'к'))
                                     InsertSymbol(symbol, ref cursorPos, input);
                                 break;
                             }
@@ -285,7 +285,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             switch (key)
             {
                 case ConsoleKey.D1:
-                    LoadNewLAA();
+                    ReloadAA();
                     break;
 
                 case ConsoleKey.D2 when _automaton != null:
@@ -358,6 +358,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
 
 
         #region Вывод информации
+
         /// <summary>
         /// Выводит основную информацию и правила работы с программой.
         /// </summary>
@@ -472,6 +473,14 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.ResetColor();
         }
 
+        #endregion
+
+
+
+
+
+        #region Вспомогательные методы
+
         /// <summary>
         /// Запускает модуль объединения автоматов.
         /// </summary>
@@ -522,7 +531,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine($"\n\n►► --- Ввод ЛСА автомата #{i + 1} --- ◄◄");
                     Console.ResetColor();
-                    var automaton = LoadSingleLAA();
+                    var automaton = LoadSingleAA();
                     automatons.Add(automaton);
                     schemes.Add(automaton.MatrixSchema);
 
@@ -563,7 +572,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.Write
                 (
                     $"\n►► В объединении участвуют {count} автомата, отсюда: " +
-                    $"\n\t► достаточное количество новых переменных для объединения: {newVariables.Count()} ◄" +
+                    $"\n\t► достаточное количество новых переменных для объединения: {newVariables.Count} ◄" +
                     $"\n\t► новые переменные: {string.Join(", ", newVariables)} ◄\n◄◄\n"
                 );
 
@@ -622,7 +631,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 (
                     $"\n►►" +
                     $"\nМинимизированная МСА" +
-                    $"\n\t► содержит упрощённые по законам алгебры логики логические формулы переходов из Yᵢ в Yⱼ ◄" +
+                    $"\n\t► содержит упрощённые по законам алгебры логики и оптимизированные с помощью распределения сдвигов логические формулы переходов из Yᵢ в Yⱼ ◄" +
                     $"\n◄◄\n"
                 );
             Console.ResetColor();
@@ -633,13 +642,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         }
 
 
-        #endregion
 
-
-
-
-
-        #region Вспомогательные методы
 
         /// <summary>
         /// Вставляет символ <paramref name="symbol"/> в <see cref="StringBuilder"/> <paramref name="input"/> на позицию курсора <paramref name="cursorPos"/>.
@@ -655,10 +658,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
         }
 
         /// <summary>
-        /// Вводит
+        /// Стирает и заново вводит в консоль строку из <paramref name="input"/>.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="cursorPos"></param>
+        /// <param name="input"><see cref="StringBuilder"/>, содержащий вводимую строку.</param>
+        /// <param name="cursorPos">Текущая позиция курсора.</param>
         private static void RedrawInput(StringBuilder input, int cursorPos)
         {
             int currentLeft = Console.CursorLeft;
@@ -671,6 +674,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.SetCursorPosition(Math.Min(cursorPos, input.Length), currentTop);
         }
 
+        /// <summary>
+        /// Меняет раскладку клавиатуры на английскую ("en-US").
+        /// </summary>
         private static void ChangeLayout()
         {
             Console.InputEncoding = Encoding.Unicode;
@@ -691,6 +697,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             Console.ResetColor();
         }
 
+        /// <summary>
+        /// Проверяет, является ли исследуемый символ <paramref name="c"/> корректным для использования в ЛСА.
+        /// </summary>
+        /// <param name="c">Исследуемый символ.</param>
+        /// <returns><see langword="true"/>, если <paramref name="c"/> является орректным для использования в ЛСА, иначе <see langword="false"/>.</returns>
         private static bool IsValidLASSymbol(char c)
         {
             return 
@@ -701,6 +712,13 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 char.IsDigit(c) || c == '↑' || c == '↓';
         }
 
+        /// <summary>
+        /// Считывает целое число с проверкой на вход в диапазон [<paramref name="min"/>, <paramref name="max"/>] и выводом приветственного сообщения <paramref name="prompt"/>.
+        /// </summary>
+        /// <param name="prompt">Приветственное сообщение.</param>
+        /// <param name="min">Минимальное число из диапазона.</param>
+        /// <param name="max">Максимальное число из диапазона.</param>
+        /// <returns></returns>
         private static int ReadInt(string prompt, int min, int max)
         {
             int value;
@@ -719,7 +737,11 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
 
 
 
-        private static Automaton LoadSingleLAA()
+        /// <summary>
+        /// Обрабатывает ввод автомата (для режима объединения).
+        /// </summary>
+        /// <returns>Новый объект <see cref="Automaton"/>.</returns>
+        private static Automaton LoadSingleAA()
         {
             var lsaString = LASInputHandler.ReadLSAString();
             var automaton = LASParser.Parse(lsaString);
@@ -731,7 +753,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             return automaton;
         }
 
-        private static void LoadNewLAA()
+        /// <summary>
+        /// Обрабатывает пересоздание объекта <see cref="_automaton"/>.
+        /// </summary>
+        private static void ReloadAA()
         {
             try
             {
@@ -758,6 +783,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             }
         }
 
+        /// <summary>
+        /// Возвращает программу в главное меню.
+        /// </summary>
         private static void ReturnToMain()
         {
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -769,6 +797,9 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
             _currentMenuState = MenuState.Main;
         }
 
+        /// <summary>
+        /// Очищает последнюю строку в консоли.
+        /// </summary>
         private static void ClearLastLine()
         {
             Console.SetCursorPosition(0, Console.CursorTop);

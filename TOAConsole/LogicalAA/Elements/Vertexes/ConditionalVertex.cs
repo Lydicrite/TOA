@@ -11,7 +11,7 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     /// <summary>
     /// Представляет собой условную вершину ЛСА - "Xi", где i = [0, ..., n].
     /// </summary>
-    internal class ConditionalVertex : LAABaseElement
+    internal sealed class ConditionalVertex : LAABaseElement
     {
         /// <summary>
         /// Уникальный индекс условной вершины.

@@ -6,10 +6,22 @@ using System.Threading.Tasks;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 {
-    internal class MASCombiner
+    /// <summary>
+    /// Проводит объединение нескольких автоматов на основе их матричных схем <see cref="MatrixSchema"/>.
+    /// </summary>
+    internal static class MASCombiner
     {
+        /// <summary>
+        /// Список двоичных строк, которыми кодируются объединяемые МСА.
+        /// </summary>
         private static List<string> _binaryCodes = new List<string>();
+        /// <summary>
+        /// Список значений новых P-переменных, которыми кодируются объединяемые МСА.
+        /// </summary>
         private static List<string> _pVarCodes = new List<string>();
+        /// <summary>
+        /// Список новых P-переменных, используемых в ОМСА (ID новых условных вершин).
+        /// </summary>
         private static HashSet<string> _newPVariables = new HashSet<string>();
 
         #region Объединение матриц
@@ -254,7 +266,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
                 return pConjunction;
 
             // Добавляем конъюнкцию P к существующим условиям
-            if (!condition.Contains("˅"))
+            if (!condition.Contains('˅'))
                 return $"{WrapInParentheses(condition)} ˄ {pConjunction}";
 
             // Обработка дизъюнкций
@@ -268,7 +280,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         /// <returns></returns>
         private static string WrapInParentheses(string condition)
         {
-            if (condition.Contains("˅") && !condition.StartsWith("("))
+            if (condition.Contains('˅') && !condition.StartsWith('('))
                 return $"({condition})";
             return condition;
         }

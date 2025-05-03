@@ -11,7 +11,7 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     /// <summary>
     /// Представляет собой операторную вершину ЛСА - "Yi", где i = [0, ..., n].
     /// </summary>
-    internal class OperatorVertex : LAABaseElement
+    internal sealed class OperatorVertex : LAABaseElement
     {
         /// <summary>
         /// Индекс этой операторной вершины.

@@ -11,7 +11,7 @@ namespace TOAConsole.LogicalAA.Elements.Vertexes
     /// <summary>
     /// Представляет собой начальную вершину ЛСА - "Yн".
     /// </summary>
-    internal class StartVertex : LAABaseElement
+    internal sealed class StartVertex : LAABaseElement
     {
         public StartVertex(int pos)
         {
