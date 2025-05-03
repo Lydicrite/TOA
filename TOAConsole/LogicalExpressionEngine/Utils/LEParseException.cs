@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOAConsole.LogicalExpressionParser.Utils
+namespace TOAConsole.LogicalExpressionEngine.Utils
 {
     /// <summary>
     /// Представляет исключения, возникающее при работе парсера логических выражений.

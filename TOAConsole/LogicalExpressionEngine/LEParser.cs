@@ -6,9 +6,9 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TOAConsole.LogicalExpressionParser.Utils;
+using TOAConsole.LogicalExpressionEngine.Utils;
 
-namespace TOAConsole.LogicalExpressionParser
+namespace TOAConsole.LogicalExpressionEngine
 {
     /// <summary>
     /// Представляет класс парсера логических выражений.

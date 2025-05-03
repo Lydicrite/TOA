@@ -27,7 +27,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         #region Объединение матриц
 
         /// <summary>
-        /// Объединяет модифицированные МСА в единую матрицу.
+        /// Объединяет модифицированные МСА в единую МСА.
         /// </summary>
         /// <param name="modifiedSchemes">Список подготовленных к объединению МСА.</param>
         /// <param name="binaryCodes">Список двоичных кодов, используемых для кодирования объединяемых МСА.</param>
@@ -160,7 +160,29 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         #region Подготовка к объединению
 
         /// <summary>
-        /// Преобразует список МСА отдельных алгоритмовв список модифицированных МСА с добавлением переменных P1 ... Pn.
+        /// Возвращает словарь схожести МСА в формате [ключ: "B(M{i}, M{j})", значение: "количество равных значимых элементов"]
+        /// </summary>
+        /// <param name="matrices">Список объединяемых МСА.</param>
+        /// <returns>Словарь схожести МСА.</returns>
+        public static Dictionary<string, int> GetSimilarityDictionary(List<MatrixSchema> matrices)
+        {
+            var similarityDict = new Dictionary<string, int>();
+
+            for (int i = 0; i < matrices.Count; i++)
+            {
+                for (int j = i + 1; j < matrices.Count; j++)
+                {
+                    int similarity = matrices[i].CalculateSimilarity(matrices[j]);
+                    string key = $"B(M{i + 1}, M{j + 1})";
+                    similarityDict.Add(key, similarity);
+                }
+            }
+
+            return similarityDict;
+        }
+
+        /// <summary>
+        /// Преобразует список МСА отдельных алгоритмов в список модифицированных МСА с добавлением переменных P1 ... Pn.
         /// </summary>
         /// <param name="schemes">Список объединяемых МСА.</param>
         /// <returns>Список подготовленных к объединению МСА.</returns>
@@ -170,35 +192,92 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             _binaryCodes.Clear();
             _pVarCodes.Clear();
 
+            // Шаг 1: Вычисление попарной схожести
+            var similarityMatrix = CalculateSimilarityMatrix(schemes);
+
+            // Шаг 2: Оптимизация порядка матриц
+            var orderedSchemes = OptimizeOrder(schemes, similarityMatrix);
+
+            // Шаг 3: Генерация кодов с минимальным расстоянием
             int n = (int)Math.Ceiling(Math.Log(schemes.Count, 2));
-            var mergedSchemas = new List<MatrixSchema>();
+            _binaryCodes = GenerateGrayCodes(orderedSchemes.Count, n);
 
-            _binaryCodes = GenerateBinaryCodes(schemes.Count, n);
-
-            for (int i = 0; i < schemes.Count; i++)
+            // Шаг 4: Подготовка матриц
+            var preparedSchemas = new List<MatrixSchema>();
+            for (int i = 0; i < orderedSchemes.Count; i++)
             {
-                string code = _binaryCodes[i];
-                MatrixSchema modifiedSchema = ModifySchema(schemes[i], code);
-                mergedSchemas.Add(modifiedSchema);
-
-                string pConjunction = CreatePConjunction(code, schemes[i]);
-                _pVarCodes.Add(pConjunction);
+                MatrixSchema modified = ModifySchema(orderedSchemes[i], _binaryCodes[i]);
+                preparedSchemas.Add(modified);
+                _pVarCodes.Add(CreatePConjunction(_binaryCodes[i], orderedSchemes[i]));
             }
 
-            return mergedSchemas;
+            return preparedSchemas;
         }
 
         /// <summary>
-        /// Генерирует двоичные коды для <paramref name="k"/> автоматов.
+        /// Вычисляет матрицу схожести (попарную) для всех участвующих в объединении МСА.
         /// </summary>
-        /// <param name="k">Количество автоматов.</param>
-        /// <param name="n">Количество переменных, используемых для кодирования.</param>
-        /// <returns>Список строк с двоичными кодами для кодирования МСА.</returns>
-        private static List<string> GenerateBinaryCodes(int k, int n)
+        /// <param name="schemes">Список объединяемых МСА.</param>
+        /// <returns>Попарная матрица схожести МСА.</returns>
+        private static int[,] CalculateSimilarityMatrix(List<MatrixSchema> schemes)
         {
-            return Enumerable.Range(0, k)
-                .Select(i => Convert.ToString(i, 2).PadLeft(n, '0'))
-                .ToList();
+            int size = schemes.Count;
+            var matrix = new int[size, size];
+
+            for (int i = 0; i < size; i++)
+                for (int j = 0; j < size; j++)
+                    if (i != j)
+                        matrix[i, j] = schemes[i].CalculateSimilarity(schemes[j]);
+
+            return matrix;
+        }
+
+        /// <summary>
+        /// Оптимизирует порядок матриц для минимизации расстояний (для генерации кодов Грея) на основе их матрицы схожести.
+        /// </summary>
+        /// <param name="schemes">Список объединяемых МСА.</param>
+        /// <param name="similarityMatrix">Матрица смежности МСА.</param>
+        /// <returns>Список МСА в оптимальном порядке.</returns>
+        private static List<MatrixSchema> OptimizeOrder(List<MatrixSchema> schemes, int[,] similarityMatrix)
+        {
+            // Жадный алгоритм построения порядка
+            var ordered = new List<MatrixSchema> { schemes[0] };
+            var remaining = new List<MatrixSchema>(schemes.Skip(1));
+
+            while (remaining.Count > 0)
+            {
+                int lastIndex = schemes.IndexOf(ordered.Last());
+                var next = remaining
+                    .OrderByDescending(m => similarityMatrix[
+                        lastIndex,
+                        schemes.IndexOf(m)
+                    ])
+                    .First();
+
+                ordered.Add(next);
+                remaining.Remove(next);
+            }
+
+            return ordered;
+        }
+
+        /// <summary>
+        /// Генерирует коды Грея для <paramref name="count"/> автоматов.
+        /// </summary>
+        /// <param name="count">Количество автоматов.</param>
+        /// <param name="bits">Количество переменных, используемых для кодирования.</param>
+        /// <returns>Список строк с кодами Грея для кодирования МСА.</returns>
+        private static List<string> GenerateGrayCodes(int count, int bits)
+        {
+            var codes = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                int grayCode = i ^ (i >> 1);
+                codes.Add(Convert.ToString(grayCode, 2)
+                    .PadLeft(bits, '0')
+                    .Substring(0, bits));
+            }
+            return codes;
         }
 
         /// <summary>

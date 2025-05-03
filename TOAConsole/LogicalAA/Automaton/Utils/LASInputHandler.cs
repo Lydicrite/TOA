@@ -566,6 +566,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
 
             var merged = MASCombiner.PrepareForCombine(schemes);
             var combined = MASCombiner.CombineSchemas(merged, ref binaryCodes, ref varCodes, ref newVariables);
+            var similarityDict = MASCombiner.GetSimilarityDictionary(schemes);
 
             Console.ResetColor();
             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -573,7 +574,10 @@ namespace TOAConsole.LogicalAA.Automaton.Utils
                 (
                     $"\n►► В объединении участвуют {count} автомата, отсюда: " +
                     $"\n\t► достаточное количество новых переменных для объединения: {newVariables.Count} ◄" +
-                    $"\n\t► новые переменные: {string.Join(", ", newVariables)} ◄\n◄◄\n"
+                    $"\n\t► новые переменные: {string.Join(", ", newVariables)} ◄" +
+                    $"\n\t► коэффициенты схожести автоматов: " +
+                    $"\n\t\t{string.Join("\n\t\t", similarityDict.Select(p => $"{p.Key} = {p.Value}"))}" +
+                    $"\n\t◄\n◄◄\n"
                 );
 
             for (int i = 0; i < count; i++)

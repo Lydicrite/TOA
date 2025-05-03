@@ -6,10 +6,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using TOAConsole.LogicalExpressionParser.Utils;
-using TOAConsole.LogicalExpressionParser.Utils.Visitors;
+using TOAConsole.LogicalExpressionEngine.Utils;
+using TOAConsole.LogicalExpressionEngine.Utils.Visitors;
 
-namespace TOAConsole.LogicalExpressionParser
+namespace TOAConsole.LogicalExpressionEngine
 {
     internal sealed class LogicalExpression
     {

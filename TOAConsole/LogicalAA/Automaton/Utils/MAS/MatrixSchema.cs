@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TOAConsole.LogicalAA.Elements.Vertexes;
-using TOAConsole.LogicalExpressionParser;
+using TOAConsole.LogicalExpressionEngine;
 
 namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
 {
@@ -382,7 +382,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         #region Доступ к элементам
 
         /// <summary>
-        /// Индексатор для доступа к строкам матрицы (MASRow).
+        /// Получает строку матрицы (MASRow).
         /// </summary>
         /// <param name="rowIndex">Индекс искомого элемента.</param>
         /// <returns>Объект <see cref="MASRow"/>, расположенный по переданному индексу.</returns>
@@ -398,7 +398,7 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
         }
 
         /// <summary>
-        /// Индексатор для доступа к элементам матрицы (ячейкам).
+        /// Получает элемент матрицы (строку в ячейке).
         /// </summary>
         /// <param name="rowIndex">Индекс строки искомого элемента.</param>
         /// <param name="columnIndex">Индекс столбца искомого элемента.</param>
@@ -443,6 +443,128 @@ namespace TOAConsole.LogicalAA.Automaton.Utils.MAS
             }
 
             return column;
+        }
+
+        /// <summary>
+        /// Получает строку матрицы по её заголовку.
+        /// </summary>
+        /// <param name="rowHeader">Идентификатор строки (например "Y2").</param>
+        /// <returns>Объект MASRow или null, если строка не найдена.</returns>
+        public MASRow GetRow(string rowHeader)
+        {
+            int index = Headers.IndexOf(rowHeader);
+            if (index == -1) throw new KeyNotFoundException($"Строка с идентификатором '{rowHeader}' не найдена");
+            return Rows[index];
+        }
+
+        /// <summary>
+        /// Получает столбец матрицы по его заголовку.
+        /// </summary>
+        /// <param name="columnHeader">Идентификатор столбца (например "Yн").</param>
+        /// <returns>Список значений столбца или null, если столбец не найден.</returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        public List<string> GetColumn(string columnHeader)
+        {
+            int index = Headers.IndexOf(columnHeader);
+            if (index == -1) throw new KeyNotFoundException($"Столбец с идентификатором '{columnHeader}' не найдена");
+            return GetColumn(index);
+        }
+  
+        /// <summary>
+        /// Получает элемент матрицы (строку в ячейке).
+        /// </summary>
+        /// <param name="rowHeader">Заголовок строки искомого элемента.</param>
+        /// <param name="columnHeader">Заголовок столбца искомого элемента.</param>
+        /// <returns>Искомый элемент.</returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        public string GetCell(string rowHeader, string columnHeader)
+        {
+            int rowIndex = Headers.IndexOf(rowHeader);
+            int colIndex = Headers.IndexOf(columnHeader);
+
+            if (rowIndex == -1) throw new KeyNotFoundException($"Строка '{rowHeader}' не найдена");
+            if (colIndex == -1) throw new KeyNotFoundException($"Столбец '{columnHeader}' не найдена");
+
+            return Rows[rowIndex].Transitions[colIndex];
+        }
+
+        /// <summary>
+        /// Получает значение ячейки по строковым идентификаторам.
+        /// </summary>
+        /// <param name="rowHeader">Заголовок строки искомого элемента.</param>
+        /// <param name="columnHeader">Заголовок столбца искомого элемента.</param>
+        /// <returns>Искомый элемент.</returns>
+        public string this[string rowHeader, string columnHeader] => GetCell(rowHeader, columnHeader);
+
+        #endregion
+
+
+
+        #region Проверка схожести с другими МСА
+
+        /// <summary>
+        /// Вычисляет коэффициент схожести с другой матрицей.
+        /// </summary>
+        /// <param name="other">Другая матрица для сравнения.</param>
+        /// <returns>Количество совпадающих значимых ячеек.</returns>
+        public int CalculateSimilarity(MatrixSchema other)
+        {
+            int similarity = 0;
+            var allHeaders = this.Headers.Union(other.Headers).Distinct();
+            
+            foreach (var row in allHeaders)
+            {
+                foreach (var col in allHeaders)
+                {
+                    if (!IsValidCell(row, col)) continue;
+                    if (!other.IsValidCell(row, col)) continue;
+
+                    string thisCell = SafeGetCell(row, col);
+                    string otherCell = other.SafeGetCell(row, col);
+
+                    if (IsSignificantCell(thisCell) &&
+                        IsSignificantCell(otherCell) &&
+                        thisCell == otherCell)
+                    {
+                        similarity++;
+                    }
+                }
+            }
+
+            return similarity;
+        }
+
+        /// <summary>
+        /// Безопасно получает значения ячейки с перехватом исключений.
+        /// </summary>
+        /// <param name="row">Заголовок строки искомого элемента.</param>
+        /// <param name="col">Заголовок столбца искомого элемента.</param>
+        /// <returns>Искомый элемент.</returns>
+        private string SafeGetCell(string row, string col)
+        {
+            try { return GetCell(row, col); }
+            catch { return string.Empty; }
+        }
+
+        /// <summary>
+        /// Проверка существования строки и столбца в матрице.
+        /// </summary>
+        /// <param name="row">Заголовок строки искомого элемента.</param>
+        /// <param name="col">Заголовок столбца искомого элемента.</param>
+        /// <returns><see langword="true"/>, если искомая ячейка существует в матрице, иначе <see langword="false"/>.</returns>
+        private bool IsValidCell(string row, string col)
+            => Headers.Contains(row) && Headers.Contains(col);
+
+        /// <summary>
+        /// Проверка значимости ячейки.
+        /// </summary>
+        /// <param name="value">Содержимое ячейки.</param>
+        /// <returns><see langword="true"/>, если искомая ячейка является значимой, иначе <see langword="false"/>.</returns>
+        private static bool IsSignificantCell(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+            value = value.Trim();
+            return value != "0" && value != "1" && value != " ";
         }
 
         #endregion

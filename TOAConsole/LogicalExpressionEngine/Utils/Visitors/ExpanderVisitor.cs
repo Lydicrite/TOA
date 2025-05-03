@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
+namespace TOAConsole.LogicalExpressionEngine.Utils.Visitors
 {
     /// <summary>
     /// Посетитель, применяющий законы Де-Моргана и дистрибутивности для логических выражений.

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TOAConsole.LogicalExpressionParser.Utils.Visitors
+namespace TOAConsole.LogicalExpressionEngine.Utils.Visitors
 {
     /// <summary>
     /// Посетитель, строящий абстрактное синтаксическое дерево, используя классы <see cref="Expression"/> и <seealso cref="ParameterExpression"/>.
